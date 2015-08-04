@@ -7,7 +7,9 @@
     "multicast-dns": "~3.0.0",
     "es6-promise": "~2.3.0",
     "ip": "~0.3.3",
-    "lodash": "~3.10.1"
+    "lodash": "~3.10.1",
+    "faye-websocket": "~0.10.0",
+    "debug": "~2.2.0"
   },
   "devDependencies": {},
   "scripts": {

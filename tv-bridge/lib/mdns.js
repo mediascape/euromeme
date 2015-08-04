@@ -1,6 +1,7 @@
 var multicastDNS = require('multicast-dns'),
     os      = require('os'),
     ip      = require('ip'),
+    debug   = require('debug')('mdns'),
     partial = require('lodash/function/partial'),
     times   = require('lodash/utility/times'),
     values  = require('lodash/object/values'),
@@ -67,7 +68,7 @@ function getIps() {
 
   TODO: Create ipv6 AAAA record
 */
-function createRecords(ipv4, config) {
+function createRecords(config, ipv4) {
   var domain          = 'local',
       serviceType     = '_mediascape-http._tcp.' + domain,
       hostname        = os.hostname(),
@@ -82,7 +83,7 @@ function createRecords(ipv4, config) {
   records.txt  = { type: 'TXT', name: serviceInstance, ttl: 75 * 60, data: '' };
   records.a    = { type: 'A',   name: hostname, ttl: 120,            data: ipv4 };
 
-  console.log('created records', records);
+  debug('created records', records);
 
   return records;
 }
@@ -129,11 +130,11 @@ function createAnswerResponderWithDelay(mdns, answers) {
 
 function listenForQueries(mdns, records) {
   mdns.on('query', function(query) {
-    console.log('Got a query packet with questions:', query.questions.length);
+    debug('Got a query packet with questions:', query.questions.length);
     query.questions.forEach(function (qn) {
       var response;
 
-      console.log('Question: ', qn);
+      debug('Question: ', qn);
 
       if (qn.type === 'PTR' && qn.name === records.ptr.name) {
         response = {
@@ -157,7 +158,7 @@ function listenForQueries(mdns, records) {
       // TODO: Respond to A and AAAA questions
 
       if (response) {
-        console.log('Sending response', response);
+        debug('Sending response', response);
         mdns.respond(response);
       }
     });
