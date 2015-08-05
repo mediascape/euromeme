@@ -1,0 +1,15 @@
+.centered-view.is-active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
+.centered-view.is-inactive {
+  display: none;
+}
+
+.centered-view-inner {
+  display: block;
+}

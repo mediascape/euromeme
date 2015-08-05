@@ -1,6 +1,6 @@
 var React = require('react');
 
-var Loader = require('./loader'),
+var LoaderView = require('./loader-view'),
     Grid   = require('./grid'),
     configApi = require('../api/config'),
     clipsApi  = require('../api/clips');
@@ -42,7 +42,7 @@ module.exports = React.createClass({
           clips={this.state.clips} />;
     }
     return (<div>
-      <Loader isActive={this.state.isLoading} />
+      <LoaderView isActive={this.state.isLoading} />
       { grid }
     </div>);
   }

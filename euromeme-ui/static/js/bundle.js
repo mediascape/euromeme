@@ -22999,7 +22999,7 @@ React.render(React.createElement(Container, null), document.querySelector('#app-
 
 var React = require('react');
 
-var Loader = require('./loader'),
+var LoaderView = require('./loader-view'),
     Grid = require('./grid'),
     configApi = require('../api/config'),
     clipsApi = require('../api/clips');
@@ -23044,13 +23044,13 @@ module.exports = React.createClass({
     return React.createElement(
       'div',
       null,
-      React.createElement(Loader, { isActive: this.state.isLoading }),
+      React.createElement(LoaderView, { isActive: this.state.isLoading }),
       grid
     );
   }
 });
 
-},{"../api/clips":208,"../api/config":209,"./grid":212,"./loader":214,"react":207}],212:[function(require,module,exports){
+},{"../api/clips":208,"../api/config":209,"./grid":212,"./loader-view":214,"react":207}],212:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23130,14 +23130,14 @@ module.exports = React.createClass({
   displayName: 'exports',
 
   render: function render() {
-    var className = 'fullscreen loader';
+    var className = 'fullscreen centered-view';
     className += this.props.isActive ? ' is-active' : ' is-inactive';
     return React.createElement(
       'div',
       { className: className },
       React.createElement(
         'span',
-        { className: 'loader-message' },
+        { className: 'centered-view-inner' },
         'Loading…'
       )
     );
