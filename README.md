@@ -10,6 +10,8 @@ This repo contains the Euromeme applications. Each sub-application is contained 
 
 Static assets for the Euromeme mobile web app.
 
+The assets are precompiled from `src` into `static` by running `npm run build`. The precompiled assets should be committed to the repository.
+
 ## tv-bridge
 
 A node.js application that:
