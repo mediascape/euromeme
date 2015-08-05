@@ -21406,7 +21406,7 @@ module.exports = React.createClass({
       return React.createElement(
         'li',
         { key: index, className: 'grid-item grid-item-clip' },
-        clip
+        clip + 1
       );
     });
   },
