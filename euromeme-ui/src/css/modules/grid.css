@@ -6,6 +6,12 @@
 }
 
 .grid-list {
+  display: flex; /* or inline-flex */
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: flex-start;
+
   list-style: none;
   margin: 0;
   padding: 0;
@@ -16,10 +22,19 @@
   width: 320px;
   height: 180px;
 
+  flex-grow: 0;
+
   outline: 1px solid #eee;
 }
 
+.grid-item:last-child {
+  margin-top: -180px;
+}
+
 .grid-item-live {
+  flex-grow: 0;
+  align-self: flex-end;
+
   width: 640px;
   height: 360px;
 }
