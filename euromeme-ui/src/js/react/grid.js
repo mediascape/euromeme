@@ -1,13 +1,14 @@
 var React = require('react'),
     fill  = require('lodash/array/fill');
 
-var LiveTile = require('./live-tile');
+var LiveTile = require('./live-tile'),
+    ImageLoader = require('./image-loader');
 
 module.exports = React.createClass({
   clips: function () {
     return this.props.clips.map(function (clip, index) {
       return <li key={index} className="grid-item grid-item-clip">
-        <img src={clip.poster} />
+        <ImageLoader src={clip.poster} />
       </li>;
     });
   },

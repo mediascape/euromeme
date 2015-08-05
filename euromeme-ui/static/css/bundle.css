@@ -52,6 +52,7 @@ body {
           animation: load7 1.8s infinite ease-in-out;
 }
 .loader {
+  display: block;
   position: relative;
   font-size: 10px;
   margin: 80px auto;
@@ -79,20 +80,20 @@ body {
   0%,
   80%,
   100% {
-    box-shadow: 0 2.5em 0 -1.3em #f00;
+    box-shadow: 0 2.5em 0 -1.3em #ddd;
   }
   40% {
-    box-shadow: 0 2.5em 0 0 #f00;
+    box-shadow: 0 2.5em 0 0 #ddd;
   }
 }
 @keyframes load7 {
   0%,
   80%,
   100% {
-    box-shadow: 0 2.5em 0 -1.3em #f00;
+    box-shadow: 0 2.5em 0 -1.3em #ddd;
   }
   40% {
-    box-shadow: 0 2.5em 0 0 #f00;
+    box-shadow: 0 2.5em 0 0 #ddd;
   }
 }
 .grid-hd {
