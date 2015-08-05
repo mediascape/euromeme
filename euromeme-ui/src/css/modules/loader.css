@@ -1,7 +1,15 @@
 .loader.is-active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
 }
 
 .loader.is-inactive {
   display: none;
+}
+
+.loader-message {
+  display: block;
 }

@@ -23135,7 +23135,11 @@ module.exports = React.createClass({
     return React.createElement(
       'div',
       { className: className },
-      'Loading &ellip;'
+      React.createElement(
+        'span',
+        { className: 'loader-message' },
+        'Loading…'
+      )
     );
   }
 });

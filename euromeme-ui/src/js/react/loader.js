@@ -5,7 +5,7 @@ module.exports = React.createClass({
     var className = 'fullscreen loader';
     className += this.props.isActive ? ' is-active' : ' is-inactive';
     return (<div className={className}>
-      Loading &ellip;
+      <span className="loader-message">Loading&hellip;</span>
     </div>);
   }
 });
