@@ -21676,12 +21676,12 @@ module.exports = React.createClass({
 });
 
 },{"./live-tile":175,"lodash/array/fill":5,"react":171}],175:[function(require,module,exports){
-'use strict';
+"use strict";
 
 var React = require('react');
 
 module.exports = React.createClass({
-  displayName: 'exports',
+  displayName: "exports",
 
   handleTileSelection: function handleTileSelection() {
     var $video = React.findDOMNode(this);
@@ -21689,9 +21689,14 @@ module.exports = React.createClass({
   },
   render: function render() {
     return React.createElement(
-      'video',
-      { onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
-      ' '
+      "div",
+      { className: "live-tile" },
+      React.createElement("i", { className: "live-tile-icon" }),
+      React.createElement(
+        "video",
+        { onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
+        " "
+      )
     );
   }
 });

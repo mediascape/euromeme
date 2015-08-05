@@ -1,0 +1,25 @@
+.live-tile {
+  position: relative;
+}
+
+.live-tile-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  padding: 0.2rem 0.3rem;
+  margin: 0.5rem;
+
+  color: #fff;
+  background-color: #f00;
+
+  font-family: sans-serif;
+  font-weight: bold;
+  font-style: normal;
+
+  text-transform: uppercase;
+}
+
+.live-tile-icon:after {
+  content: 'LIVE';
+}

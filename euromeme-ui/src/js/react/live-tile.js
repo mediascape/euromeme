@@ -6,6 +6,11 @@ module.exports = React.createClass({
     $video.paused ? $video.play() : $video.pause();
   },
   render: function() {
-    return <video onClick={this.handleTileSelection} autoPlay src={this.props.src}> </video>;
+    return (
+      <div className="live-tile">
+        <i className="live-tile-icon"></i>
+        <video onClick={this.handleTileSelection} autoPlay src={this.props.src}> </video>
+      </div>
+    );
   }
 });
