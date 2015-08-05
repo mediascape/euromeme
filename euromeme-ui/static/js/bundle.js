@@ -23346,7 +23346,7 @@ module.exports = React.createClass({
       { className: className },
       React.createElement(
         'span',
-        { className: 'centered-view-inner' },
+        { className: 'centered-view-inner loader' },
         'Loading…'
       )
     );
