@@ -23313,7 +23313,7 @@ module.exports = React.createClass({
   displayName: "exports",
 
   handleTileSelection: function handleTileSelection() {
-    var $video = React.findDOMNode(this);
+    var $video = this.refs.video.getDOMNode();
     $video.paused ? $video.play() : $video.pause();
   },
   render: function render() {
@@ -23323,7 +23323,7 @@ module.exports = React.createClass({
       React.createElement("i", { className: "live-tile-icon" }),
       React.createElement(
         "video",
-        { onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
+        { ref: "video", onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
         " "
       )
     );
