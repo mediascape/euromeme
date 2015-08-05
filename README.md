@@ -12,6 +12,10 @@ Static assets for the Euromeme mobile web app.
 
 The assets are precompiled from `src` into `static` by running `npm run build`. The precompiled assets should be committed to the repository.
 
+## media-api
+
+A set of scripts that provide HTTP access to Euromeme streaming media.
+
 ## tv-bridge
 
 A node.js application that:
