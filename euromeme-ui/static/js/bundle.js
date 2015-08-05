@@ -23275,12 +23275,22 @@ var React = require('react'),
 module.exports = React.createClass({
   displayName: 'exports',
 
+  getInitialState: function getInitialState() {
+    return {
+      className: 'pre-image-load'
+    };
+  },
   preloader: function preloader() {
     var loaderStyle = { fontSize: '3px' };
     return React.createElement('span', { className: 'loader', style: loaderStyle });
   },
   handleLoad: function handleLoad(evt) {
-    console.log('load', evt, this);
+    // Clear pre-image-load class name
+    // with a timeout to give CSS transition
+    // time to fade the image in
+    setTimeout((function () {
+      this.setState({ className: '' });
+    }).bind(this), 100);
   },
   handleError: function handleError(evt) {
     console.log('error', evt, this);
@@ -23288,7 +23298,7 @@ module.exports = React.createClass({
   render: function render() {
     return React.createElement(
       ImageLoader,
-      { src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
+      { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
       'Clip load failed!'
     );
   }

@@ -143,6 +143,16 @@ body {
   outline: 1px solid #eee;
 }
 
+.grid-item .imageloader img {
+  opacity: 1;
+  -webkit-transition: opacity 0.5s;
+          transition: opacity 0.5s;
+}
+
+.grid-item .imageloader.pre-image-load img {
+  opacity: 0;
+}
+
 .grid-item-live video {
   width: 100%;
   height: 100%;
