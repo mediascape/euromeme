@@ -21602,7 +21602,7 @@ module.exports = React.createClass({
     this.setState({
       isLoading: false,
       videoUrl: config.videoUrl,
-      clips: times(5, identity)
+      clips: times(8, identity)
     });
   },
   componentDidMount: function componentDidMount() {
@@ -21654,9 +21654,7 @@ module.exports = React.createClass({
       { key: 'live', className: 'grid-item grid-item-live' },
       React.createElement(LiveTile, { src: this.props.videoUrl })
     ),
-        clips = this.clips();
-
-    clips.splice(clips.length - 1, 0, live);
+        clips = this.clips().concat(live);
 
     return React.createElement(
       'div',

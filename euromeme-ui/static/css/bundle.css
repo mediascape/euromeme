@@ -64,23 +64,6 @@ body {
   outline: 1px solid #eee;
 }
 
-.grid-item:last-child {
-  margin-top: -180px;
-}
-
-.grid-item-live {
-  -webkit-box-flex: 0;
-  -webkit-flex-grow: 0;
-      -ms-flex-positive: 0;
-          flex-grow: 0;
-  -webkit-align-self: flex-end;
-      -ms-flex-item-align: end;
-          align-self: flex-end;
-
-  width: 640px;
-  height: 360px;
-}
-
 .grid-item-live video {
   width: 100%;
   height: 100%;

@@ -33,7 +33,7 @@ module.exports = React.createClass({
     this.setState({
       isLoading: false,
       videoUrl: config.videoUrl,
-      clips: times(5, identity)
+      clips: times(8, identity)
     });
   },
   componentDidMount: function () {
