@@ -22951,7 +22951,7 @@ var fetch = require('../util/fetch'),
     identity = require('lodash/utility/identity');
 
 function randMin() {
-  return random(0, 59).toString();
+  return random(10, 59).toString();
 }
 
 function fakeClip(tmpl, callCount) {
