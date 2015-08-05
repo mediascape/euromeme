@@ -1,0 +1,7 @@
+.loader.is-active {
+  display: block;
+}
+
+.loader.is-inactive {
+  display: none;
+}

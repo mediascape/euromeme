@@ -1,0 +1,47 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.fullscreen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.loader.is-active {
+  display: block;
+}
+
+.loader.is-inactive {
+  display: none;
+}
+.grid-hd {
+  margin: 0;
+  padding: 0;
+}
+
+.grid-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.grid-item {
+  display: inline-block;
+  width: 320px;
+  height: 180px;
+
+  outline: 1px solid #eee;
+}
+
+.grid-item-live {
+  width: 640px;
+  height: 360px;
+}
+
+.grid-item-live video {
+  width: 100%;
+  height: 100%;
+}
