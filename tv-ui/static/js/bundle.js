@@ -1429,17 +1429,29 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":8}],6:[function(require,module,exports){
+},{"../util/fetch":9}],6:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./api/config.js');
+var Sync = require('./sync.js');
 var ws = require('./relay.js');
 
-configApi.config().then(function (config) {
-  console.log("config:", config);
+function initVideoSync(config) {
+  var video = document.getElementById('video');
+  video.src = config.videoUrl;
+
+  return Sync.init(video, config.appId, config.msvName, { debug: true });
+}
+
+configApi.config().then(initVideoSync).then(function (sync) {
+  console.log(sync);
+  // Start video from the beginning.
+  sync.restart();
+}, function (error) {
+  console.error(error);
 });
 
-},{"./api/config.js":5,"./relay.js":7}],7:[function(require,module,exports){
+},{"./api/config.js":5,"./relay.js":7,"./sync.js":8}],7:[function(require,module,exports){
 'use strict';
 
 var ws = new WebSocket('ws://localhost:5001/relay');
@@ -1457,6 +1469,74 @@ ws.addEventListener('error', function (err) {
 module.exports = ws;
 
 },{}],8:[function(require,module,exports){
+'use strict';
+
+var Promise = require('es6-promise').Promise;
+
+/**
+ * Simple wrapper for a MediaScape shared motion object (Media State Vector)
+ * @class
+ */
+
+function Sync(msv) {
+  this._msv = msv;
+}
+
+Sync.prototype.restart = function () {
+  this._msv.update(0, 1);
+};
+
+Sync.prototype.play = function () {
+  this._msv.update(null, 1);
+};
+
+Sync.prototype.pause = function () {
+  this._msv.update(null, 0);
+};
+
+/**
+ * Initialises synchronisation between an HTML media element and a
+ * MediaScape shared motion.
+ *
+ * @param {HTMLMediaElement} mediaElement A video or audio HTML element.
+ * @param {string} appId Application ID, for accessing the MCorp APIs.
+ * @param {string} msvName The name of the MediaScape shared motion to use.
+ * @param {Object} options Optional options object.
+ * @param {Boolean} options.debug If true, write debug output to the console.
+ */
+
+function init(mediaElement, appId, msvName, options) {
+  options = options || {};
+
+  return new Promise(function (resolve, reject) {
+    var sync = new Sync(appId, msvName);
+    var app = MCorp.app(appId, { anon: true });
+
+    app.run = function () {
+      var msv = app.msvs[msvName];
+      var mediaSyncOptions = {};
+
+      if (!msv) {
+        reject(new Error('Sync initialisation failed, unknown MSV: ' + msvName));
+        return;
+      }
+
+      if (options.debug === true) {
+        mediaSyncOptions.debug = true;
+      }
+
+      app.sync = mediascape.mediaSync(mediaElement, msv, mediaSyncOptions);
+
+      resolve(new Sync(msv));
+    };
+
+    app.init();
+  });
+}
+
+module.exports = { init: init };
+
+},{"es6-promise":2}],9:[function(require,module,exports){
 // For fetch
 'use strict';
 
