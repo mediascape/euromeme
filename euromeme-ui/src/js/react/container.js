@@ -3,7 +3,8 @@ var React = require('react');
 var LoaderView = require('./loader-view'),
     Grid   = require('./grid'),
     configApi = require('../api/config'),
-    clipsApi  = require('../api/clips');
+    clipsApi  = require('../api/clips'),
+    fullscreen= require('../util/fullscreen');
 
 module.exports = React.createClass({
   getInitialState: function() {
@@ -34,6 +35,10 @@ module.exports = React.createClass({
       })
       .then(this.initWithConfig, function (err) { console.error(err); });
   },
+  handleViewSelection: function () {
+    console.log('Container.handleViewSelection');
+    fullscreen.enter();
+  },
   render: function() {
     var grid = '';
     if (!this.state.isLoading) {
@@ -41,7 +46,7 @@ module.exports = React.createClass({
           videoUrl={this.state.videoUrl}
           clips={this.state.clips} />;
     }
-    return (<div>
+    return (<div onClick={this.handleViewSelection}>
       <LoaderView isActive={this.state.isLoading} />
       { grid }
     </div>);

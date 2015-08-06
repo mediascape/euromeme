@@ -23172,7 +23172,8 @@ var React = require('react');
 var LoaderView = require('./loader-view'),
     Grid = require('./grid'),
     configApi = require('../api/config'),
-    clipsApi = require('../api/clips');
+    clipsApi = require('../api/clips'),
+    fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
   displayName: 'exports',
@@ -23204,6 +23205,10 @@ module.exports = React.createClass({
       console.error(err);
     });
   },
+  handleViewSelection: function handleViewSelection() {
+    console.log('Container.handleViewSelection');
+    fullscreen.enter();
+  },
   render: function render() {
     var grid = '';
     if (!this.state.isLoading) {
@@ -23213,14 +23218,14 @@ module.exports = React.createClass({
     }
     return React.createElement(
       'div',
-      null,
+      { onClick: this.handleViewSelection },
       React.createElement(LoaderView, { isActive: this.state.isLoading }),
       grid
     );
   }
 });
 
-},{"../api/clips":209,"../api/config":210,"./grid":213,"./loader-view":216,"react":208}],213:[function(require,module,exports){
+},{"../api/clips":209,"../api/config":210,"../util/fullscreen":218,"./grid":213,"./loader-view":216,"react":208}],213:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23360,5 +23365,22 @@ module.exports = React.createClass({
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}]},{},[211])
+},{"es6-promise":2,"isomorphic-fetch":3}],218:[function(require,module,exports){
+'use strict';
+
+function enterFullScreenMethod() {
+  return ['webkitRequestFullscreen', 'webkitRequestFullScreen', 'mozRequestFullScreen', 'msRequestFullscreen', 'requestFullscreen'].reduce(function (last, current) {
+    return current in document.body ? current : last;
+  });
+}
+
+module.exports = {
+  enter: function enter(el) {
+    el = el || document.body;
+    var enterFullScreenMethodName = enterFullScreenMethod();
+    el[enterFullScreenMethodName]();
+  }
+};
+
+},{}]},{},[211])
 //# sourceMappingURL=bundle.js.map
