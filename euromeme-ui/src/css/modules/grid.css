@@ -1,8 +1,18 @@
 
 
 .grid-hd {
+  position: absolute;
+  top : 0.5rem;
+  left: 0.5rem;
+
   margin: 0;
   padding: 0;
+
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: normal;
+  color: #fff;
+  text-shadow: 0 0 5px #333;
 }
 
 .grid-list {
