@@ -1,0 +1,5 @@
+{
+  "appId": "your.app.id",
+  "msvName": "your.msv.name",
+  "videoUrl": "http://path.to.media/video.mp4"
+}

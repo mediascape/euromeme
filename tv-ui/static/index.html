@@ -2,13 +2,14 @@
 <html>
   <head>
     <title>TV</title>
+    <link rel="stylesheet" href="css/bundle.css">
   </head>
   <body>
-    <script>
-      var ws = new WebSocket('ws://localhost:5001/relay');
-      ws.addEventListener('open',    function ()    { console.log('Websocket open'); });
-      ws.addEventListener('message', function (evt) { console.info('message', evt); });
-      ws.addEventListener('error',   function (err) { console.error('Websocket error', err.stack); });
-    </script>
+    <video id="video">
+      Your browser does not support HTML5 video.
+    </video>
   </body>
+  <script type="text/javascript" src="http://mcorp.no/lib/mcorp-2.0.js"></script>
+  <script type="text/javascript" src="js/mediascape/mediasync.js"></script>
+  <script type="text/javascript" src="js/bundle.js"></script>
 </html>
