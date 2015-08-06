@@ -1,6 +1,7 @@
 var WebSocket = require('faye-websocket'),
     http      = require('http'),
-    reject    = require('lodash/collection/reject');
+    reject    = require('lodash/collection/reject'),
+    without   = require('lodash/array/without');
 
 module.exports = function (config) {
   var server = http.createServer(),
