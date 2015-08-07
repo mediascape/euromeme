@@ -36,7 +36,6 @@ function init(mediaElement, appId, msvName, options) {
   options = options || {};
 
   return new Promise(function(resolve, reject) {
-    var sync = new Sync(appId, msvName);
     var app = MCorp.app(appId, { anon: true });
 
     app.run = function() {
