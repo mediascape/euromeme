@@ -1,7 +1,4 @@
-var React = require('react'),
-    after = require('lodash/function/after'),
-    debounce = require('lodash/function/debounce'),
-    throttle = require('lodash/function/throttle');
+var React = require('react');
 
 var LoaderView = require('./loader-view'),
     Grid   = require('./grid'),

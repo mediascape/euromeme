@@ -2,8 +2,7 @@ var fetch = require('../util/fetch'),
     Promise = require('es6-promise').Promise,
     times = require('lodash/utility/times'),
     partial = require('lodash/function/partial'),
-    random = require('lodash/number/random'),
-    identity = require('lodash/utility/identity');
+    random = require('lodash/number/random');
 
 function randMin() {
   return random(10, 59).toString();
