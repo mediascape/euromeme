@@ -17,7 +17,7 @@ module.exports = React.createClass({
         clips = this.clips().concat(live);
 
     return <div className="grid">
-      <h2 className="grid-hd">Most popular clips</h2>
+      <h2 className="grid-hd">Most recent clips</h2>
       <ul className="grid-list">
         { clips }
       </ul>

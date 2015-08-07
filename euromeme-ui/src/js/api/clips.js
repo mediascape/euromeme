@@ -14,9 +14,19 @@ function fakeClip(tmpl, callCount) {
   };
 }
 
+/*
+  Creates an instance that connects to the Clips API.
+  params:
+    frameStoreTemplate <String> Template to retrieve a single image
+*/
 module.exports = function (frameStoreTemplate) {
   return {
-    popular: function () {
+    /*
+      recent()
+      Retrieves the most recent clips from the clip server
+      Returns: <Promise> Resolves: array of clips
+    */
+    recent: function () {
       return Promise.resolve( times(8, partial(fakeClip, frameStoreTemplate) ) );
     }
   };

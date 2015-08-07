@@ -45,7 +45,7 @@ module.exports = React.createClass({
   initWithDeviceStatus: function (deviceStatus) {
     console.log('initWithDeviceStatus', deviceStatus);
     clipsApi(this.state.config.frameStore)
-      .popular()
+      .recent()
       .then(function (clips) {
         console.log(' clips', clips);
         this.setState({

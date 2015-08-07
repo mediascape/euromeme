@@ -23129,9 +23129,19 @@ function fakeClip(tmpl, callCount) {
   };
 }
 
+/*
+  Creates an instance that connects to the Clips API.
+  params:
+    frameStoreTemplate <String> Template to retrieve a single image
+*/
 module.exports = function (frameStoreTemplate) {
   return {
-    popular: function popular() {
+    /*
+      recent()
+      Retrieves the most recent clips from the clip server
+      Returns: <Promise> Resolves: array of clips
+    */
+    recent: function recent() {
       return Promise.resolve(times(8, partial(fakeClip, frameStoreTemplate)));
     }
   };
@@ -23248,7 +23258,7 @@ module.exports = React.createClass({
   },
   initWithDeviceStatus: function initWithDeviceStatus(deviceStatus) {
     console.log('initWithDeviceStatus', deviceStatus);
-    clipsApi(this.state.config.frameStore).popular().then((function (clips) {
+    clipsApi(this.state.config.frameStore).recent().then((function (clips) {
       console.log(' clips', clips);
       this.setState({
         videoUrl: deviceStatus.videoUrl,
@@ -23412,7 +23422,7 @@ module.exports = React.createClass({
       React.createElement(
         'h2',
         { className: 'grid-hd' },
-        'Most popular clips'
+        'Most recent clips'
       ),
       React.createElement(
         'ul',
