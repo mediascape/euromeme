@@ -13,3 +13,9 @@
 .centered-view-inner {
   display: block;
 }
+
+.centered-view-message {
+  display: inline-block;
+  font-size: 2rem;
+  color: #999;
+}

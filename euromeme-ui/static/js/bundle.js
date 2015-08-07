@@ -23137,7 +23137,7 @@ module.exports = function (frameStoreTemplate) {
   };
 };
 
-},{"../util/fetch":217,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
+},{"../util/fetch":218,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23154,7 +23154,16 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":217}],211:[function(require,module,exports){
+},{"../util/fetch":218}],211:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  discover: function discover() {
+    return Promise.resolve([{ name: 'Living room TV' }, { name: 'Kitchen TV' }]);
+  }
+};
+
+},{}],212:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23164,7 +23173,7 @@ var Container = require('./react/container.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Container, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":212,"react":208}],212:[function(require,module,exports){
+},{"./react/container.js":213,"react":208}],213:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23173,24 +23182,32 @@ var LoaderView = require('./loader-view'),
     Grid = require('./grid'),
     configApi = require('../api/config'),
     clipsApi = require('../api/clips'),
+    discoveryApi = require('../api/discovery'),
     fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
   displayName: 'exports',
 
+  views: {
+    'init': 'init',
+    'grid': 'grid'
+  },
   getInitialState: function getInitialState() {
     return {
-      isLoading: true,
+      viewName: this.views.init,
       videoUrl: null,
       clips: []
     };
+  },
+  initView: function initView(viewName) {
+    this.setState({ viewName: viewName });
   },
   initWithConfig: function initWithConfig(data) {
     var config = data[0],
         clips = data[1];
     console.log('initWithConfig', config, clips);
     this.setState({
-      isLoading: false,
+      viewName: this.views.grid,
       videoUrl: config.videoUrl,
       clips: clips
     });
@@ -23227,22 +23244,35 @@ module.exports = React.createClass({
     }
   },
   render: function render() {
-    var grid = '';
-    if (!this.state.isLoading) {
-      grid = React.createElement(Grid, {
-        videoUrl: this.state.videoUrl,
-        clips: this.state.clips });
+    var grid = '',
+        loadingMessage,
+        view;
+
+    switch (this.state.viewName) {
+      case this.views.init:
+        loadingMessage = 'Initialising';
+        break;
     }
+
+    if (loadingMessage) {
+      view = React.createElement(
+        LoaderView,
+        { isActive: 'true' },
+        loadingMessage
+      );
+    } else {
+      view = React.createElement(Grid, { videoUrl: this.state.videoUrl, clips: this.state.clips });
+    }
+
     return React.createElement(
       'div',
       { onTouchStart: this.captureTap, onDoubleClick: this.handleViewSelection },
-      React.createElement(LoaderView, { isActive: this.state.isLoading }),
-      grid
+      view
     );
   }
 });
 
-},{"../api/clips":209,"../api/config":210,"../util/fullscreen":218,"./grid":213,"./loader-view":216,"react":208}],213:[function(require,module,exports){
+},{"../api/clips":209,"../api/config":210,"../api/discovery":211,"../util/fullscreen":219,"./grid":214,"./loader-view":217,"react":208}],214:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23288,7 +23318,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./image-loader":214,"./live-tile":215,"lodash/array/fill":5,"react":208}],214:[function(require,module,exports){
+},{"./image-loader":215,"./live-tile":216,"lodash/array/fill":5,"react":208}],215:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23326,7 +23356,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208,"react-imageloader":53}],215:[function(require,module,exports){
+},{"react":208,"react-imageloader":53}],216:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -23352,7 +23382,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208}],216:[function(require,module,exports){
+},{"react":208}],217:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23368,21 +23398,26 @@ module.exports = React.createClass({
       { className: className },
       React.createElement(
         'span',
+        { className: 'centered-view-message' },
+        this.props.children
+      ),
+      React.createElement(
+        'span',
         { className: 'centered-view-inner loader' },
-        'Loading…'
+        '…'
       )
     );
   }
 });
 
-},{"react":208}],217:[function(require,module,exports){
+},{"react":208}],218:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],218:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],219:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -23399,5 +23434,5 @@ module.exports = {
   }
 };
 
-},{}]},{},[211])
+},{}]},{},[212])
 //# sourceMappingURL=bundle.js.map

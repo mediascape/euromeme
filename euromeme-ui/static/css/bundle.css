@@ -40,6 +40,12 @@ body {
 .centered-view-inner {
   display: block;
 }
+
+.centered-view-message {
+  display: inline-block;
+  font-size: 2rem;
+  color: #999;
+}
 .loader:before,
 .loader:after,
 .loader {
@@ -55,7 +61,7 @@ body {
   display: block;
   position: relative;
   font-size: 10px;
-  margin: 80px auto;
+  /*margin: 80px auto;*/
   text-indent: -9999em;
   -webkit-transform: translateZ(0);
           transform: translateZ(0);

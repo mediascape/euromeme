@@ -4,22 +4,30 @@ var LoaderView = require('./loader-view'),
     Grid   = require('./grid'),
     configApi = require('../api/config'),
     clipsApi  = require('../api/clips'),
+    discoveryApi = require('../api/discovery'),
     fullscreen= require('../util/fullscreen');
 
 module.exports = React.createClass({
+  views: {
+    'init': 'init',
+    'grid': 'grid'
+  },
   getInitialState: function() {
     return {
-      isLoading: true,
+      viewName: this.views.init,
       videoUrl: null,
       clips: []
     };
+  },
+  initView: function (viewName) {
+    this.setState({ viewName: viewName });
   },
   initWithConfig: function (data) {
     var config = data[0],
         clips  = data[1];
     console.log('initWithConfig', config, clips);
     this.setState({
-      isLoading: false,
+      viewName: this.views.grid,
       videoUrl: config.videoUrl,
       clips: clips
     });
@@ -57,15 +65,29 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var grid = '';
-    if (!this.state.isLoading) {
-      grid = <Grid
-          videoUrl={this.state.videoUrl}
-          clips={this.state.clips} />;
+    var grid = '',
+        loadingMessage,
+        view;
+
+    switch(this.state.viewName) {
+      case this.views.init:
+        loadingMessage = 'Initialising';
+        break;
     }
-    return (<div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
-      <LoaderView isActive={this.state.isLoading} />
-      { grid }
+
+    if (loadingMessage) {
+      view = (
+        <LoaderView isActive='true'>
+          {loadingMessage}
+        </LoaderView>
+      );
+    } else {
+      view = <Grid videoUrl={this.state.videoUrl} clips={this.state.clips} />;
+    }
+
+    return (
+      <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
+      { view }
     </div>);
   }
 });
