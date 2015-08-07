@@ -23130,8 +23130,10 @@ function fakeClip(tmpl, callCount) {
 }
 
 /*
+  constructor
   Creates an instance that connects to the Clips API.
-  params:
+
+  Params:
     frameStoreTemplate <String> Template to retrieve a single image
 */
 module.exports = function (frameStoreTemplate) {
@@ -23139,7 +23141,8 @@ module.exports = function (frameStoreTemplate) {
     /*
       recent()
       Retrieves the most recent clips from the clip server
-      Returns: <Promise> Resolves: array of clips
+       Returns: <Promise>
+        Resolves: array of clips
     */
     recent: function recent() {
       return Promise.resolve(times(8, partial(fakeClip, frameStoreTemplate)));
@@ -23153,6 +23156,14 @@ module.exports = function (frameStoreTemplate) {
 var fetch = require('../util/fetch');
 
 module.exports = {
+  /*
+    config()
+    Fetches application config from a remote endpoint.
+    The endpoint is /config.json
+    Returns <Promise>
+      Resolves: Parsed JSON object from server
+      Rejects: Error message
+  */
   config: function config() {
     return fetch('/config.json').then(function (response) {
       if (response.status >= 400) {
@@ -23170,11 +23181,29 @@ module.exports = {
 var fetch = require('../util/fetch');
 
 module.exports = {
+  /*
+    connect()
+    Connects to a remote device.
+     Params:
+      info <Object>
+      info.ip   <String> IP address of device
+      info.port <String> Port of device
+      info.name <String> Human-readable name of device
+    Returns: <Object>
+      instance of API object connect to remote device
+  */
   connect: function connect(info) {
     return {
       ip: info.ip,
       port: info.port,
       name: info.name,
+      /*
+        status()
+        Get status of connected device.
+         Returns: <Promise>
+          Resolves <Object> status info
+            status.videoUrl - current playing video URL
+      */
       status: function status() {
         return fetch('/config.json').then(function (response) {
           return response.json();
@@ -23192,6 +23221,15 @@ module.exports = {
 'use strict';
 
 module.exports = {
+  /*
+    discover()
+    Discover available devices on the local network
+     Returns: <Promise>
+      Resolves: <Array> of items representing discovered devices
+        name: display name of device
+        ip  : IP address of device
+        port: port API is available on
+  */
   discover: function discover() {
     return Promise.resolve([{ name: 'Living room TV', ip: '192.168.0.1', port: '5001' }, { name: 'Kitchen TV', ip: '192.168.0.1', port: '5001' }]);
   }
