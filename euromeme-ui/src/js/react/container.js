@@ -1,4 +1,7 @@
-var React = require('react');
+var React = require('react'),
+    after = require('lodash/function/after'),
+    debounce = require('lodash/function/debounce'),
+    throttle = require('lodash/function/throttle');
 
 var LoaderView = require('./loader-view'),
     Grid   = require('./grid'),
@@ -27,6 +30,11 @@ module.exports = React.createClass({
   componentDidMount: function () {
     console.log('Load clips from remote API');
     console.log('Load sync + video data from TV');
+
+    // Instance variables for doubletaps
+    this.tapCount = 0;
+    this.tapInterval = null;
+
     configApi
       .config()
       .then(function (config) {
@@ -39,6 +47,18 @@ module.exports = React.createClass({
     console.log('Container.handleViewSelection');
     fullscreen.enter();
   },
+  captureTap: function () {
+    this.tapCount++;
+    if (this.tapCount === 2) {
+      this.handleViewSelection();
+      this.tapCount = 0;
+      clearTimeout(this.tapInterval);
+    } else {
+      setTimeout(function () {
+        this.tapCount = 0;
+      }.bind(this), 500);
+    }
+  },
   render: function() {
     var grid = '';
     if (!this.state.isLoading) {
@@ -46,7 +66,7 @@ module.exports = React.createClass({
           videoUrl={this.state.videoUrl}
           clips={this.state.clips} />;
     }
-    return (<div onClick={this.handleViewSelection}>
+    return (<div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
       <LoaderView isActive={this.state.isLoading} />
       { grid }
     </div>);
