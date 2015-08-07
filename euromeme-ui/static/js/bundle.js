@@ -23155,7 +23155,9 @@ module.exports = {
 };
 
 },{"../util/fetch":220}],211:[function(require,module,exports){
-"use strict";
+'use strict';
+
+var fetch = require('../util/fetch');
 
 module.exports = {
   connect: function connect(info) {
@@ -23164,13 +23166,19 @@ module.exports = {
       port: info.port,
       name: info.name,
       status: function status() {
-        return Promise.resolve({});
+        return fetch('/config.json').then(function (response) {
+          return response.json();
+        }).then(function (json) {
+          return {
+            videoUrl: json.videoUrl
+          };
+        });
       }
     };
   }
 };
 
-},{}],212:[function(require,module,exports){
+},{"../util/fetch":220}],212:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -23239,12 +23247,11 @@ module.exports = React.createClass({
     this.initView(this.views.tvs);
   },
   initWithDeviceStatus: function initWithDeviceStatus(deviceStatus) {
-    console.log(this.state);
     console.log('initWithDeviceStatus', deviceStatus);
     clipsApi(this.state.config.frameStore).popular().then((function (clips) {
       console.log(' clips', clips);
       this.setState({
-        viewUrl: this.state.config.videoUrl,
+        videoUrl: deviceStatus.videoUrl,
         clips: clips
       });
       this.initView(this.views.grid);
@@ -23264,9 +23271,6 @@ module.exports = React.createClass({
     });
   },
   componentDidMount: function componentDidMount() {
-    console.log('Load clips from remote API');
-    console.log('Load sync + video data from TV');
-
     // Instance variables for doubletaps
     this.tapCount = 0;
     this.tapInterval = null;

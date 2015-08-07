@@ -1,3 +1,5 @@
+var fetch = require('../util/fetch');
+
 module.exports = {
   connect: function (info) {
     return {
@@ -5,7 +7,15 @@ module.exports = {
       port: info.port,
       name: info.name,
       status: function () {
-        return Promise.resolve({});
+        return fetch('/config.json')
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (json) {
+            return {
+              videoUrl: json.videoUrl
+            };
+          });
       }
     };
   }

@@ -43,14 +43,13 @@ module.exports = React.createClass({
     this.initView(this.views.tvs);
   },
   initWithDeviceStatus: function (deviceStatus) {
-    console.log(this.state);
     console.log('initWithDeviceStatus', deviceStatus);
     clipsApi(this.state.config.frameStore)
       .popular()
       .then(function (clips) {
         console.log(' clips', clips);
         this.setState({
-          viewUrl: this.state.config.videoUrl,
+          videoUrl: deviceStatus.videoUrl,
           clips: clips
         });
         this.initView(this.views.grid);
@@ -69,9 +68,6 @@ module.exports = React.createClass({
       .then(this.initWithDeviceStatus, function (err) { console.error(err); });
   },
   componentDidMount: function () {
-    console.log('Load clips from remote API');
-    console.log('Load sync + video data from TV');
-
     // Instance variables for doubletaps
     this.tapCount = 0;
     this.tapInterval = null;
