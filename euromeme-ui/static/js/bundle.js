@@ -23137,7 +23137,7 @@ module.exports = function (frameStoreTemplate) {
   };
 };
 
-},{"../util/fetch":218,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
+},{"../util/fetch":220,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23154,16 +23154,32 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":218}],211:[function(require,module,exports){
-'use strict';
+},{"../util/fetch":220}],211:[function(require,module,exports){
+"use strict";
 
 module.exports = {
-  discover: function discover() {
-    return Promise.resolve([{ name: 'Living room TV' }, { name: 'Kitchen TV' }]);
+  connect: function connect(info) {
+    return {
+      ip: info.ip,
+      port: info.port,
+      name: info.name,
+      status: function status() {
+        return Promise.resolve({});
+      }
+    };
   }
 };
 
 },{}],212:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  discover: function discover() {
+    return Promise.resolve([{ name: 'Living room TV', ip: '192.168.0.1', port: '5001' }, { name: 'Kitchen TV', ip: '192.168.0.1', port: '5001' }]);
+  }
+};
+
+},{}],213:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23173,16 +23189,18 @@ var Container = require('./react/container.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Container, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":213,"react":208}],213:[function(require,module,exports){
+},{"./react/container.js":214,"react":208}],214:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 
 var LoaderView = require('./loader-view'),
+    DeviceList = require('./device-list'),
     Grid = require('./grid'),
     configApi = require('../api/config'),
     clipsApi = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
+    deviceApi = require('../api/device'),
     fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
@@ -23190,6 +23208,9 @@ module.exports = React.createClass({
 
   views: {
     'init': 'init',
+    'discovering': 'discovering',
+    'tvs': 'tvs',
+    'connecting': 'connecting',
     'grid': 'grid'
   },
   getInitialState: function getInitialState() {
@@ -23202,14 +23223,44 @@ module.exports = React.createClass({
   initView: function initView(viewName) {
     this.setState({ viewName: viewName });
   },
-  initWithConfig: function initWithConfig(data) {
-    var config = data[0],
-        clips = data[1];
-    console.log('initWithConfig', config, clips);
+  initWithConfig: function initWithConfig(config) {
+    console.log('initWithConfig', config);
+    this.setState({ config: config });
+    this.initView(this.views.discovering);
+    discoveryApi.discover().then(this.initWithTvList, function (err) {
+      console.error(err);
+    });
+  },
+  initWithTvList: function initWithTvList(list) {
+    console.log('initWithTvList', list);
     this.setState({
-      viewName: this.views.grid,
-      videoUrl: config.videoUrl,
-      clips: clips
+      devices: list
+    });
+    this.initView(this.views.tvs);
+  },
+  initWithDeviceStatus: function initWithDeviceStatus(deviceStatus) {
+    console.log(this.state);
+    console.log('initWithDeviceStatus', deviceStatus);
+    clipsApi(this.state.config.frameStore).popular().then((function (clips) {
+      console.log(' clips', clips);
+      this.setState({
+        viewUrl: this.state.config.videoUrl,
+        clips: clips
+      });
+      this.initView(this.views.grid);
+    }).bind(this))['catch'](function (err) {
+      console.error(err);
+    });
+  },
+  connectToDevice: function connectToDevice(info) {
+    console.log('connectToDevice', info);
+    var device = deviceApi.connect(info);
+    this.setState({
+      device: device
+    });
+    this.initView(this.views.connecting);
+    device.status().then(this.initWithDeviceStatus, function (err) {
+      console.error(err);
     });
   },
   componentDidMount: function componentDidMount() {
@@ -23220,10 +23271,7 @@ module.exports = React.createClass({
     this.tapCount = 0;
     this.tapInterval = null;
 
-    configApi.config().then(function (config) {
-      var clips = clipsApi(config.frameStore).popular();
-      return Promise.all([config, clips]);
-    }).then(this.initWithConfig, function (err) {
+    configApi.config().then(this.initWithConfig, function (err) {
       console.error(err);
     });
   },
@@ -23244,26 +23292,34 @@ module.exports = React.createClass({
     }
   },
   render: function render() {
-    var grid = '',
-        loadingMessage,
-        view;
+    var loadingMessage, view;
 
     switch (this.state.viewName) {
       case this.views.init:
         loadingMessage = 'Initialising';
         break;
+      case this.views.discovering:
+        loadingMessage = 'Discovering TVs on the network';
+        break;
+      case this.views.connecting:
+        loadingMessage = 'Connecting to ' + this.state.device.name;
+        break;
     }
 
     if (loadingMessage) {
+      console.log('view: loader', loadingMessage);
       view = React.createElement(
         LoaderView,
         { isActive: 'true' },
         loadingMessage
       );
+    } else if (this.state.viewName === this.views.tvs) {
+      console.log('view: device list view');
+      view = React.createElement(DeviceList, { devices: this.state.devices, onDeviceSelected: this.connectToDevice });
     } else {
+      console.log('view: grid');
       view = React.createElement(Grid, { videoUrl: this.state.videoUrl, clips: this.state.clips });
     }
-
     return React.createElement(
       'div',
       { onTouchStart: this.captureTap, onDoubleClick: this.handleViewSelection },
@@ -23272,7 +23328,52 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":209,"../api/config":210,"../api/discovery":211,"../util/fullscreen":219,"./grid":214,"./loader-view":217,"react":208}],214:[function(require,module,exports){
+},{"../api/clips":209,"../api/config":210,"../api/device":211,"../api/discovery":212,"../util/fullscreen":221,"./device-list":215,"./grid":216,"./loader-view":219,"react":208}],215:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+module.exports = React.createClass({
+  displayName: 'exports',
+
+  createEventHandlerForItem: function createEventHandlerForItem(data) {
+    return (function () {
+      console.log('Device selected', data);
+      if (this.props.onDeviceSelected) {
+        this.props.onDeviceSelected(data);
+      }
+    }).bind(this);
+  },
+  deviceList: function deviceList() {
+    var self = this;
+    return this.props.devices.map(function (device, index) {
+      var handler = self.createEventHandlerForItem(device);
+      return React.createElement(
+        'li',
+        { key: index, onClick: handler, className: 'device-list-item' },
+        device.name
+      );
+    });
+  },
+  render: function render() {
+    return React.createElement(
+      'div',
+      { className: 'device-list' },
+      React.createElement(
+        'h2',
+        { className: 'device-list-hd' },
+        'Connect to TV'
+      ),
+      React.createElement(
+        'ul',
+        { className: 'device-list-list' },
+        this.deviceList()
+      )
+    );
+  }
+});
+
+},{"react":208}],216:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23318,7 +23419,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./image-loader":215,"./live-tile":216,"lodash/array/fill":5,"react":208}],215:[function(require,module,exports){
+},{"./image-loader":217,"./live-tile":218,"lodash/array/fill":5,"react":208}],217:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23356,7 +23457,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208,"react-imageloader":53}],216:[function(require,module,exports){
+},{"react":208,"react-imageloader":53}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -23382,7 +23483,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208}],217:[function(require,module,exports){
+},{"react":208}],219:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23410,14 +23511,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208}],218:[function(require,module,exports){
+},{"react":208}],220:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],219:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],221:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -23434,5 +23535,5 @@ module.exports = {
   }
 };
 
-},{}]},{},[212])
+},{}]},{},[213])
 //# sourceMappingURL=bundle.js.map

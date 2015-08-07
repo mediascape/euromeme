@@ -1,0 +1,39 @@
+.device-list {
+  display: flex;
+  flex-direction: column;
+
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  left: 3rem;
+  bottom: 3rem;
+
+  margin: 0;
+  padding: 0;
+}
+
+.device-list-hd {
+  font-weight: normal;
+}
+
+.device-list-list {
+  display: flex;
+  flex-direction: row;
+
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.device-list-item {
+  margin: 1rem;
+  padding: 1rem;
+  border: 1px solid #666;
+  flex: 1;
+
+  text-align: center;
+}
+
+.device-list-item:hover {
+  background-color: #eee;
+}

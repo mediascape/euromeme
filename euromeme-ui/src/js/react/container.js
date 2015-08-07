@@ -1,16 +1,21 @@
 var React = require('react');
 
 var LoaderView = require('./loader-view'),
+    DeviceList = require('./device-list'),
     Grid   = require('./grid'),
     configApi = require('../api/config'),
     clipsApi  = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
+    deviceApi = require('../api/device'),
     fullscreen= require('../util/fullscreen');
 
 module.exports = React.createClass({
   views: {
-    'init': 'init',
-    'grid': 'grid'
+    'init'       : 'init',
+    'discovering': 'discovering',
+    'tvs'        : 'tvs',
+    'connecting' : 'connecting',
+    'grid'       : 'grid'
   },
   getInitialState: function() {
     return {
@@ -22,15 +27,46 @@ module.exports = React.createClass({
   initView: function (viewName) {
     this.setState({ viewName: viewName });
   },
-  initWithConfig: function (data) {
-    var config = data[0],
-        clips  = data[1];
-    console.log('initWithConfig', config, clips);
+  initWithConfig: function (config) {
+    console.log('initWithConfig', config);
+    this.setState({ config: config });
+    this.initView(this.views.discovering);
+    discoveryApi
+      .discover()
+      .then(this.initWithTvList, function (err) { console.error(err); });
+  },
+  initWithTvList: function (list) {
+    console.log('initWithTvList', list);
     this.setState({
-      viewName: this.views.grid,
-      videoUrl: config.videoUrl,
-      clips: clips
+      devices: list
     });
+    this.initView(this.views.tvs);
+  },
+  initWithDeviceStatus: function (deviceStatus) {
+    console.log(this.state);
+    console.log('initWithDeviceStatus', deviceStatus);
+    clipsApi(this.state.config.frameStore)
+      .popular()
+      .then(function (clips) {
+        console.log(' clips', clips);
+        this.setState({
+          viewUrl: this.state.config.videoUrl,
+          clips: clips
+        });
+        this.initView(this.views.grid);
+      }.bind(this))
+      .catch(function (err) { console.error(err); });
+  },
+  connectToDevice: function (info) {
+    console.log('connectToDevice', info);
+    var device = deviceApi.connect(info);
+    this.setState({
+      device: device
+    });
+    this.initView(this.views.connecting);
+    device
+      .status()
+      .then(this.initWithDeviceStatus, function (err) { console.error(err); });
   },
   componentDidMount: function () {
     console.log('Load clips from remote API');
@@ -42,10 +78,6 @@ module.exports = React.createClass({
 
     configApi
       .config()
-      .then(function (config) {
-        var clips = clipsApi(config.frameStore).popular();
-        return Promise.all([config, clips]);
-      })
       .then(this.initWithConfig, function (err) { console.error(err); });
   },
   handleViewSelection: function () {
@@ -65,26 +97,35 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var grid = '',
-        loadingMessage,
+    var loadingMessage,
         view;
 
     switch(this.state.viewName) {
       case this.views.init:
         loadingMessage = 'Initialising';
         break;
+      case this.views.discovering:
+        loadingMessage = 'Discovering TVs on the network';
+        break;
+      case this.views.connecting:
+        loadingMessage = 'Connecting to ' + this.state.device.name;
+        break;
     }
 
     if (loadingMessage) {
+      console.log('view: loader', loadingMessage);
       view = (
         <LoaderView isActive='true'>
           {loadingMessage}
         </LoaderView>
       );
+    } else if (this.state.viewName === this.views.tvs) {
+      console.log('view: device list view');
+      view = <DeviceList devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
     } else {
+      console.log('view: grid');
       view = <Grid videoUrl={this.state.videoUrl} clips={this.state.clips} />;
     }
-
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
       { view }
