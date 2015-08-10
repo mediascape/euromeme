@@ -40,7 +40,9 @@ function init(mediaElement, appId, msvName, options) {
 
     app.run = function() {
       var msv = app.msvs[msvName];
-      var mediaSyncOptions = {};
+      var mediaSyncOptions = {
+        remember: false
+      };
 
       if (!msv) {
         reject(new Error('Sync initialisation failed, unknown MSV: ' + msvName));

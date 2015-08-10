@@ -1066,7 +1066,6 @@ process.umask = function() { return 0; };
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
 },{"_process":1}],3:[function(require,module,exports){
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
@@ -1509,12 +1508,13 @@ function init(mediaElement, appId, msvName, options) {
   options = options || {};
 
   return new Promise(function (resolve, reject) {
-    var sync = new Sync(appId, msvName);
     var app = MCorp.app(appId, { anon: true });
 
     app.run = function () {
       var msv = app.msvs[msvName];
-      var mediaSyncOptions = {};
+      var mediaSyncOptions = {
+        remember: false
+      };
 
       if (!msv) {
         reject(new Error('Sync initialisation failed, unknown MSV: ' + msvName));
@@ -1543,5 +1543,4 @@ module.exports = { init: init };
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}]},{},[6])
-//# sourceMappingURL=bundle.js.map
+},{"es6-promise":2,"isomorphic-fetch":3}]},{},[6]);
