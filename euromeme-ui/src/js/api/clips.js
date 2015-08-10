@@ -1,17 +1,24 @@
 var fetch = require('../util/fetch'),
+    config = require('./config'),
     Promise = require('es6-promise').Promise,
     times = require('lodash/utility/times'),
     partial = require('lodash/function/partial'),
+    sample = require('lodash/collection/sample'),
     random = require('lodash/number/random');
 
-function randMin() {
-  return random(10, 59).toString();
+function fakeClip(tmpl, clipNames, callCount) {
+  var url = tmpl.replace(/\$name/g, sample(clipNames));
+  return {
+    poster: url.replace(/\$format/, 'jpg'),
+    mp4: url.replace(/\$format/, 'mp4'),
+    gif: url.replace(/\$format/, 'gif')
+  };
 }
 
-function fakeClip(tmpl, callCount) {
-  return {
-    poster: tmpl.replace('$minute', randMin()).replace('$second', '00').replace('$frame', '1')
-  };
+function clips() {
+  return config.config().then(function (c) {
+    return c.randomClips;
+  });
 }
 
 /*
@@ -31,7 +38,10 @@ module.exports = function (frameStoreTemplate) {
         Resolves: array of clips
     */
     recent: function () {
-      return Promise.resolve( times(8, partial(fakeClip, frameStoreTemplate) ) );
+      return clips()
+        .then(function (clipNames) {
+          return Promise.resolve( times(8, partial(fakeClip, frameStoreTemplate, clipNames) ) );
+        });
     }
   };
 };
