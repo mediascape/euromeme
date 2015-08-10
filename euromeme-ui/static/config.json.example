@@ -1,4 +1,6 @@
 {
   "videoUrl": "http://path.to.media/video.mp4",
-  "frameStore": "http://example.com/180/2015/05/23/21/$minute/$second/$frame.jpg"
+  "frameStore": "http://example.com/180/2015/05/23/21/$minute/$second/$frame.jpg",
+  "appId": "your.app.id",
+  "msvName": "your.msv.name"
 }
