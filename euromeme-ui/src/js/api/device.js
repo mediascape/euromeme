@@ -14,8 +14,23 @@ module.exports = {
       instance of API object connect to remote device
   */
   connect: function (info) {
+    if (!info.address || !info.port) {
+      throw new Error('Cannot connect to device without address and ip');
+    }
+
+    var ws = new WebSocket('ws://' + info.address + ':' + info.port + '/');
+    ws.addEventListener('error', function () {
+      console.error('Device - connection error');
+    });
+    ws.addEventListener('connect', function () {
+      console.log('Device - connected');
+    });
+    ws.addEventListener('data', function (evt) {
+      console.log('Device - data', evt.data);
+    });
+
     return {
-      ip: info.ip,
+      address: info.address,
       port: info.port,
       name: info.name,
       /*
