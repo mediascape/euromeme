@@ -10,6 +10,9 @@ module.exports = React.createClass({
   },
   initSync: function (config) {
     var $video = this.refs.video.getDOMNode();
+    $video.addEventListener('playing', function () {
+      console.log('Event: video.playing');
+    });
     return Sync.init($video, config.appId, config.msvName, { debug: true });
   },
   handleTileSelection: function () {
