@@ -23150,7 +23150,7 @@ module.exports = function (frameStoreTemplate) {
   };
 };
 
-},{"../util/fetch":220,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
+},{"../util/fetch":221,"es6-promise":2,"lodash/function/partial":8,"lodash/number/random":49,"lodash/utility/times":52}],210:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23175,7 +23175,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":220}],211:[function(require,module,exports){
+},{"../util/fetch":221}],211:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23217,7 +23217,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":220}],212:[function(require,module,exports){
+},{"../util/fetch":221}],212:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -23238,6 +23238,73 @@ module.exports = {
 },{}],213:[function(require,module,exports){
 'use strict';
 
+var Promise = require('es6-promise').Promise;
+
+/**
+ * Simple wrapper for a MediaScape shared motion object (Media State Vector)
+ * @class
+ */
+
+function Sync(msv) {
+  this._msv = msv;
+}
+
+Sync.prototype.restart = function () {
+  this._msv.update(0, 1);
+};
+
+Sync.prototype.play = function () {
+  this._msv.update(null, 1);
+};
+
+Sync.prototype.pause = function () {
+  this._msv.update(null, 0);
+};
+
+/**
+ * Initialises synchronisation between an HTML media element and a
+ * MediaScape shared motion.
+ *
+ * @param {HTMLMediaElement} mediaElement A video or audio HTML element.
+ * @param {string} appId Application ID, for accessing the MCorp APIs.
+ * @param {string} msvName The name of the MediaScape shared motion to use.
+ * @param {Object} options Optional options object.
+ * @param {Boolean} options.debug If true, write debug output to the console.
+ */
+
+function init(mediaElement, appId, msvName, options) {
+  options = options || {};
+
+  return new Promise(function (resolve, reject) {
+    var app = MCorp.app(appId, { anon: true });
+
+    app.run = function () {
+      var msv = app.msvs[msvName];
+      var mediaSyncOptions = {};
+
+      if (!msv) {
+        reject(new Error('Sync initialisation failed, unknown MSV: ' + msvName));
+        return;
+      }
+
+      if (options.debug === true) {
+        mediaSyncOptions.debug = true;
+      }
+
+      app.sync = mediascape.mediaSync(mediaElement, msv, mediaSyncOptions);
+
+      resolve(new Sync(msv));
+    };
+
+    app.init();
+  });
+}
+
+module.exports = { init: init };
+
+},{"es6-promise":2}],214:[function(require,module,exports){
+'use strict';
+
 var React = require('react');
 
 var Container = require('./react/container.js');
@@ -23245,7 +23312,7 @@ var Container = require('./react/container.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Container, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":214,"react":208}],214:[function(require,module,exports){
+},{"./react/container.js":215,"react":208}],215:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23380,7 +23447,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":209,"../api/config":210,"../api/device":211,"../api/discovery":212,"../util/fullscreen":221,"./device-list":215,"./grid":216,"./loader-view":219,"react":208}],215:[function(require,module,exports){
+},{"../api/clips":209,"../api/config":210,"../api/device":211,"../api/discovery":212,"../util/fullscreen":222,"./device-list":216,"./grid":217,"./loader-view":220,"react":208}],216:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23425,7 +23492,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208}],216:[function(require,module,exports){
+},{"react":208}],217:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23471,7 +23538,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./image-loader":217,"./live-tile":218,"lodash/array/fill":5,"react":208}],217:[function(require,module,exports){
+},{"./image-loader":218,"./live-tile":219,"lodash/array/fill":5,"react":208}],218:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23509,33 +23576,42 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208,"react-imageloader":53}],218:[function(require,module,exports){
-"use strict";
+},{"react":208,"react-imageloader":53}],219:[function(require,module,exports){
+'use strict';
 
 var React = require('react');
+var Sync = require('../api/sync');
+var configApi = require('../api/config');
 
 module.exports = React.createClass({
-  displayName: "exports",
+  displayName: 'exports',
 
+  componentDidMount: function componentDidMount() {
+    configApi.config().then(this.initSync);
+  },
+  initSync: function initSync(config) {
+    var $video = this.refs.video.getDOMNode();
+    return Sync.init($video, config.appId, config.msvName, { debug: true });
+  },
   handleTileSelection: function handleTileSelection() {
     var $video = this.refs.video.getDOMNode();
     $video.paused ? $video.play() : $video.pause();
   },
   render: function render() {
     return React.createElement(
-      "div",
-      { className: "live-tile" },
-      React.createElement("i", { className: "live-tile-icon" }),
+      'div',
+      { className: 'live-tile' },
+      React.createElement('i', { className: 'live-tile-icon' }),
       React.createElement(
-        "video",
-        { ref: "video", onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
-        " "
+        'video',
+        { ref: 'video', onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
+        ' '
       )
     );
   }
 });
 
-},{"react":208}],219:[function(require,module,exports){
+},{"../api/config":210,"../api/sync":213,"react":208}],220:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23563,14 +23639,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":208}],220:[function(require,module,exports){
+},{"react":208}],221:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],221:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],222:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -23587,5 +23663,5 @@ module.exports = {
   }
 };
 
-},{}]},{},[213])
+},{}]},{},[214])
 //# sourceMappingURL=bundle.js.map
