@@ -175,6 +175,7 @@ body {
 }
 .live-tile {
   position: relative;
+  background-color: #000;
 }
 
 .live-tile-icon {
