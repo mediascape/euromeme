@@ -23419,6 +23419,7 @@ module.exports = React.createClass({
     return {
       viewName: this.views.init,
       videoUrl: null,
+      clipFormat: 'gif', // gif, poster, mp4
       clips: []
     };
   },
@@ -23516,7 +23517,7 @@ module.exports = React.createClass({
       view = React.createElement(DeviceList, { devices: this.state.devices, onDeviceSelected: this.connectToDevice });
     } else {
       console.log('view: grid');
-      view = React.createElement(Grid, { videoUrl: this.state.videoUrl, clips: this.state.clips });
+      view = React.createElement(Grid, { videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips });
     }
     return React.createElement(
       'div',
@@ -23584,11 +23585,13 @@ module.exports = React.createClass({
   displayName: 'exports',
 
   clips: function clips() {
+    var _this = this;
+
     return this.props.clips.map(function (clip, index) {
       return React.createElement(
         'li',
         { key: index, className: 'grid-item grid-item-clip' },
-        React.createElement(ImageLoader, { src: clip.poster })
+        React.createElement(ImageLoader, { src: clip[_this.props.format] })
       );
     });
   },

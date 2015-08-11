@@ -21,6 +21,7 @@ module.exports = React.createClass({
     return {
       viewName: this.views.init,
       videoUrl: null,
+      clipFormat: 'gif', // gif, poster, mp4
       clips: []
     };
   },
@@ -124,7 +125,7 @@ module.exports = React.createClass({
       view = <DeviceList devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
     } else {
       console.log('view: grid');
-      view = <Grid videoUrl={this.state.videoUrl} clips={this.state.clips} />;
+      view = <Grid videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} />;
     }
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
