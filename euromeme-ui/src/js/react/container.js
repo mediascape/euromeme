@@ -3,6 +3,7 @@ var React = require('react');
 var LoaderView = require('./loader-view'),
     DeviceList = require('./device-list'),
     Grid   = require('./grid'),
+    ClipPreview = require('./clip-preview'),
     configApi = require('../api/config'),
     clipsApi  = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
@@ -16,7 +17,8 @@ module.exports = React.createClass({
     'discovering': 'discovering',
     'tvs'        : 'tvs',
     'connecting' : 'connecting',
-    'grid'       : 'grid'
+    'grid'       : 'grid',
+    'preview'    : 'preview'
   },
   getInitialState: function() {
     return {
@@ -86,6 +88,16 @@ module.exports = React.createClass({
     console.log('Container.handleViewSelection');
     fullscreen.enter();
   },
+  handleGridItemSelected: function (item) {
+    console.log('Container.handleGridItemSelected', item);
+    this.setState({ previewItem: item });
+    this.initView(this.views.preview);
+  },
+  handleClipPreviewClose: function () {
+    console.log('Container.handleClipPreviewClose');
+    this.setState({ previewItem: null });
+    this.initView(this.views.grid);
+  },
   captureTap: function () {
     this.tapCount++;
     if (this.tapCount === 2) {
@@ -124,9 +136,14 @@ module.exports = React.createClass({
     } else if (this.state.viewName === this.views.tvs) {
       console.log('view: device list view');
       view = <DeviceList devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
-    } else {
+    } else if (this.state.viewName === this.views.grid) {
       console.log('view: grid');
-      view = <Grid videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} />;
+      view = <Grid videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
+    } else if (this.state.viewName === this.views.preview) {
+      console.log('view: preview');
+      view = <ClipPreview onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
+    } else {
+      view = <div>Error</div>;
     }
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>

@@ -2,6 +2,7 @@
 @import url('layout.css');
 @import url('modules/centered-view.css');
 @import url('modules/loader.css');
+@import url('modules/image-loader.css');
 @import url('modules/grid.css');
 @import url('modules/live-tile.css');
 @import url('modules/device-list.css');

@@ -6,10 +6,16 @@ var LiveTile = require('./live-tile'),
 
 module.exports = React.createClass({
   displayName: 'Grid',
+  handleItemSelection: function (key) {
+    if (this.props.onGridItemSelected) {
+      this.props.onGridItemSelected(key);
+    }
+  },
   clips: function () {
     return this.props.clips.map((clip, index) => {
-      return <li key={index} className="grid-item grid-item-clip">
-        <Clip src={clip[this.props.format]} />
+      var clipUrl = clip[this.props.format].replace('$size', 180);
+      return <li key={index} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
+        <Clip src={clipUrl} />
       </li>;
     });
   },

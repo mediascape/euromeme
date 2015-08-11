@@ -1,0 +1,11 @@
+/*
+  Fade in image when imageloader completes
+*/
+.imageloader img {
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+
+.imageloader.pre-image-load img {
+  opacity: 0;
+}

@@ -46,6 +46,9 @@ body {
   font-size: 2rem;
   color: #999;
 }
+/*
+  Generic loader/spinner animation
+*/
 .loader:before,
 .loader:after,
 .loader {
@@ -157,16 +160,6 @@ body {
           flex-grow: 0;
 
   outline: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.grid-item .imageloader img {
-  opacity: 1;
-  -webkit-transition: opacity 0.5s;
-          transition: opacity 0.5s;
-}
-
-.grid-item .imageloader.pre-image-load img {
-  opacity: 0;
 }
 
 .grid-item-live video {

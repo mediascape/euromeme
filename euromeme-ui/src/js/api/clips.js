@@ -15,8 +15,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate, imageSize) {
   */
   function addEndpointToObject(o) {
     return reduce(o, function (result, value, key) {
-      var pathForSize = value.replace('$size', imageSize);
-      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', pathForSize);
+      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', value);
       return result;
     }, {});
   }

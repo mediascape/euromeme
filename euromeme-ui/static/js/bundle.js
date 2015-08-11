@@ -23159,8 +23159,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate, imageSize) {
   */
   function addEndpointToObject(o) {
     return reduce(o, function (result, value, key) {
-      var pathForSize = value.replace('$size', imageSize);
-      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', pathForSize);
+      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', value);
       return result;
     }, {});
   }
@@ -23187,7 +23186,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate, imageSize) {
   };
 };
 
-},{"../util/fetch":225,"lodash/collection/reduce":7}],214:[function(require,module,exports){
+},{"../util/fetch":226,"lodash/collection/reduce":7}],214:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23212,7 +23211,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":225}],215:[function(require,module,exports){
+},{"../util/fetch":226}],215:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -23269,7 +23268,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":225}],216:[function(require,module,exports){
+},{"../util/fetch":226}],216:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./config');
@@ -23391,7 +23390,39 @@ var Container = require('./react/container.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Container, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":220,"react":212}],219:[function(require,module,exports){
+},{"./react/container.js":221,"react":212}],219:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+var Clip = require('./clip');
+
+module.exports = React.createClass({
+  displayName: 'ClipPreview',
+  getInitialState: function getInitialState() {
+    return {};
+  },
+  handleClose: function handleClose() {
+    if (this.props.onClose) {
+      this.props.onClose();
+    }
+  },
+  render: function render() {
+    var clipUrl = this.props.clip.gif.replace('$size', 720);
+    return React.createElement(
+      'div',
+      { className: 'clip-preview' },
+      React.createElement(
+        'button',
+        { onClick: this.handleClose, className: 'close-button' },
+        'Close'
+      ),
+      React.createElement(Clip, { src: clipUrl })
+    );
+  }
+});
+
+},{"./clip":220,"react":212}],220:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23428,7 +23459,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":212,"react-imageloader":57}],220:[function(require,module,exports){
+},{"react":212,"react-imageloader":57}],221:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23436,6 +23467,7 @@ var React = require('react');
 var LoaderView = require('./loader-view'),
     DeviceList = require('./device-list'),
     Grid = require('./grid'),
+    ClipPreview = require('./clip-preview'),
     configApi = require('../api/config'),
     clipsApi = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
@@ -23449,7 +23481,8 @@ module.exports = React.createClass({
     'discovering': 'discovering',
     'tvs': 'tvs',
     'connecting': 'connecting',
-    'grid': 'grid'
+    'grid': 'grid',
+    'preview': 'preview'
   },
   getInitialState: function getInitialState() {
     return {
@@ -23514,6 +23547,16 @@ module.exports = React.createClass({
     console.log('Container.handleViewSelection');
     fullscreen.enter();
   },
+  handleGridItemSelected: function handleGridItemSelected(item) {
+    console.log('Container.handleGridItemSelected', item);
+    this.setState({ previewItem: item });
+    this.initView(this.views.preview);
+  },
+  handleClipPreviewClose: function handleClipPreviewClose() {
+    console.log('Container.handleClipPreviewClose');
+    this.setState({ previewItem: null });
+    this.initView(this.views.grid);
+  },
   captureTap: function captureTap() {
     this.tapCount++;
     if (this.tapCount === 2) {
@@ -23551,9 +23594,18 @@ module.exports = React.createClass({
     } else if (this.state.viewName === this.views.tvs) {
       console.log('view: device list view');
       view = React.createElement(DeviceList, { devices: this.state.devices, onDeviceSelected: this.connectToDevice });
-    } else {
+    } else if (this.state.viewName === this.views.grid) {
       console.log('view: grid');
-      view = React.createElement(Grid, { videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips });
+      view = React.createElement(Grid, { videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, onGridItemSelected: this.handleGridItemSelected });
+    } else if (this.state.viewName === this.views.preview) {
+      console.log('view: preview');
+      view = React.createElement(ClipPreview, { onClose: this.handleClipPreviewClose, clip: this.state.previewItem });
+    } else {
+      view = React.createElement(
+        'div',
+        null,
+        'Error'
+      );
     }
     return React.createElement(
       'div',
@@ -23563,7 +23615,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":213,"../api/config":214,"../api/device":215,"../api/discovery":216,"../util/fullscreen":226,"./device-list":221,"./grid":222,"./loader-view":224,"react":212}],221:[function(require,module,exports){
+},{"../api/clips":213,"../api/config":214,"../api/device":215,"../api/discovery":216,"../util/fullscreen":227,"./clip-preview":219,"./device-list":222,"./grid":223,"./loader-view":225,"react":212}],222:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23607,7 +23659,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":212}],222:[function(require,module,exports){
+},{"react":212}],223:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -23618,14 +23670,20 @@ var LiveTile = require('./live-tile'),
 
 module.exports = React.createClass({
   displayName: 'Grid',
+  handleItemSelection: function handleItemSelection(key) {
+    if (this.props.onGridItemSelected) {
+      this.props.onGridItemSelected(key);
+    }
+  },
   clips: function clips() {
     var _this = this;
 
     return this.props.clips.map(function (clip, index) {
+      var clipUrl = clip[_this.props.format].replace('$size', 180);
       return React.createElement(
         'li',
-        { key: index, className: 'grid-item grid-item-clip' },
-        React.createElement(Clip, { src: clip[_this.props.format] })
+        { key: index, onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
+        React.createElement(Clip, { src: clipUrl })
       );
     });
   },
@@ -23654,7 +23712,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":219,"./live-tile":223,"lodash/array/fill":5,"react":212}],223:[function(require,module,exports){
+},{"./clip":220,"./live-tile":224,"lodash/array/fill":5,"react":212}],224:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23691,7 +23749,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/config":214,"../api/sync":217,"react":212}],224:[function(require,module,exports){
+},{"../api/config":214,"../api/sync":217,"react":212}],225:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23718,14 +23776,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":212}],225:[function(require,module,exports){
+},{"react":212}],226:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],226:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],227:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
