@@ -1,25 +1,5 @@
 var fetch = require('../util/fetch'),
-    config = require('./config'),
-    Promise = require('es6-promise').Promise,
-    times = require('lodash/utility/times'),
-    partial = require('lodash/function/partial'),
-    sample = require('lodash/collection/sample'),
-    random = require('lodash/number/random');
-
-function fakeClip(tmpl, clipNames, callCount) {
-  var url = tmpl.replace(/\$name/g, sample(clipNames));
-  return {
-    poster: url.replace(/\$format/, 'jpg'),
-    mp4: url.replace(/\$format/, 'mp4'),
-    gif: url.replace(/\$format/, 'gif')
-  };
-}
-
-function clips() {
-  return config.config().then(function (c) {
-    return c.randomClips;
-  });
-}
+    reduce = require('lodash/collection/reduce');
 
 /*
   constructor
@@ -28,7 +8,19 @@ function clips() {
   Params:
     frameStoreTemplate <String> Template to retrieve a single image
 */
-module.exports = function (frameStoreTemplate) {
+module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate, imageSize) {
+
+  /*
+    Prefix each value in object with mediaStoreEndpoint
+  */
+  function addEndpointToObject(o) {
+    return reduce(o, function (result, value, key) {
+      var pathForSize = value.replace('$size', imageSize);
+      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', pathForSize);
+      return result;
+    }, {});
+  }
+
   return {
     /*
       recent()
@@ -38,9 +30,16 @@ module.exports = function (frameStoreTemplate) {
         Resolves: array of clips
     */
     recent: function () {
-      return clips()
-        .then(function (clipNames) {
-          return Promise.resolve( times(8, partial(fakeClip, frameStoreTemplate, clipNames) ) );
+      var url = clipsApiEndpoint + '/clips/latest';
+      return fetch(url)
+        .then(function (response) {
+          return response.json();
+        }, function () { throw new Error('Error fetching recent clips from API')})
+        .then(function (clips) {
+          return clips.map(addEndpointToObject);
+        })
+        .catch(function () {
+          throw new Error('Error parsing recent clips from API');
         });
     }
   };

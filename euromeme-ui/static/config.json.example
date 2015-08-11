@@ -4,5 +4,7 @@
   "appId": "your.app.id",
   "msvName": "your.msv.name",
   "discoveryIp": "IP address of TV",
-  "discoveryPort": "Port of TV"
+  "discoveryPort": "Port of TV",
+  "clipsApiEndpoint": "http://example.com/api",
+  "mediaStoreUrlTemplate": "http://cdn.example.com/$mediaPath?k=XXX"
 }

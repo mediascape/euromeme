@@ -44,7 +44,11 @@ module.exports = React.createClass({
   },
   initWithDeviceStatus: function (deviceStatus) {
     console.log('initWithDeviceStatus', deviceStatus);
-    clipsApi(this.state.config.frameStore)
+    clipsApi(
+      this.state.config.clipsApiEndpoint,
+      this.state.config.mediaStoreUrlTemplate,
+      '180'
+    )
       .recent()
       .then(function (clips) {
         console.log(' clips', clips);
