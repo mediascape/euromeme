@@ -1,3 +1,5 @@
+'use strict';
+
 var Promise = require('es6-promise').Promise;
 
 /**
@@ -11,15 +13,15 @@ function Sync(msv) {
 
 Sync.prototype.restart = function() {
   this._msv.update(0, 1);
-}
+};
 
 Sync.prototype.play = function() {
   this._msv.update(null, 1);
-}
+};
 
 Sync.prototype.pause = function() {
   this._msv.update(null, 0);
-}
+};
 
 /**
  * Initialises synchronisation between an HTML media element and a
@@ -56,7 +58,7 @@ function init(mediaElement, appId, msvName, options) {
       app.sync = mediascape.mediaSync(mediaElement, msv, mediaSyncOptions);
 
       resolve(new Sync(msv));
-    }
+    };
 
     app.init();
   });
