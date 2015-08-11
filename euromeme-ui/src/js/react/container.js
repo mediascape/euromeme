@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react'),
+    ReactCSSTransitionGroup = require('react/addons').addons.CSSTransitionGroup;
 
 var LoaderView = require('./loader-view'),
     DeviceList = require('./device-list'),
@@ -129,25 +130,27 @@ module.exports = React.createClass({
     if (loadingMessage) {
       console.log('view: loader', loadingMessage);
       view = (
-        <LoaderView isActive='true'>
+        <LoaderView key="loader" isActive='true'>
           {loadingMessage}
         </LoaderView>
       );
     } else if (this.state.viewName === this.views.tvs) {
       console.log('view: device list view');
-      view = <DeviceList devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
+      view = <DeviceList key={this.views.tvs} devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
     } else if (this.state.viewName === this.views.grid) {
       console.log('view: grid');
-      view = <Grid videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
+      view = <Grid key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
     } else if (this.state.viewName === this.views.preview) {
       console.log('view: preview');
-      view = <ClipPreview onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
+      view = <ClipPreview key={this.views.preview} onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
     } else {
-      view = <div>Error</div>;
+      view = <div key='error'>Error</div>;
     }
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
+      <ReactCSSTransitionGroup transitionName="view">
       { view }
+      </ReactCSSTransitionGroup>
     </div>);
   }
 });

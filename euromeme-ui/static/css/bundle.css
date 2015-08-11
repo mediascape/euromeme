@@ -105,6 +105,18 @@ body {
     box-shadow: 0 2.5em 0 0 #ddd;
   }
 }
+/*
+  Fade in image when imageloader completes
+*/
+.imageloader img {
+  opacity: 1;
+  -webkit-transition: opacity 0.5s;
+          transition: opacity 0.5s;
+}
+
+.imageloader.pre-image-load img {
+  opacity: 0;
+}
 .grid-hd {
   position: absolute;
   top : 0.5rem;
@@ -248,4 +260,39 @@ body {
 
 .device-list-item:hover {
   background-color: #eee;
+}
+/*
+  Clip preview view
+*/
+.clip-preview {
+  position: relative;
+}
+
+.clip-preview-actions {
+  position: absolute;
+  height: 50px;
+}
+/*
+  Defines CSS transitions triggers when the Container
+  component mounts a new view
+*/
+
+.view-enter {
+  opacity: 0.01;
+}
+
+.view-enter.view-enter-active {
+  opacity: 1;
+  -webkit-transition: opacity .5s ease-in;
+          transition: opacity .5s ease-in;
+}
+
+.view-leave {
+  opacity: 1;
+}
+
+.view-leave.view-leave-active {
+  opacity: 0.01;
+  -webkit-transition: opacity .5s ease-in;
+          transition: opacity .5s ease-in;
 }

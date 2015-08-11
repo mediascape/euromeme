@@ -1,0 +1,11 @@
+/*
+  Clip preview view
+*/
+.clip-preview {
+  position: relative;
+}
+
+.clip-preview-actions {
+  position: absolute;
+  height: 50px;
+}

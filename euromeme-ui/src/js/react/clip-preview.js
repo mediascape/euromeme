@@ -16,7 +16,9 @@ module.exports = React.createClass({
     var clipUrl = this.props.clip.gif.replace('$size', 720);
     return (
       <div className="clip-preview">
-        <button onClick={this.handleClose} className="close-button">Close</button>
+        <div className="clip-preview-actions">
+          <button onClick={this.handleClose} className="close-button">Close</button>
+        </div>
         <Clip src={clipUrl} />
       </div>
     );

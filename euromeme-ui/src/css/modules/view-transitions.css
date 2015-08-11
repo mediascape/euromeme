@@ -1,0 +1,22 @@
+/*
+  Defines CSS transitions triggers when the Container
+  component mounts a new view
+*/
+
+.view-enter {
+  opacity: 0.01;
+}
+
+.view-enter.view-enter-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
+
+.view-leave {
+  opacity: 1;
+}
+
+.view-leave.view-leave-active {
+  opacity: 0.01;
+  transition: opacity .5s ease-in;
+}
