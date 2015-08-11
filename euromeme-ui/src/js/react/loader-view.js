@@ -1,6 +1,7 @@
 var React = require('react');
 
 module.exports = React.createClass({
+  displayName: 'LoaderView',
   render: function() {
     var className = 'fullscreen centered-view';
     className += this.props.isActive ? ' is-active' : ' is-inactive';

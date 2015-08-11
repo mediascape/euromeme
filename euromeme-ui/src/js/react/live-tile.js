@@ -3,6 +3,7 @@ var Sync = require('../api/sync');
 var configApi = require('../api/config');
 
 module.exports = React.createClass({
+  displayName: 'LiveTile',
   componentDidMount: function () {
     configApi
       .config()

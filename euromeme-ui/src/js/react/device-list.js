@@ -1,6 +1,7 @@
 var React = require('react');
 
 module.exports = React.createClass({
+  displayName: 'DeviceList',
   createEventHandlerForItem: function (data) {
     return function () {
       console.log('Device selected', data);

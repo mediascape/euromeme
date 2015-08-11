@@ -23406,8 +23406,7 @@ var LoaderView = require('./loader-view'),
     fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'Container',
   views: {
     'init': 'init',
     'discovering': 'discovering',
@@ -23533,8 +23532,7 @@ module.exports = React.createClass({
 var React = require('react');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'DeviceList',
   createEventHandlerForItem: function createEventHandlerForItem(data) {
     return (function () {
       console.log('Device selected', data);
@@ -23582,8 +23580,7 @@ var LiveTile = require('./live-tile'),
     ImageLoader = require('./image-loader');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'Grid',
   clips: function clips() {
     var _this = this;
 
@@ -23627,8 +23624,7 @@ var React = require('react'),
     ImageLoader = require('react-imageloader');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'ImageLoader',
   getInitialState: function getInitialState() {
     return {
       className: 'pre-image-load'
@@ -23666,8 +23662,7 @@ var Sync = require('../api/sync');
 var configApi = require('../api/config');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'LiveTile',
   componentDidMount: function componentDidMount() {
     configApi.config().then(this.initSync);
   },
@@ -23702,8 +23697,7 @@ module.exports = React.createClass({
 var React = require('react');
 
 module.exports = React.createClass({
-  displayName: 'exports',
-
+  displayName: 'LoaderView',
   render: function render() {
     var className = 'fullscreen centered-view';
     className += this.props.isActive ? ' is-active' : ' is-inactive';

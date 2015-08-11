@@ -5,6 +5,7 @@ var LiveTile = require('./live-tile'),
     ImageLoader = require('./image-loader');
 
 module.exports = React.createClass({
+  displayName: 'Grid',
   clips: function () {
     return this.props.clips.map((clip, index) => {
       return <li key={index} className="grid-item grid-item-clip">

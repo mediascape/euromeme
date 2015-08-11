@@ -10,6 +10,7 @@ var LoaderView = require('./loader-view'),
     fullscreen= require('../util/fullscreen');
 
 module.exports = React.createClass({
+  displayName: 'Container',
   views: {
     'init'       : 'init',
     'discovering': 'discovering',
