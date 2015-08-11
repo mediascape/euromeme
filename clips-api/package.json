@@ -10,6 +10,7 @@
   "author": "Dan Nuttall <dan.nuttall@bbc.co.uk>",
   "license": "Apache2",
   "dependencies": {
+    "cors": "^2.7.1",
     "express": "^4.13.3",
     "lodash": "^3.10.1",
     "q-io": "^1.13.1"

@@ -1,5 +1,6 @@
 var express = require('express'),
     fs      = require('q-io/fs'),
+    cors    = require('cors'),
     latestClips = require('./lib/latest-clips'),
     app     = express(),
     port    = process.env.PORT || 5000,
@@ -9,6 +10,8 @@ if(typeof mediaPath === 'undefined') {
   console.error('MEDIA_PATH not found');
   process.exit(1);
 }
+
+app.use(cors());
 
 app.get('/clips/latest', function(req, res) {
   fs.listDirectoryTree(mediaPath).then(function(dirs) {
