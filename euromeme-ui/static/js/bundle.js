@@ -25657,22 +25657,28 @@ module.exports = React.createClass({
         { key: 'loader', isActive: 'true' },
         loadingMessage
       );
-    } else if (this.state.viewName === this.views.tvs) {
-      console.log('view: device list view');
-      view = React.createElement(DeviceList, { key: this.views.tvs, devices: this.state.devices, onDeviceSelected: this.connectToDevice });
-    } else if (this.state.viewName === this.views.grid) {
-      console.log('view: grid');
-      view = React.createElement(Grid, { key: this.views.grid, videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, onGridItemSelected: this.handleGridItemSelected });
-    } else if (this.state.viewName === this.views.preview) {
-      console.log('view: preview');
-      view = React.createElement(ClipPreview, { key: this.views.preview, onClose: this.handleClipPreviewClose, clip: this.state.previewItem });
     } else {
-      view = React.createElement(
-        'div',
-        { key: 'error' },
-        'Error'
-      );
+      console.log('view', this.state.viewName);
+      switch (this.state.viewName) {
+        case this.views.tvs:
+          view = React.createElement(DeviceList, { key: this.views.tvs, devices: this.state.devices, onDeviceSelected: this.connectToDevice });
+          break;
+        case this.views.grid:
+          view = React.createElement(Grid, { key: this.views.grid, videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, onGridItemSelected: this.handleGridItemSelected });
+          break;
+        case this.views.preview:
+          view = React.createElement(ClipPreview, { key: this.views.preview, onClose: this.handleClipPreviewClose, clip: this.state.previewItem });
+          break;
+        default:
+          view = React.createElement(
+            'div',
+            { key: 'error' },
+            'Error'
+          );
+          console.log('view: error');
+      }
     }
+
     return React.createElement(
       'div',
       { onTouchStart: this.captureTap, onDoubleClick: this.handleViewSelection },

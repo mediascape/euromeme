@@ -134,18 +134,24 @@ module.exports = React.createClass({
           {loadingMessage}
         </LoaderView>
       );
-    } else if (this.state.viewName === this.views.tvs) {
-      console.log('view: device list view');
-      view = <DeviceList key={this.views.tvs} devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
-    } else if (this.state.viewName === this.views.grid) {
-      console.log('view: grid');
-      view = <Grid key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
-    } else if (this.state.viewName === this.views.preview) {
-      console.log('view: preview');
-      view = <ClipPreview key={this.views.preview} onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
     } else {
-      view = <div key='error'>Error</div>;
+      console.log('view', this.state.viewName);
+      switch (this.state.viewName) {
+        case this.views.tvs:
+          view = <DeviceList key={this.views.tvs} devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
+          break;
+        case this.views.grid:
+          view = <Grid key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
+          break;
+        case this.views.preview:
+          view = <ClipPreview key={this.views.preview} onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
+          break;
+        default:
+          view = <div key='error'>Error</div>;
+          console.log('view: error');
+      }
     }
+
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
       <ReactCSSTransitionGroup transitionName="view">
