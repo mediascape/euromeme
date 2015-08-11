@@ -12,7 +12,7 @@ function enterFullScreenMethod() {
 
 module.exports = {
   enter: function (el) {
-    el = el || document.body;
+    el = el || document.documentElement;
     var enterFullScreenMethodName = enterFullScreenMethod();
     el[enterFullScreenMethodName]();
   }
