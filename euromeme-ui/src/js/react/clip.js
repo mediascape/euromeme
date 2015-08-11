@@ -2,7 +2,7 @@ var React = require('react'),
     ImageLoader = require('react-imageloader');
 
 module.exports = React.createClass({
-  displayName: 'ImageLoader',
+  displayName: 'Clip',
   getInitialState: function () {
     return {
       className: 'pre-image-load'

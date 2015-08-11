@@ -23391,7 +23391,44 @@ var Container = require('./react/container.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Container, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":219,"react":212}],219:[function(require,module,exports){
+},{"./react/container.js":220,"react":212}],219:[function(require,module,exports){
+'use strict';
+
+var React = require('react'),
+    ImageLoader = require('react-imageloader');
+
+module.exports = React.createClass({
+  displayName: 'Clip',
+  getInitialState: function getInitialState() {
+    return {
+      className: 'pre-image-load'
+    };
+  },
+  preloader: function preloader() {
+    var loaderStyle = { fontSize: '3px' };
+    return React.createElement('span', { className: 'loader', style: loaderStyle });
+  },
+  handleLoad: function handleLoad(evt) {
+    // Clear pre-image-load class name
+    // with a timeout to give CSS transition
+    // time to fade the image in
+    setTimeout((function () {
+      this.setState({ className: '' });
+    }).bind(this), 100);
+  },
+  handleError: function handleError(evt) {
+    console.log('error', evt, this);
+  },
+  render: function render() {
+    return React.createElement(
+      ImageLoader,
+      { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
+      'Clip load failed!'
+    );
+  }
+});
+
+},{"react":212,"react-imageloader":57}],220:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23526,7 +23563,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":213,"../api/config":214,"../api/device":215,"../api/discovery":216,"../util/fullscreen":226,"./device-list":220,"./grid":221,"./loader-view":224,"react":212}],220:[function(require,module,exports){
+},{"../api/clips":213,"../api/config":214,"../api/device":215,"../api/discovery":216,"../util/fullscreen":226,"./device-list":221,"./grid":222,"./loader-view":224,"react":212}],221:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -23570,14 +23607,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":212}],221:[function(require,module,exports){
+},{"react":212}],222:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
     fill = require('lodash/array/fill');
 
 var LiveTile = require('./live-tile'),
-    ImageLoader = require('./image-loader');
+    Clip = require('./clip');
 
 module.exports = React.createClass({
   displayName: 'Grid',
@@ -23588,7 +23625,7 @@ module.exports = React.createClass({
       return React.createElement(
         'li',
         { key: index, className: 'grid-item grid-item-clip' },
-        React.createElement(ImageLoader, { src: clip[_this.props.format] })
+        React.createElement(Clip, { src: clip[_this.props.format] })
       );
     });
   },
@@ -23617,44 +23654,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./image-loader":222,"./live-tile":223,"lodash/array/fill":5,"react":212}],222:[function(require,module,exports){
-'use strict';
-
-var React = require('react'),
-    ImageLoader = require('react-imageloader');
-
-module.exports = React.createClass({
-  displayName: 'ImageLoader',
-  getInitialState: function getInitialState() {
-    return {
-      className: 'pre-image-load'
-    };
-  },
-  preloader: function preloader() {
-    var loaderStyle = { fontSize: '3px' };
-    return React.createElement('span', { className: 'loader', style: loaderStyle });
-  },
-  handleLoad: function handleLoad(evt) {
-    // Clear pre-image-load class name
-    // with a timeout to give CSS transition
-    // time to fade the image in
-    setTimeout((function () {
-      this.setState({ className: '' });
-    }).bind(this), 100);
-  },
-  handleError: function handleError(evt) {
-    console.log('error', evt, this);
-  },
-  render: function render() {
-    return React.createElement(
-      ImageLoader,
-      { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
-      'Clip load failed!'
-    );
-  }
-});
-
-},{"react":212,"react-imageloader":57}],223:[function(require,module,exports){
+},{"./clip":219,"./live-tile":223,"lodash/array/fill":5,"react":212}],223:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

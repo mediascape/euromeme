@@ -2,14 +2,14 @@ var React = require('react'),
     fill  = require('lodash/array/fill');
 
 var LiveTile = require('./live-tile'),
-    ImageLoader = require('./image-loader');
+    Clip = require('./clip');
 
 module.exports = React.createClass({
   displayName: 'Grid',
   clips: function () {
     return this.props.clips.map((clip, index) => {
       return <li key={index} className="grid-item grid-item-clip">
-        <ImageLoader src={clip[this.props.format]} />
+        <Clip src={clip[this.props.format]} />
       </li>;
     });
   },
