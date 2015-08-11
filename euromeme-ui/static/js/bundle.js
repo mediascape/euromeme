@@ -23456,7 +23456,7 @@ module.exports = React.createClass({
   },
   connectToDevice: function connectToDevice(info) {
     console.log('connectToDevice', info);
-    var device = deviceApi.connect(info);
+    var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
     this.setState({
       device: device
     });
