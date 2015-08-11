@@ -20,6 +20,7 @@
     "es6-promise": "~2.3.0",
     "exorcist": "~0.4.0",
     "isomorphic-fetch": "~2.1.1",
+    "oo-eventtarget": "0.0.3",
     "postcss-cli": "~1.5.0",
     "postcss-import": "~6.2.0",
     "watchify": "~3.3.1"
