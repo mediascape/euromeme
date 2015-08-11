@@ -73,6 +73,10 @@ var mediascape = function(_MS_) {
     if (_options.remember === undefined){
       _options.remember = true;
     }
+    if (_options.debug) {
+      localStorage.removeItem("mediascape_vpbr")
+      _options.remember = false;
+    }
     if (_options.automute === undefined) {
       _options.automute = true;
     }
@@ -101,7 +105,7 @@ var mediascape = function(_MS_) {
         var cur_pos = elem.currentTime;
         var miss = (_last_skip.pos + elapsed) - cur_pos;
         adjust = _last_skip.adjust + miss;
-        if (adjust > 2) adjust = 0; // Too sluggish, likely unlucky
+        if (adjust > 5) adjust = 0; // Too sluggish, likely unlucky
       }
       _dbg("SKIP:", pos, _motion.pos, adjust);
       if (_motion.vel != 1) {
@@ -122,6 +126,7 @@ var mediascape = function(_MS_) {
     var last_update;
     var _samples = [];
     var _vpbr; // Variable playback rate
+    var _last_bad = 0;
     // onTimeChange handler for variable playback rate
     var update_func_playbackspeed = function(e) {
         var snapshot = _motion.query();
@@ -154,7 +159,7 @@ var mediascape = function(_MS_) {
         try {
           if (!_vpbr && _bad > 80) {
             elem.muted = false;
-            throw Error("Variable playback rate seems broken");
+            throw new Error("Variable playback rate seems broken - " + _bad + " bad");
           }
           // If we're WAY OFF, jump
           var diff = p - elem.currentTime;
@@ -162,8 +167,11 @@ var mediascape = function(_MS_) {
             _dbg("JUMP: diff", diff);
             // Stationary, we need to just jump
             var new_pos = snapshot.pos + _options.skew;
-            _bad += 20;
-            skip(new_pos);
+            if (performance.now() - _last_bad > 150) {
+              _bad += 10;
+              _last_bad = performance.now();
+              skip(new_pos);
+            }
             return;
           }
 
@@ -231,9 +239,7 @@ var mediascape = function(_MS_) {
           localStorage["mediascape_vpbr"] = JSON.stringify({'appVersion':navigator.appVersion, "vpbr":false});
         }
         console.log("Error setting variable playback speed - seems broken", err);
-        elem.removeEventListener("timeupdate", update_func_playbackspeed);
-        elem.playbackRate = 1.0;
-        elem.addEventListener("timeupdate", update_func_skip);
+        _setUpdateFunc(update_func_skip);
       }
     };
 
@@ -243,11 +249,13 @@ var mediascape = function(_MS_) {
     // timeUpdate handler for skip based sync
     var update_func_skip = function(ev) {
       var snapshot = _motion.query();
-      if (snapshot.vel <= 0) {
+      if (snapshot.vel > 0) {
         if (elem.paused) {
+          console.log("PLAY");
           elem.play();
         }
       } else if (!elem.paused) {
+          console.log("PAUSE");
         elem.pause();
       }
 
@@ -302,7 +310,7 @@ var mediascape = function(_MS_) {
       } else if (_perfect > 15) {
         // We are hitting the target, make target smaller if we're beyond the users preference
         _dbg("Feels better");
-        _options.target = Math.max(Math.abs(diff) * 1.3, _options.original_target);
+        _options.target = Math.max(Math.abs(diff) * 0.7, _options.original_target);
         _perfect -= 8;
       }
 
@@ -356,16 +364,39 @@ var mediascape = function(_MS_) {
       }
       elem.removeEventListener("canplay", init);
       elem.removeEventListener("playing", init);
-      elem.addEventListener("timeupdate", _update_func);
-      _motion.on("change", function(e) {
-        _samples = [];
-        _last_skip = null;
-        _update_func(e);
-      });
+      _setUpdateFunc(_update_func);
+      _motion.on("change", onchange);
     }
 
     elem.addEventListener("canplay", init);
     elem.addEventListener("playing", init);
+
+    var _last_update_func;
+    var _setUpdateFunc = function(func) {
+      if (_last_update_func) {
+        elem.removeEventListener("timeupdate", _last_update_func);
+        elem.removeEventListener("pause", _last_update_func);
+        elem.removeEventListener("ended", _last_update_func);
+      }
+      _last_update_func = func;
+      elem.playbackRate = 1.0;
+      elem.addEventListener("timeupdate", func);
+      elem.addEventListener("pause", func);
+      elem.addEventListener("ended", func);
+    }
+
+    var onchange = function(e) {
+        _samples = [];
+        _last_skip = null;
+        _update_func(e);
+    }
+
+    var setMotion = function(motion) {
+      _motion.off("change", onchange);
+      _motion = motion;
+      _motion.on("change", onchange);
+    };
+
     var setSkew = function(skew) {
       _options.skew = skew;
     }
@@ -424,7 +455,8 @@ var mediascape = function(_MS_) {
       setSkew: setSkew,
       getSkew: getSkew,
       setOption: setOption,
-      getMethod: getMethod
+      getMethod: getMethod,
+      setMotion: setMotion
     };
     return API;
   }
