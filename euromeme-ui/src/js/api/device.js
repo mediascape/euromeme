@@ -18,17 +18,6 @@ module.exports = {
       throw new Error('Cannot connect to device without address and ip');
     }
 
-    var ws = new WebSocket('ws://' + info.address + ':' + info.port + '/');
-    ws.addEventListener('error', function () {
-      console.error('Device - connection error');
-    });
-    ws.addEventListener('connect', function () {
-      console.log('Device - connected');
-    });
-    ws.addEventListener('data', function (evt) {
-      console.log('Device - data', evt.data);
-    });
-
     return {
       address: info.address,
       port: info.port,
@@ -42,9 +31,35 @@ module.exports = {
             status.videoUrl - current playing video URL
       */
       status: function () {
-        return fetch('/config.json')
-          .then(function (response) {
-            return response.json();
+        var ws = new WebSocket('ws://' + info.address + ':' + info.port + '/');
+        var statPromise = new Promise(function(resolve, reject) {
+          ws.addEventListener('error', function (err) {
+            console.log('Device - connection error');
+            reject(err);
+          });
+
+          ws.addEventListener('open', function () {
+            console.log('Device - connected');
+            resolve();
+          });
+        });
+
+        return statPromise
+          .then(function() {
+            return new Promise(function(resolve, reject) {
+              ws.send(JSON.stringify({topic: 'status'}));
+
+              ws.addEventListener('message', function (evt) {
+                console.log('Device - data', evt.data);
+
+                try {
+                  var data = JSON.parse(evt.data);
+                  resolve(data);
+                } catch(err) {
+                  resolve(evt.data);
+                }
+              });
+            });
           })
           .then(function (json) {
             return {
