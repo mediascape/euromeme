@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify -t svg-reactify -t babelify -t brfs src/js/app.js -o static/js/bundle.js",
     "watch": "watchify -t svg-reactify -t babelify -t brfs src/js/app.js -o 'exorcist static/js/bundle.js.map > static/js/bundle.js' --debug --verbose",
@@ -27,5 +28,9 @@
     "es6-promise": "~2.3.0",
     "react-imageloader": "~2.0.0",
     "svg-reactify": "~1.0.2"
+  },
+  "dependencies": {
+    "express": "~4.13.3",
+    "serve-static": "~1.10.0"
   }
 }
