@@ -1,6 +1,7 @@
 var React = require('react');
 
-var Clip = require('./clip');
+var Clip = require('./clip'),
+    CloseIcon = require('../../../static/icons/close.svg');
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
@@ -17,7 +18,9 @@ module.exports = React.createClass({
     return (
       <div className="clip-preview">
         <div className="clip-preview-actions">
-          <button onClick={this.handleClose} className="close-button">Close</button>
+          <button onClick={this.handleClose} className="clip-preview-close-button">
+            <CloseIcon alt="Close" />
+          </button>
         </div>
         <Clip src={clipUrl} />
       </div>

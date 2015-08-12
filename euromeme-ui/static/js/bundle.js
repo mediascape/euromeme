@@ -25456,7 +25456,8 @@ React.render(React.createElement(Container, null), document.querySelector('#app-
 
 var React = require('react');
 
-var Clip = require('./clip');
+var Clip = require('./clip'),
+    CloseIcon = require('../../../static/icons/close.svg');
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
@@ -25478,8 +25479,8 @@ module.exports = React.createClass({
         { className: 'clip-preview-actions' },
         React.createElement(
           'button',
-          { onClick: this.handleClose, className: 'close-button' },
-          'Close'
+          { onClick: this.handleClose, className: 'clip-preview-close-button' },
+          React.createElement(CloseIcon, { alt: 'Close' })
         )
       ),
       React.createElement(Clip, { src: clipUrl })
@@ -25487,7 +25488,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":238,"react":230}],238:[function(require,module,exports){
+},{"../../../static/icons/close.svg":246,"./clip":238,"react":230}],238:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -25876,5 +25877,27 @@ module.exports = {
   }
 };
 
-},{}]},{},[236])
+},{}],246:[function(require,module,exports){
+"use strict";
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var React = require('react'),
+    SVG = function SVG(props) {
+
+    return React.createElement(
+        "svg",
+        _extends({}, props, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 100 100" }),
+        React.createElement("path", { fill: "#fff", d: "M13.953.016c-.735-.08-1.415.135-1.922.634L.658 12.03c-1 .996-.73 2.845.518 4.09L35.047 50 1.175 83.87C-.073 85.12-.342 86.954.657 87.958L12.03 99.334c1.005 1.008 2.852.865 4.094-.378l33.873-33.88 33.878 33.88c1.246 1.243 3.088 1.386 4.092.378l11.378-11.377c.995-1.004.73-2.84-.516-4.086L64.955 50 98.83 16.12c1.246-1.245 1.51-3.094.515-4.09L87.967.65c-1.004-.995-2.846-.73-4.092.513l-33.878 33.88-33.873-33.88C15.5.537 14.69.096 13.954.016z" })
+    );
+};
+
+module.exports = React.createClass({
+    displayName: 'svg-close',
+    render: function render() {
+
+        return SVG(this.props);
+    }
+});
+},{"react":230}]},{},[236])
 //# sourceMappingURL=bundle.js.map
