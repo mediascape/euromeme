@@ -1066,6 +1066,7 @@ process.umask = function() { return 0; };
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"_process":1}],3:[function(require,module,exports){
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
@@ -1412,6 +1413,109 @@ module.exports = self.fetch.bind(self);
 })();
 
 },{}],5:[function(require,module,exports){
+module.exports = require("./lib/$EventTarget.js");
+},{"./lib/$EventTarget.js":6}],6:[function(require,module,exports){
+/**
+	$EventTarget mixin
+	@author Bart Van Beurden
+	@date 26/01/2014
+**/
+
+/**
+	Events dispatched by $EventTarget have 3 properties:
+	- type (string)
+	- target (event source)
+	- data (user-provided)
+**/
+var Event = function(type, target, data) {
+	this.type = type;
+	this.target = target;
+	this.data = data;
+};
+
+/**
+	$EventTarget mixin
+	Extends an object with EventTarget methods
+	(adds #addEventListener, #removeEventListener, #dispatchEvent)
+	@param obj The object to extend
+**/
+module.exports = function(obj) {
+
+	obj._listeners = {};
+	var proto = Object.getPrototypeOf(obj);
+	
+	// if necessary, extend prototype
+	if (!proto.addEventListener) {
+	
+		/**
+			$EventTarget#addEventListener
+			@param type The event Type to listen to
+			@param callback(event) The listener function
+			@returns this
+		**/
+		Object.defineProperty(proto, "addEventListener", { value: function(type, callback) {
+			console.assert(typeof type == "string", "$EventTarget#addEventListener - type must be string");
+			console.assert(typeof callback == "function", "$EventTarget#addEventListener - callback must be function");
+			
+			var listeners = this._listeners[type];
+			if (!listeners) listeners = this._listeners[type] = [];
+			listeners.push(callback);
+			return this;
+		}});
+		
+		/**
+			$EventTarget#removeEventListener
+			@param type The event Type to remove
+			@param callback(event) The listener function to remove
+			@returns this
+		**/
+		Object.defineProperty(proto, "removeEventListener", { value: function(type, callback) {
+			console.assert(typeof type == "string", "$EventTarget#removeEventListener - type must be string");
+			console.assert(typeof callback == "function", "$EventTarget#removeEventListener - callback must be function");
+			
+			var listeners = this._listeners[type];
+			if (listeners) {
+				var index = listeners.indexOf(callback);
+				if (index != -1) {
+					listeners.splice(index, 1);
+					if (listeners.length == 0) delete this._listeners[type];
+				}
+			}
+			return this;
+		}});
+		
+		Object.defineProperty(proto, "clearEventListeners", { value: function(type) {
+			
+			if (arguments.length == 0) {
+				this._listeners = {};
+			} else {
+				delete this._listeners[type];
+			}
+			return this;
+		}});
+		
+		var dispatcher = function(event) { 
+			return function(callback) { 
+				callback(event);
+			};
+		};
+		
+		/**
+			$EventTarget#dispatchEvent
+			@param type The type of the event to dispatch
+			@param data [Optional] The data to pass to the listeners
+		**/
+		Object.defineProperty(proto, "dispatchEvent", { value: function(type, data) {
+			console.assert(typeof type == "string", "$EventTarget#dispatchEvent - type must be string");
+			
+			(this._listeners[type] || []).forEach(dispatcher(new Event(type, this, data)));
+		}});
+	};
+	
+	return obj;
+
+};
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -1428,12 +1532,26 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":9}],6:[function(require,module,exports){
+},{"../util/fetch":11}],8:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./api/config.js');
 var Sync = require('./sync.js');
-var ws = require('./relay.js');
+var Relay = require('./relay.js');
+
+configApi.config().then(initRelay).then(initVideoSync).then(function (sync) {
+  console.log(sync);
+  // Start video from the beginning.
+  sync.restart();
+}, function (error) {
+  console.error(error);
+});
+
+function initRelay(config) {
+  var relay = Relay.create(config);
+
+  return config;
+}
 
 function initVideoSync(config) {
   var video = document.getElementById('video');
@@ -1442,32 +1560,64 @@ function initVideoSync(config) {
   return Sync.init(video, config.appId, config.msvName, { debug: true });
 }
 
-configApi.config().then(initVideoSync).then(function (sync) {
-  console.log(sync);
-  // Start video from the beginning.
-  sync.restart();
-}, function (error) {
-  console.error(error);
-});
-
-},{"./api/config.js":5,"./relay.js":7,"./sync.js":8}],7:[function(require,module,exports){
+},{"./api/config.js":7,"./relay.js":9,"./sync.js":10}],9:[function(require,module,exports){
 'use strict';
 
-var ws = new WebSocket('ws://localhost:5001/relay');
+var JsonWebSocket = require('./util/json-websocket'),
+    Promise = require('es6-promise').Promise;
 
-ws.addEventListener('open', function () {
-  console.log('Websocket open');
-});
-ws.addEventListener('message', function (evt) {
-  console.info('message', evt);
-});
-ws.addEventListener('error', function (err) {
-  console.error('Websocket error', err.stack);
-});
+module.exports.create = function (config) {
+  var ws,
+      uri,
+      ready,
+      instance = {};
 
-module.exports = ws;
+  uri = config.relayURI || 'ws://localhost:5001/relay';
+  ws = new JsonWebSocket(uri);
 
-},{}],8:[function(require,module,exports){
+  ready = new Promise(function (resolve, reject) {
+    ws.addEventListener('open', function () {
+      console.log('Websocket open');
+      resolve();
+    });
+
+    ws.addEventListener('error', function (err) {
+      console.error('Websocket error', err.stack);
+      reject(err);
+    });
+  });
+
+  ws.addEventListener('message', function (evt) {
+    console.info('message', evt);
+    instance.handleMessage(evt.data);
+  });
+
+  instance.send = function (topic, data) {
+    return ready.then(function () {
+      data = data || {};
+
+      data.topic = topic;
+
+      return ws.send(data);
+    });
+  };
+
+  instance.handleMessage = function (msg) {
+    msg = msg || {};
+
+    switch (msg.topic) {
+      case 'status':
+        instance.send('status', config);
+        break;
+      default:
+        console.warn('Unknown topic ' + msg.topic);
+    }
+  };
+
+  return instance;
+};
+
+},{"./util/json-websocket":12,"es6-promise":2}],10:[function(require,module,exports){
 'use strict';
 
 var Promise = require('es6-promise').Promise;
@@ -1536,11 +1686,100 @@ function init(mediaElement, appId, msvName, options) {
 
 module.exports = { init: init };
 
-},{"es6-promise":2}],9:[function(require,module,exports){
+},{"es6-promise":2}],11:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}]},{},[6]);
+},{"es6-promise":2,"isomorphic-fetch":3}],12:[function(require,module,exports){
+'use strict';
+
+var $EventTarget = require('oo-eventtarget');
+
+/**
+ * A websocket client that automatically translates sent and received messages
+ * to/from JSON format.
+ *
+ * @class
+ *
+ * @param {string} url The websocket URL to connect to.
+ */
+
+function JsonWebSocket(url) {
+  $EventTarget(this);
+
+  this._ws = new WebSocket(url);
+  this._ws.addEventListener('open', this._handleOpen.bind(this));
+  this._ws.addEventListener('error', this._handleError.bind(this));
+  this._ws.addEventListener('message', this._handleMessage.bind(this));
+
+  return this;
+}
+
+/**
+ * Sends an object in JSON format over the websocket connection.
+ *
+ * @param obj The data to send.
+ */
+
+JsonWebSocket.prototype.send = function (obj) {
+  var json = JSON.stringify(obj);
+
+  if (json) {
+    return this._ws.send(json);
+  } else {
+    console.error('JsonWebSocket.send, invalid object:', obj);
+  }
+};
+
+/**
+ * Received message handler. Decodes the message data as JSON and, if
+ * successful, raises a <code>message</code> event with the decoded data.
+ *
+ * @private
+ */
+
+JsonWebSocket.prototype._handleMessage = function (evt) {
+  if (!evt || !evt.data) {
+    console.error('JsonWebSocket._handleMessage, unexpected event:', evt);
+    return;
+  }
+
+  try {
+    var data = JSON.parse(evt.data);
+    this.dispatchEvent('message', data);
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      console.error('JsonWebSocket._handleMessage, received invalid JSON:', evt.data);
+    } else {
+      throw e;
+    }
+  }
+};
+
+/**
+ * Connection opened handler. Raises an <code>open</code> event.
+ *
+ * @private
+ */
+
+JsonWebSocket.prototype._handleOpen = function () {
+  this.dispatchEvent('open');
+};
+
+/**
+ * Error handler. Raises an <code>error</code> event with the error.
+ *
+ * @private
+ */
+
+JsonWebSocket.prototype._handleError = function (err) {
+  this.dispatchEvent('error', err);
+};
+
+module.exports = JsonWebSocket;
+
+},{"oo-eventtarget":5}]},{},[8])
+//# sourceMappingURL=bundle.js.map

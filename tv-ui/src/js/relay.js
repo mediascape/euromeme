@@ -1,13 +1,52 @@
 'use strict';
 
-var JsonWebSocket = require('./util/json-websocket');
+var JsonWebSocket = require('./util/json-websocket'),
+    Promise = require('es6-promise').Promise;
 
-var ws = new JsonWebSocket('ws://localhost:5001/relay');
+module.exports.create = function(config) {
+  var ws, uri, ready, instance = {};
 
-ws.addEventListener('open',    function ()    { console.log('Websocket open'); });
-ws.addEventListener('message', function (evt) { console.info('message', evt); });
-ws.addEventListener('error',   function (err) { console.error('Websocket error', err.stack); });
+  uri = config.relayURI || 'ws://localhost:5001/relay';
+  ws  = new JsonWebSocket(uri);
 
-// ws.send({ a: '1' });
+  ready = new Promise(function(resolve, reject) {
+    ws.addEventListener('open', function() {
+      console.log('Websocket open');
+      resolve();
+    });
 
-module.exports = ws;
+    ws.addEventListener('error', function(err) {
+      console.error('Websocket error', err.stack);
+      reject(err);
+    });
+  });
+
+  ws.addEventListener('message', function(evt) {
+    console.info('message', evt);
+    instance.handleMessage(evt.data);
+  });
+
+  instance.send = function(topic, data) {
+    return ready.then(function() {
+      data = data || {};
+
+      data.topic = topic;
+
+      return ws.send(data);
+    });
+  };
+
+  instance.handleMessage = function(msg) {
+    msg = msg || {};
+
+    switch(msg.topic) {
+      case 'status':
+        instance.send('status', config);
+        break;
+      default:
+        console.warn('Unknown topic ' + msg.topic);
+    }
+  };
+
+  return instance;
+};
