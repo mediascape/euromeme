@@ -25470,7 +25470,7 @@ module.exports = React.createClass({
     }
   },
   render: function render() {
-    var clipUrl = this.props.clip.poster.replace('$size', 720);
+    var clipUrl = this.props.clip.mp4.replace('$size', 720);
     return React.createElement(
       'div',
       { className: 'clip-preview' },
@@ -25483,7 +25483,7 @@ module.exports = React.createClass({
           React.createElement(CloseIcon, { alt: 'Close' })
         )
       ),
-      React.createElement(Clip, { src: clipUrl })
+      React.createElement(Clip, { src: clipUrl, format: 'video' })
     );
   }
 });
@@ -25517,11 +25517,15 @@ module.exports = React.createClass({
     console.log('error', evt, this);
   },
   render: function render() {
-    return React.createElement(
-      ImageLoader,
-      { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
-      'Clip load failed!'
-    );
+    if (this.props.format === 'video') {
+      return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true });
+    } else {
+      return React.createElement(
+        ImageLoader,
+        { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
+        'Clip load failed!'
+      );
+    }
   }
 });
 

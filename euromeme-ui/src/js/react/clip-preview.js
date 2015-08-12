@@ -14,7 +14,7 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var clipUrl = this.props.clip.poster.replace('$size', 720);
+    var clipUrl = this.props.clip.mp4.replace('$size', 720);
     return (
       <div className="clip-preview">
         <div className="clip-preview-actions">
@@ -22,7 +22,7 @@ module.exports = React.createClass({
             <CloseIcon alt="Close" />
           </button>
         </div>
-        <Clip src={clipUrl} />
+        <Clip src={clipUrl} format="video" />
       </div>
     );
   }

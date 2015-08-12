@@ -317,7 +317,8 @@ body {
   display: block;
 }
 
-.clip-preview .imageloader img {
+.clip-preview img,
+.clip-preview video {
   width: 100%;
 }
 /*
