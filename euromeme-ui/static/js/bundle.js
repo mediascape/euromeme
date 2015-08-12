@@ -25469,7 +25469,7 @@ module.exports = React.createClass({
     }
   },
   render: function render() {
-    var clipUrl = this.props.clip.gif.replace('$size', 720);
+    var clipUrl = this.props.clip.poster.replace('$size', 720);
     return React.createElement(
       'div',
       { className: 'clip-preview' },
@@ -25684,7 +25684,7 @@ module.exports = React.createClass({
       { onTouchStart: this.captureTap, onDoubleClick: this.handleViewSelection },
       React.createElement(
         ReactCSSTransitionGroup,
-        { transitionName: 'view' },
+        { transitionName: 'view', component: 'div', className: 'container' },
         view
       )
     );

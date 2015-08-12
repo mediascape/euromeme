@@ -13,7 +13,7 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var clipUrl = this.props.clip.gif.replace('$size', 720);
+    var clipUrl = this.props.clip.poster.replace('$size', 720);
     return (
       <div className="clip-preview">
         <div className="clip-preview-actions">

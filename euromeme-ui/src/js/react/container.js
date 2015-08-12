@@ -154,7 +154,7 @@ module.exports = React.createClass({
 
     return (
       <div onTouchStart={this.captureTap} onDoubleClick={this.handleViewSelection}>
-      <ReactCSSTransitionGroup transitionName="view">
+      <ReactCSSTransitionGroup transitionName="view" component="div" className="container">
       { view }
       </ReactCSSTransitionGroup>
     </div>);

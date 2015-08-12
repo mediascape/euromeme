@@ -10,6 +10,29 @@ body {
   left: 0;
   right: 0;
 }
+
+/*
+  All views are direct decendents of
+  the .container.
+  Only one view should be visible at
+  a time so they stack on top of each
+  other.
+*/
+.container {
+  position: relative;
+
+  /* Fix to Nexus 7 (2013) CSS resolution */
+  width: 960px;
+  height: 600px;
+}
+
+.container > * {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
 .centered-view.is-active {
   display: -webkit-box;
   display: -webkit-flex;
@@ -270,7 +293,21 @@ body {
 
 .clip-preview-actions {
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 50px;
+  border: 1px solid red;
+  z-index: 100;
+}
+
+
+.clip-preview .imageloader {
+  display: block;
+}
+
+.clip-preview .imageloader img {
+  width: 100%;
 }
 /*
   Defines CSS transitions triggers when the Container

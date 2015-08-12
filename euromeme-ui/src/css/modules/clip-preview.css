@@ -7,5 +7,19 @@
 
 .clip-preview-actions {
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 50px;
+  border: 1px solid red;
+  z-index: 100;
+}
+
+
+.clip-preview .imageloader {
+  display: block;
+}
+
+.clip-preview .imageloader img {
+  width: 100%;
 }
