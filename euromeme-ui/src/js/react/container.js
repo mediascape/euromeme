@@ -58,6 +58,10 @@ module.exports = React.createClass({
         console.log(' clips', clips);
         this.setState({
           videoUrl: deviceStatus.videoUrl,
+          sync: {
+            msvName: deviceStatus.msvName,
+            appId: deviceStatus.appId
+          },
           clips: clips
         });
         this.initView(this.views.grid);
@@ -140,7 +144,7 @@ module.exports = React.createClass({
           view = <DeviceList key={this.views.tvs} devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
           break;
         case this.views.grid:
-          view = <Grid key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
+          view = <Grid sync={this.state.sync} key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} onGridItemSelected={this.handleGridItemSelected} />;
           break;
         case this.views.preview:
           view = <ClipPreview key={this.views.preview} onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;

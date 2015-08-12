@@ -25324,6 +25324,8 @@ module.exports = {
           return response.json();
         }).then(function (json) {
           return {
+            msvName: json.msvName,
+            appId: json.appId,
             videoUrl: json.videoUrl
           };
         });
@@ -25590,6 +25592,10 @@ module.exports = React.createClass({
       console.log(' clips', clips);
       this.setState({
         videoUrl: deviceStatus.videoUrl,
+        sync: {
+          msvName: deviceStatus.msvName,
+          appId: deviceStatus.appId
+        },
         clips: clips
       });
       this.initView(this.views.grid);
@@ -25672,7 +25678,7 @@ module.exports = React.createClass({
           view = React.createElement(DeviceList, { key: this.views.tvs, devices: this.state.devices, onDeviceSelected: this.connectToDevice });
           break;
         case this.views.grid:
-          view = React.createElement(Grid, { key: this.views.grid, videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, onGridItemSelected: this.handleGridItemSelected });
+          view = React.createElement(Grid, { sync: this.state.sync, key: this.views.grid, videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, onGridItemSelected: this.handleGridItemSelected });
           break;
         case this.views.preview:
           view = React.createElement(ClipPreview, { key: this.views.preview, onClose: this.handleClipPreviewClose, clip: this.state.previewItem });
@@ -25775,7 +25781,7 @@ module.exports = React.createClass({
     var live = React.createElement(
       'li',
       { key: 'live', className: 'grid-item grid-item-live' },
-      React.createElement(LiveTile, { src: this.props.videoUrl })
+      React.createElement(LiveTile, { src: this.props.videoUrl, msvName: this.props.sync.msvName, appId: this.props.sync.appId })
     ),
         clips = this.clips().concat(live);
 
@@ -25813,7 +25819,8 @@ module.exports = React.createClass({
     $video.addEventListener('playing', function () {
       console.log('Event: video.playing');
     });
-    return Sync.init($video, config.appId, config.msvName, { debug: true });
+    console.log('props', this.props);
+    return Sync.init($video, this.props.appId, this.props.msvName, { debug: true });
   },
   handleTileSelection: function handleTileSelection() {
     var $video = this.refs.video.getDOMNode();

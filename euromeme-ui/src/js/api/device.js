@@ -48,6 +48,8 @@ module.exports = {
           })
           .then(function (json) {
             return {
+              msvName: json.msvName,
+              appId: json.appId,
               videoUrl: json.videoUrl
             };
           });

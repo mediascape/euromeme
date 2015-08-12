@@ -14,7 +14,8 @@ module.exports = React.createClass({
     $video.addEventListener('playing', function () {
       console.log('Event: video.playing');
     });
-    return Sync.init($video, config.appId, config.msvName, { debug: true });
+    console.log('props', this.props);
+    return Sync.init($video, this.props.appId, this.props.msvName, { debug: true });
   },
   handleTileSelection: function () {
     var $video = this.refs.video.getDOMNode();
