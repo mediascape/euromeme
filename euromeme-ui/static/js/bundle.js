@@ -25484,7 +25484,7 @@ module.exports = React.createClass({
         { className: 'clip-preview-actions' },
         React.createElement(
           'button',
-          { onClick: this.handleClose, className: 'clip-preview-close-button' },
+          { onTouchStart: this.handleClose, onClick: this.handleClose, className: 'clip-preview-close-button' },
           React.createElement(CloseIcon, { alt: 'Close' })
         )
       ),
@@ -25772,7 +25772,7 @@ module.exports = React.createClass({
       var clipUrl = clip[_this.props.format].replace('$size', 180);
       return React.createElement(
         'li',
-        { key: index, onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
+        { key: index, onTouchStart: _this.handleItemSelection.bind(_this, clip), onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
         React.createElement(Clip, { src: clipUrl })
       );
     });
@@ -25833,7 +25833,7 @@ module.exports = React.createClass({
       React.createElement('i', { className: 'live-tile-icon' }),
       React.createElement(
         'video',
-        { ref: 'video', onClick: this.handleTileSelection, autoPlay: true, src: this.props.src },
+        { ref: 'video', onClick: this.handleTileSelection, autoPlay: true, preload: true, muted: true, src: this.props.src },
         ' '
       )
     );

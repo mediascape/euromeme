@@ -18,7 +18,7 @@ module.exports = React.createClass({
     return (
       <div className="clip-preview">
         <div className="clip-preview-actions">
-          <button onClick={this.handleClose} className="clip-preview-close-button">
+          <button onTouchStart={this.handleClose} onClick={this.handleClose} className="clip-preview-close-button">
             <CloseIcon alt="Close" />
           </button>
         </div>

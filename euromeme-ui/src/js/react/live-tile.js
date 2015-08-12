@@ -25,7 +25,7 @@ module.exports = React.createClass({
     return (
       <div className="live-tile">
         <i className="live-tile-icon"></i>
-        <video ref="video" onClick={this.handleTileSelection} autoPlay src={this.props.src}> </video>
+        <video ref="video" onClick={this.handleTileSelection} autoPlay preload muted src={this.props.src}> </video>
       </div>
     );
   }

@@ -14,7 +14,7 @@ module.exports = React.createClass({
   clips: function () {
     return this.props.clips.map((clip, index) => {
       var clipUrl = clip[this.props.format].replace('$size', 180);
-      return <li key={index} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
+      return <li key={index} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
         <Clip src={clipUrl} />
       </li>;
     });
