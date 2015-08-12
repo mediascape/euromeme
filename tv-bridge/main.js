@@ -1,8 +1,10 @@
 var mDNSResponder = require('./lib/mdns'),
     Relay         = require('./lib/relay');
 
-var mdns = new mDNSResponder({ port: 5001, instanceName: 'mediascape-tv-{hostname}' }),
-    relay = new Relay({ port: 5001 });
+var port = process.env.PORT || 5100;
+
+var mdns = new mDNSResponder({ port: port, instanceName: 'mediascape-tv-{hostname}' }),
+    relay = new Relay({ port: port });
 
 // Advertise this TV
 mdns.advertise();
