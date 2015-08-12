@@ -6,9 +6,12 @@ var fetch = require('../util/fetch'),
   Creates an instance that connects to the Clips API.
 
   Params:
-    frameStoreTemplate <String> Template to retrieve a single image
+    clipsApiEndpoint      <String>  Endpoint for the clips API
+    mediaStoreUrlTemplate <String>  Template to access the media asset store.
+                                    Should contain the $mediaPath template tag
+                                    that is replaced with the clip path.
 */
-module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate, imageSize) {
+module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
 
   /*
     Prefix each value in object with mediaStoreEndpoint

@@ -51,8 +51,7 @@ module.exports = React.createClass({
     console.log('initWithDeviceStatus', deviceStatus);
     clipsApi(
       this.state.config.clipsApiEndpoint,
-      this.state.config.mediaStoreUrlTemplate,
-      '180'
+      this.state.config.mediaStoreUrlTemplate
     )
       .recent()
       .then(function (clips) {
