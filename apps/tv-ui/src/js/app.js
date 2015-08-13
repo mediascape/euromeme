@@ -1,3 +1,5 @@
+'use strict';
+
 var configApi = require('./api/config.js');
 var Sync      = require('./sync.js');
 var Relay     = require('./relay.js');
