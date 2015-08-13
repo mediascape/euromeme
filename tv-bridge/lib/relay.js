@@ -37,6 +37,6 @@ module.exports = function (config) {
     }
   });
 
-  console.log('Listening on ', config.port);
+  console.log('Listening on port', config.port);
   server.listen(config.port);
 }
