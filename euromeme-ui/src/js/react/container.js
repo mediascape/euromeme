@@ -19,7 +19,8 @@ module.exports = React.createClass({
     'tvs'        : 'tvs',
     'connecting' : 'connecting',
     'grid'       : 'grid',
-    'preview'    : 'preview'
+    'preview'    : 'preview',
+    'error'      : 'error'
   },
   getInitialState: function() {
     return {
@@ -68,6 +69,12 @@ module.exports = React.createClass({
       }.bind(this))
       .catch(function (err) { console.error(err); });
   },
+  initErrorView: function (err) {
+    this.setState({
+      viewName: this.views.error,
+      error: err
+    });
+  },
   connectToDevice: function (info) {
     console.log('connectToDevice', info);
     var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
@@ -77,7 +84,14 @@ module.exports = React.createClass({
     this.initView(this.views.connecting);
     device
       .status()
-      .then(this.initWithDeviceStatus, function (err) { console.error(err); });
+      .then(
+        this.initWithDeviceStatus,
+        (err) => {
+          var e = new Error('Error connecting to ' + info.host);
+          e.original = err;
+          this.initErrorView(e);
+        }
+      );
   },
   componentDidMount: function () {
     // Instance variables for doubletaps
@@ -128,12 +142,15 @@ module.exports = React.createClass({
       case this.views.connecting:
         loadingMessage = 'Connecting to ' + this.state.device.name;
         break;
+      case this.views.error:
+        loadingMessage = this.state.error.message;
+        break;
     }
 
     if (loadingMessage) {
       console.log('view: loader', loadingMessage);
       view = (
-        <LoaderView key="loader" isActive='true'>
+        <LoaderView key="loader" isActive='true' isError={!!this.state.error}>
           {loadingMessage}
         </LoaderView>
       );

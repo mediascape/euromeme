@@ -25584,7 +25584,8 @@ module.exports = React.createClass({
     'tvs': 'tvs',
     'connecting': 'connecting',
     'grid': 'grid',
-    'preview': 'preview'
+    'preview': 'preview',
+    'error': 'error'
   },
   getInitialState: function getInitialState() {
     return {
@@ -25629,7 +25630,15 @@ module.exports = React.createClass({
       console.error(err);
     });
   },
+  initErrorView: function initErrorView(err) {
+    this.setState({
+      viewName: this.views.error,
+      error: err
+    });
+  },
   connectToDevice: function connectToDevice(info) {
+    var _this = this;
+
     console.log('connectToDevice', info);
     var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
     this.setState({
@@ -25637,7 +25646,9 @@ module.exports = React.createClass({
     });
     this.initView(this.views.connecting);
     device.status().then(this.initWithDeviceStatus, function (err) {
-      console.error(err);
+      var e = new Error('Error connecting to ' + info.host);
+      e.original = err;
+      _this.initErrorView(e);
     });
   },
   componentDidMount: function componentDidMount() {
@@ -25688,13 +25699,16 @@ module.exports = React.createClass({
       case this.views.connecting:
         loadingMessage = 'Connecting to ' + this.state.device.name;
         break;
+      case this.views.error:
+        loadingMessage = this.state.error.message;
+        break;
     }
 
     if (loadingMessage) {
       console.log('view: loader', loadingMessage);
       view = React.createElement(
         LoaderView,
-        { key: 'loader', isActive: 'true' },
+        { key: 'loader', isActive: 'true', isError: !!this.state.error },
         loadingMessage
       );
     } else {
@@ -25871,29 +25885,39 @@ module.exports = React.createClass({
 
 var React = require('react');
 
+var ErrorIcon = require('../../../static/icons/error.svg');
+
 module.exports = React.createClass({
   displayName: 'LoaderView',
   render: function render() {
-    var className = 'fullscreen centered-view';
+    var className = 'fullscreen centered-view',
+        errorIcon = this.props.isError ? React.createElement(
+      'span',
+      { className: 'centered-view-icon' },
+      React.createElement(ErrorIcon, null)
+    ) : '',
+        loaderIcon = this.props.isError ? '' : React.createElement(
+      'span',
+      { className: 'centered-view-inner loader' },
+      '…'
+    );
     className += this.props.isActive ? ' is-active' : ' is-inactive';
+    className += this.props.isError ? ' is-error' : ' is-not-error';
     return React.createElement(
       'div',
       { className: className },
+      errorIcon,
       React.createElement(
         'span',
         { className: 'centered-view-message' },
         this.props.children
       ),
-      React.createElement(
-        'span',
-        { className: 'centered-view-inner loader' },
-        '…'
-      )
+      loaderIcon
     );
   }
 });
 
-},{"react":230}],244:[function(require,module,exports){
+},{"../../../static/icons/error.svg":247,"react":230}],244:[function(require,module,exports){
 // For fetch
 'use strict';
 
@@ -25934,6 +25958,28 @@ var React = require('react'),
 
 module.exports = React.createClass({
     displayName: 'svg-close',
+    render: function render() {
+
+        return SVG(this.props);
+    }
+});
+},{"react":230}],247:[function(require,module,exports){
+"use strict";
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var React = require('react'),
+    SVG = function SVG(props) {
+
+    return React.createElement(
+        "svg",
+        _extends({}, props, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 100 100" }),
+        React.createElement("path", { d: "M49.9 78c-4.2 0-7.6 3.5-7.6 7.8v1.5c0 4.3 3.4 7.7 7.6 7.7 4.2 0 7.7-3.4 7.7-7.7v-1.5c0-4.3-3.4-7.8-7.7-7.8zm-.1-73c-6.3 0-11.9 6.1-11.3 12.4l3.8 47c.2 3.7 3.1 6.9 6.9 7.2 4.3.3 8.1-3 8.4-7.2l3.9-47C62 11.1 56.6 5 49.8 5z" })
+    );
+};
+
+module.exports = React.createClass({
+    displayName: 'svg-error',
     render: function render() {
 
         return SVG(this.props);

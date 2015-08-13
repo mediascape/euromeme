@@ -64,6 +64,12 @@ body {
   display: block;
 }
 
+.centered-view-icon {
+  width: 50px;
+  fill: #999;
+}
+
+.centered-view-icon,
 .centered-view-message {
   display: inline-block;
   font-size: 2rem;
