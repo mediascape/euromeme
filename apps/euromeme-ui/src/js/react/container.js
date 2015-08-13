@@ -34,6 +34,7 @@ module.exports = React.createClass({
     return (err) => {
       var e = new Error(msg);
       e.original = err;
+      console.error(e.original);
       this.initErrorView(e);
     };
   },
@@ -46,7 +47,10 @@ module.exports = React.createClass({
     this.initView(this.views.discovering);
     discoveryApi
       .discover()
-      .then(this.initWithTvList, function (err) { console.error(err); });
+      .then(
+        this.initWithTvList,
+        this.createErrorHandlerWithMessage('Error finding devices')
+      );
   },
   initWithTvList: function (list) {
     console.log('initWithTvList', list);
@@ -62,7 +66,7 @@ module.exports = React.createClass({
       this.state.config.mediaStoreUrlTemplate
     )
       .recent()
-      .then(function (clips) {
+      .then((clips) => {
         console.log(' clips', clips);
         this.setState({
           videoUrl: deviceStatus.videoUrl,
@@ -73,8 +77,8 @@ module.exports = React.createClass({
           clips: clips
         });
         this.initView(this.views.grid);
-      }.bind(this))
-      .catch(function (err) { console.error(err); });
+      })
+      .catch(this.createErrorHandlerWithMessage('There was a problem loading recent clips'));
   },
   initErrorView: function (err) {
     this.setState({
@@ -103,7 +107,10 @@ module.exports = React.createClass({
 
     configApi
       .config()
-      .then(this.initWithConfig, function (err) { console.error(err); });
+      .then(
+        this.initWithConfig,
+        this.createErrorHandlerWithMessage('Error loading Euromeme')
+      );
   },
   handleViewSelection: function () {
     console.log('Container.handleViewSelection');

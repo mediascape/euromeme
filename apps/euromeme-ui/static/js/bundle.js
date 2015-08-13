@@ -25601,6 +25601,7 @@ module.exports = React.createClass({
     return function (err) {
       var e = new Error(msg);
       e.original = err;
+      console.error(e.original);
       _this.initErrorView(e);
     };
   },
@@ -25611,9 +25612,7 @@ module.exports = React.createClass({
     console.log('initWithConfig', config);
     this.setState({ config: config });
     this.initView(this.views.discovering);
-    discoveryApi.discover().then(this.initWithTvList, function (err) {
-      console.error(err);
-    });
+    discoveryApi.discover().then(this.initWithTvList, this.createErrorHandlerWithMessage('Error finding devices'));
   },
   initWithTvList: function initWithTvList(list) {
     console.log('initWithTvList', list);
@@ -25623,10 +25622,12 @@ module.exports = React.createClass({
     this.initView(this.views.tvs);
   },
   initWithDeviceStatus: function initWithDeviceStatus(deviceStatus) {
+    var _this2 = this;
+
     console.log('initWithDeviceStatus', deviceStatus);
-    clipsApi(this.state.config.clipsApiEndpoint, this.state.config.mediaStoreUrlTemplate).recent().then((function (clips) {
+    clipsApi(this.state.config.clipsApiEndpoint, this.state.config.mediaStoreUrlTemplate).recent().then(function (clips) {
       console.log(' clips', clips);
-      this.setState({
+      _this2.setState({
         videoUrl: deviceStatus.videoUrl,
         sync: {
           msvName: deviceStatus.msvName,
@@ -25634,10 +25635,8 @@ module.exports = React.createClass({
         },
         clips: clips
       });
-      this.initView(this.views.grid);
-    }).bind(this))['catch'](function (err) {
-      console.error(err);
-    });
+      _this2.initView(_this2.views.grid);
+    })['catch'](this.createErrorHandlerWithMessage('There was a problem loading recent clips'));
   },
   initErrorView: function initErrorView(err) {
     this.setState({
@@ -25659,9 +25658,7 @@ module.exports = React.createClass({
     this.tapCount = 0;
     this.tapInterval = null;
 
-    configApi.config().then(this.initWithConfig, function (err) {
-      console.error(err);
-    });
+    configApi.config().then(this.initWithConfig, this.createErrorHandlerWithMessage('Error loading Euromeme'));
   },
   handleViewSelection: function handleViewSelection() {
     console.log('Container.handleViewSelection');
