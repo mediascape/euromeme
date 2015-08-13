@@ -25477,90 +25477,12 @@ module.exports = { init: init };
 
 var React = require('react');
 
-var Container = require('./react/container.js');
+var Application = require('./react/application.js');
 
 React.initializeTouchEvents(true);
-React.render(React.createElement(Container, null), document.querySelector('#app-container'));
+React.render(React.createElement(Application, null), document.querySelector('#app-container'));
 
-},{"./react/container.js":239,"react":230}],237:[function(require,module,exports){
-'use strict';
-
-var React = require('react');
-
-var Clip = require('./clip'),
-    CloseIcon = require('../../../static/icons/close.svg');
-
-module.exports = React.createClass({
-  displayName: 'ClipPreview',
-  getInitialState: function getInitialState() {
-    return {};
-  },
-  handleClose: function handleClose() {
-    if (this.props.onClose) {
-      this.props.onClose();
-    }
-  },
-  render: function render() {
-    var clipUrl = this.props.clip.mp4.replace('$size', 720);
-    return React.createElement(
-      'div',
-      { className: 'clip-preview' },
-      React.createElement(
-        'div',
-        { className: 'clip-preview-actions' },
-        React.createElement(
-          'button',
-          { onTouchStart: this.handleClose, onClick: this.handleClose, className: 'clip-preview-close-button' },
-          React.createElement(CloseIcon, { alt: 'Close' })
-        )
-      ),
-      React.createElement(Clip, { src: clipUrl, format: 'video' })
-    );
-  }
-});
-
-},{"../../../static/icons/close.svg":246,"./clip":238,"react":230}],238:[function(require,module,exports){
-'use strict';
-
-var React = require('react'),
-    ImageLoader = require('react-imageloader');
-
-module.exports = React.createClass({
-  displayName: 'Clip',
-  getInitialState: function getInitialState() {
-    return {
-      className: 'pre-image-load'
-    };
-  },
-  preloader: function preloader() {
-    var loaderStyle = { fontSize: '3px' };
-    return React.createElement('span', { className: 'loader', style: loaderStyle });
-  },
-  handleLoad: function handleLoad(evt) {
-    // Clear pre-image-load class name
-    // with a timeout to give CSS transition
-    // time to fade the image in
-    setTimeout((function () {
-      this.setState({ className: '' });
-    }).bind(this), 100);
-  },
-  handleError: function handleError(evt) {
-    console.log('error', evt, this);
-  },
-  render: function render() {
-    if (this.props.format === 'video') {
-      return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true });
-    } else {
-      return React.createElement(
-        ImageLoader,
-        { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
-        'Clip load failed!'
-      );
-    }
-  }
-});
-
-},{"react":230,"react-imageloader":57}],239:[function(require,module,exports){
+},{"./react/application.js":237,"react":230}],237:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -25582,7 +25504,7 @@ configApi = require('../api/config'),
 fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
-  displayName: 'Container',
+  displayName: 'Application',
   views: {
     'init': 'init',
     'discovering': 'discovering',
@@ -25750,7 +25672,85 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":231,"../api/config":232,"../api/device":233,"../api/discovery":234,"../util/fullscreen":245,"./clip-preview":237,"./device-list":240,"./grid":241,"./loader-view":243,"react":230,"react/addons":58}],240:[function(require,module,exports){
+},{"../api/clips":231,"../api/config":232,"../api/device":233,"../api/discovery":234,"../util/fullscreen":245,"./clip-preview":238,"./device-list":240,"./grid":241,"./loader-view":243,"react":230,"react/addons":58}],238:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+var Clip = require('./clip'),
+    CloseIcon = require('../../../static/icons/close.svg');
+
+module.exports = React.createClass({
+  displayName: 'ClipPreview',
+  getInitialState: function getInitialState() {
+    return {};
+  },
+  handleClose: function handleClose() {
+    if (this.props.onClose) {
+      this.props.onClose();
+    }
+  },
+  render: function render() {
+    var clipUrl = this.props.clip.mp4.replace('$size', 720);
+    return React.createElement(
+      'div',
+      { className: 'clip-preview' },
+      React.createElement(
+        'div',
+        { className: 'clip-preview-actions' },
+        React.createElement(
+          'button',
+          { onTouchStart: this.handleClose, onClick: this.handleClose, className: 'clip-preview-close-button' },
+          React.createElement(CloseIcon, { alt: 'Close' })
+        )
+      ),
+      React.createElement(Clip, { src: clipUrl, format: 'video' })
+    );
+  }
+});
+
+},{"../../../static/icons/close.svg":246,"./clip":239,"react":230}],239:[function(require,module,exports){
+'use strict';
+
+var React = require('react'),
+    ImageLoader = require('react-imageloader');
+
+module.exports = React.createClass({
+  displayName: 'Clip',
+  getInitialState: function getInitialState() {
+    return {
+      className: 'pre-image-load'
+    };
+  },
+  preloader: function preloader() {
+    var loaderStyle = { fontSize: '3px' };
+    return React.createElement('span', { className: 'loader', style: loaderStyle });
+  },
+  handleLoad: function handleLoad(evt) {
+    // Clear pre-image-load class name
+    // with a timeout to give CSS transition
+    // time to fade the image in
+    setTimeout((function () {
+      this.setState({ className: '' });
+    }).bind(this), 100);
+  },
+  handleError: function handleError(evt) {
+    console.log('error', evt, this);
+  },
+  render: function render() {
+    if (this.props.format === 'video') {
+      return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true });
+    } else {
+      return React.createElement(
+        ImageLoader,
+        { className: this.state.className, src: this.props.src, preloader: this.preloader, onLoad: this.handleLoad, onError: this.handleError },
+        'Clip load failed!'
+      );
+    }
+  }
+});
+
+},{"react":230,"react-imageloader":57}],240:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -25847,7 +25847,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":238,"./live-tile":242,"lodash/array/fill":5,"react":230}],242:[function(require,module,exports){
+},{"./clip":239,"./live-tile":242,"lodash/array/fill":5,"react":230}],242:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

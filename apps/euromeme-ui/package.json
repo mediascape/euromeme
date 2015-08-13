@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t svg-reactify -t babelify -t brfs src/js/app.js -o static/js/bundle.js",
-    "watch": "watchify -t svg-reactify -t babelify -t brfs src/js/app.js -o 'exorcist static/js/bundle.js.map > static/js/bundle.js' --debug --verbose",
+    "build": "browserify -t svg-reactify -t babelify -t brfs src/js/bootstrap.js -o static/js/bundle.js",
+    "watch": "watchify -t svg-reactify -t babelify -t brfs src/js/bootstrap.js -o 'exorcist static/js/bundle.js.map > static/js/bundle.js' --debug --verbose",
     "watch-css": "postcss --config ./postcss-config.js --watch --use postcss-import --use autoprefixer --output static/css/bundle.css src/css/app.css"
   },
   "author": "",
