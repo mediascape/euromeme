@@ -25595,6 +25595,15 @@ module.exports = React.createClass({
       clips: []
     };
   },
+  createErrorHandlerWithMessage: function createErrorHandlerWithMessage(msg) {
+    var _this = this;
+
+    return function (err) {
+      var e = new Error(msg);
+      e.original = err;
+      _this.initErrorView(e);
+    };
+  },
   initView: function initView(viewName) {
     this.setState({ viewName: viewName });
   },
@@ -25637,19 +25646,13 @@ module.exports = React.createClass({
     });
   },
   connectToDevice: function connectToDevice(info) {
-    var _this = this;
-
     console.log('connectToDevice', info);
     var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
     this.setState({
       device: device
     });
     this.initView(this.views.connecting);
-    device.status().then(this.initWithDeviceStatus, function (err) {
-      var e = new Error('Error connecting to ' + info.host);
-      e.original = err;
-      _this.initErrorView(e);
-    });
+    device.status().then(this.initWithDeviceStatus, this.createErrorHandlerWithMessage('Error connecting to ' + info.host));
   },
   componentDidMount: function componentDidMount() {
     // Instance variables for doubletaps

@@ -30,6 +30,13 @@ module.exports = React.createClass({
       clips: []
     };
   },
+  createErrorHandlerWithMessage: function (msg) {
+    return (err) => {
+      var e = new Error(msg);
+      e.original = err;
+      this.initErrorView(e);
+    };
+  },
   initView: function (viewName) {
     this.setState({ viewName: viewName });
   },
@@ -86,11 +93,7 @@ module.exports = React.createClass({
       .status()
       .then(
         this.initWithDeviceStatus,
-        (err) => {
-          var e = new Error('Error connecting to ' + info.host);
-          e.original = err;
-          this.initErrorView(e);
-        }
+        this.createErrorHandlerWithMessage('Error connecting to ' + info.host)
       );
   },
   componentDidMount: function () {
