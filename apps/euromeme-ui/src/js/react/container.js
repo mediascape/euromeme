@@ -1,14 +1,19 @@
 var React = require('react'),
     ReactCSSTransitionGroup = require('react/addons').addons.CSSTransitionGroup;
 
+    // React UI Components
 var LoaderView = require('./loader-view'),
     DeviceList = require('./device-list'),
     Grid   = require('./grid'),
     ClipPreview = require('./clip-preview'),
+    
+    // API libraries
     configApi = require('../api/config'),
     clipsApi  = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
     deviceApi = require('../api/device'),
+
+    // Utilities
     fullscreen= require('../util/fullscreen');
 
 module.exports = React.createClass({

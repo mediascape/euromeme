@@ -25566,15 +25566,20 @@ module.exports = React.createClass({
 var React = require('react'),
     ReactCSSTransitionGroup = require('react/addons').addons.CSSTransitionGroup;
 
+// React UI Components
 var LoaderView = require('./loader-view'),
     DeviceList = require('./device-list'),
     Grid = require('./grid'),
     ClipPreview = require('./clip-preview'),
-    configApi = require('../api/config'),
+
+// API libraries
+configApi = require('../api/config'),
     clipsApi = require('../api/clips'),
     discoveryApi = require('../api/discovery'),
     deviceApi = require('../api/device'),
-    fullscreen = require('../util/fullscreen');
+
+// Utilities
+fullscreen = require('../util/fullscreen');
 
 module.exports = React.createClass({
   displayName: 'Container',
