@@ -1,8 +1,10 @@
 var express     = require('express'),
+    morgan      = require('morgan'),
+    serveStatic = express.static,
     app         = express(),
-    serveStatic = require('serve-static'),
     port        = process.env.PORT || 5000;
 
+app.use(morgan('short'));
 app.use(serveStatic('static'));
 console.log('listening on port '+port);
 app.listen(port);
