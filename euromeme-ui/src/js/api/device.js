@@ -1,5 +1,7 @@
 var fetch = require('../util/fetch');
 
+const TIMEOUT_MS = 10 * 1000;
+
 module.exports = {
   /*
     connect()
@@ -43,14 +45,23 @@ module.exports = {
             resolve();
           });
         });
+        var statusTimeoutId;
 
         return statPromise
           .then(function() {
             return new Promise(function(resolve, reject) {
               ws.send(JSON.stringify({topic: 'status'}));
 
+              statusTimeoutId = setTimeout(() => {
+                console.log('Device - status() timeout');
+                reject(new Error('Device - status() timeout'));
+              }, TIMEOUT_MS);
+
               ws.addEventListener('message', function (evt) {
                 console.log('Device - data', evt.data);
+
+                clearTimeout(statusTimeoutId);
+                statusTimeoutId = null;
 
                 try {
                   var data = JSON.parse(evt.data);
