@@ -7,6 +7,7 @@ var LoaderView  = require('./loader-view'),
     DeviceList  = require('./device-list'),
     Grid        = require('./grid'),
     ClipPreview = require('./clip-preview'),
+    Editor      = require('./editor'),
 
     // API libraries
     configApi    = require('../api/config'),
@@ -271,6 +272,8 @@ module.exports = React.createClass({
           console.log('view: error');
       }
     }
+
+    view = <Editor />;
 
     return (
       <div

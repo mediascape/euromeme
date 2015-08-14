@@ -27,7 +27,8 @@
     "isomorphic-fetch": "~2.1.1",
     "es6-promise": "~2.3.0",
     "react-imageloader": "~2.0.0",
-    "svg-reactify": "~1.0.2"
+    "svg-reactify": "~1.0.2",
+    "react-hammerjs": "~0.2.2"
   },
   "dependencies": {
     "express": "~4.13.3",
