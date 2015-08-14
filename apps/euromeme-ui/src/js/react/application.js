@@ -23,7 +23,7 @@ var LoaderView  = require('./loader-view'),
 
   This component owns the state for the app and passes
   state data into sub-component via props.
-  
+
    - React lifecycle events
    - fetches data       (connectToDevice, fetchClips)
    - processes new data (methods prefixed receive*)
@@ -245,13 +245,26 @@ module.exports = React.createClass({
       console.log('view', this.state.viewName);
       switch (this.state.viewName) {
         case this.views.tvs:
-          view = <DeviceList key={this.views.tvs} devices={this.state.devices} onDeviceSelected={this.connectToDevice}/>;
+          view = <DeviceList
+                    key={this.views.tvs}
+                    devices={this.state.devices}
+                    onDeviceSelected={this.connectToDevice} />;
           break;
         case this.views.grid:
-          view = <Grid sync={this.state.sync} key={this.views.grid} videoUrl={this.state.videoUrl} format={this.state.clipFormat} clips={this.state.clips} numPlaceholderClips={8} onGridItemSelected={this.handleGridItemSelection} />;
+          view = <Grid
+                    sync={this.state.sync}
+                    key={this.views.grid}
+                    videoUrl={this.state.videoUrl}
+                    format={this.state.clipFormat}
+                    clips={this.state.clips}
+                    numPlaceholderClips={8}
+                    onGridItemSelected={this.handleGridItemSelection} />;
           break;
         case this.views.preview:
-          view = <ClipPreview key={this.views.preview} onClose={this.handleClipPreviewClose} clip={this.state.previewItem} />;
+          view = <ClipPreview
+                  key={this.views.preview}
+                  onClose={this.handleClipPreviewClose}
+                  clip={this.state.previewItem} />;
           break;
         default:
           view = <div key='error'>Error</div>;
@@ -260,10 +273,13 @@ module.exports = React.createClass({
     }
 
     return (
-      <div onTouchStart={this.captureTap} onDoubleClick={this.handleDoubleTap}>
-      <ReactCSSTransitionGroup transitionName="view" component="div" className="container">
-      { view }
-      </ReactCSSTransitionGroup>
-    </div>);
+      <div
+        onTouchStart={this.captureTap}
+        onDoubleClick={this.handleDoubleTap}>
+        <ReactCSSTransitionGroup transitionName="view" component="div" className="container">
+          { view }
+        </ReactCSSTransitionGroup>
+      </div>
+    );
   }
 });

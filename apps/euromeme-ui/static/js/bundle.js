@@ -38347,7 +38347,7 @@ fullscreen = require('../util/fullscreen');
 
   This component owns the state for the app and passes
   state data into sub-component via props.
-  
+
    - React lifecycle events
    - fetches data       (connectToDevice, fetchClips)
    - processes new data (methods prefixed receive*)
@@ -38535,13 +38535,26 @@ module.exports = React.createClass({
       console.log('view', this.state.viewName);
       switch (this.state.viewName) {
         case this.views.tvs:
-          view = React.createElement(DeviceList, { key: this.views.tvs, devices: this.state.devices, onDeviceSelected: this.connectToDevice });
+          view = React.createElement(DeviceList, {
+            key: this.views.tvs,
+            devices: this.state.devices,
+            onDeviceSelected: this.connectToDevice });
           break;
         case this.views.grid:
-          view = React.createElement(Grid, { sync: this.state.sync, key: this.views.grid, videoUrl: this.state.videoUrl, format: this.state.clipFormat, clips: this.state.clips, numPlaceholderClips: 8, onGridItemSelected: this.handleGridItemSelection });
+          view = React.createElement(Grid, {
+            sync: this.state.sync,
+            key: this.views.grid,
+            videoUrl: this.state.videoUrl,
+            format: this.state.clipFormat,
+            clips: this.state.clips,
+            numPlaceholderClips: 8,
+            onGridItemSelected: this.handleGridItemSelection });
           break;
         case this.views.preview:
-          view = React.createElement(ClipPreview, { key: this.views.preview, onClose: this.handleClipPreviewClose, clip: this.state.previewItem });
+          view = React.createElement(ClipPreview, {
+            key: this.views.preview,
+            onClose: this.handleClipPreviewClose,
+            clip: this.state.previewItem });
           break;
         default:
           view = React.createElement(
@@ -38555,7 +38568,9 @@ module.exports = React.createClass({
 
     return React.createElement(
       'div',
-      { onTouchStart: this.captureTap, onDoubleClick: this.handleDoubleTap },
+      {
+        onTouchStart: this.captureTap,
+        onDoubleClick: this.handleDoubleTap },
       React.createElement(
         ReactCSSTransitionGroup,
         { transitionName: 'view', component: 'div', className: 'container' },
