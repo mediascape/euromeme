@@ -273,7 +273,7 @@ module.exports = React.createClass({
       }
     }
 
-    view = <Editor />;
+    view = <Editor frameTemplate={this.config ? this.config.frameStoreTemplate : ''} />;
 
     return (
       <div

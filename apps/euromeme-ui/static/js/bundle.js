@@ -40649,7 +40649,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
   };
 };
 
-},{"../util/fetch":260,"lodash/collection/reduce":7}],246:[function(require,module,exports){
+},{"../util/fetch":261,"lodash/collection/reduce":7}],246:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -40674,7 +40674,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":260}],247:[function(require,module,exports){
+},{"../util/fetch":261}],247:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -40759,7 +40759,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":260}],248:[function(require,module,exports){
+},{"../util/fetch":261}],248:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./config');
@@ -41128,7 +41128,7 @@ module.exports = React.createClass({
       }
     }
 
-    view = React.createElement(Editor, null);
+    view = React.createElement(Editor, { frameTemplate: this.config ? this.config.frameStoreTemplate : '' });
 
     return React.createElement(
       'div',
@@ -41144,7 +41144,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":245,"../api/config":246,"../api/device":247,"../api/discovery":248,"../util/fullscreen":261,"./clip-preview":252,"./device-list":254,"./editor":255,"./grid":257,"./loader-view":259,"lodash/object/merge":65,"react":244,"react/addons":72}],252:[function(require,module,exports){
+},{"../api/clips":245,"../api/config":246,"../api/device":247,"../api/discovery":248,"../util/fullscreen":262,"./clip-preview":252,"./device-list":254,"./editor":256,"./grid":258,"./loader-view":260,"lodash/object/merge":65,"react":244,"react/addons":72}],252:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41181,7 +41181,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/close.svg":262,"./clip":253,"react":244}],253:[function(require,module,exports){
+},{"../../../static/icons/close.svg":263,"./clip":253,"react":244}],253:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41273,23 +41273,58 @@ module.exports = React.createClass({
 
 var React = require('react');
 
-var TouchPane = require('./touch-pane');
-
 module.exports = React.createClass({
-  displayName: 'Editor',
-  handlePan: function handlePan(evt) {
-    console.log('pan', evt);
-  },
+  displayName: 'Editor:Frame',
   render: function render() {
     return React.createElement(
       'div',
-      { className: 'editor container' },
-      React.createElement(TouchPane, { onPan: this.handlePan })
+      null,
+      React.createElement('img', { src: this.props.src })
     );
   }
 });
 
-},{"./touch-pane":256,"react":244}],256:[function(require,module,exports){
+},{"react":244}],256:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+var TouchPane = require('./touch-pane'),
+    Frame = require('./frame');
+
+module.exports = React.createClass({
+  displayName: 'Editor',
+  getInitialState: function getInitialState() {
+    return {
+      dragDistance: 0,
+      isDragging: false,
+      currentFrameSrc: null
+    };
+  },
+  handlePan: function handlePan(evt) {
+    if (evt.isFinal) {
+      this.setState({ isDragging: false });
+    } else {
+      this.setState({ isDragging: true, dragDistance: evt.deltaX });
+    }
+  },
+  handlePanMove: function handlePanMove(evt) {
+    console.log('pan', evt);
+  },
+  render: function render() {
+    var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : '');
+    return React.createElement(
+      'div',
+      { className: className },
+      React.createElement(Frame, {
+        src: this.state.currentFrameSrc }),
+      React.createElement(TouchPane, {
+        onPan: this.handlePan })
+    );
+  }
+});
+
+},{"./frame":255,"./touch-pane":257,"react":244}],257:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41297,11 +41332,6 @@ var React = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Editor:TouchPane',
-  handlePan: function handlePan(evt) {
-    if (this.props.onPan) {
-      this.props.onPan({ x: evt.deltaX });
-    }
-  },
   render: function render() {
     var options = {
       // touchAction: true,
@@ -41314,14 +41344,14 @@ module.exports = React.createClass({
     return React.createElement(
       Hammer,
       {
-        onPan: this.handlePan,
+        onPan: this.props.onPan,
         options: options },
       'Tap Me'
     );
   }
 });
 
-},{"react":244,"react-hammerjs":70}],257:[function(require,module,exports){
+},{"react":244,"react-hammerjs":70}],258:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41381,7 +41411,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":253,"./live-tile":258,"lodash":9,"lodash/array/fill":5,"react":244}],258:[function(require,module,exports){
+},{"./clip":253,"./live-tile":259,"lodash":9,"lodash/array/fill":5,"react":244}],259:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41419,7 +41449,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/config":246,"../api/sync":249,"react":244}],259:[function(require,module,exports){
+},{"../api/config":246,"../api/sync":249,"react":244}],260:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41456,14 +41486,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/error.svg":263,"react":244}],260:[function(require,module,exports){
+},{"../../../static/icons/error.svg":264,"react":244}],261:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],261:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],262:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -41480,7 +41510,7 @@ module.exports = {
   }
 };
 
-},{}],262:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -41502,7 +41532,7 @@ module.exports = React.createClass({
         return SVG(this.props);
     }
 });
-},{"react":244}],263:[function(require,module,exports){
+},{"react":244}],264:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };

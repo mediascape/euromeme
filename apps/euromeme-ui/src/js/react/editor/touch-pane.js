@@ -3,11 +3,6 @@ var React  = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Editor:TouchPane',
-  handlePan: function (evt) {
-    if (this.props.onPan) {
-      this.props.onPan({ x: evt.deltaX });
-    }
-  },
   render: function() {
     var options = {
       // touchAction: true,
@@ -18,7 +13,7 @@ module.exports = React.createClass({
       }
     };
     return (<Hammer
-              onPan={this.handlePan}
+              onPan={this.props.onPan}
               options={options}>
             Tap Me
           </Hammer>);

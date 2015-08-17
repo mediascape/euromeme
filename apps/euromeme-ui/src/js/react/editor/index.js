@@ -1,15 +1,34 @@
 var React = require('react');
 
-var TouchPane = require('./touch-pane');
+var TouchPane = require('./touch-pane'),
+    Frame = require('./frame');
 
 module.exports = React.createClass({
   displayName: 'Editor',
+  getInitialState: function () {
+    return {
+      dragDistance: 0,
+      isDragging: false,
+      currentFrameSrc: null
+    };
+  },
   handlePan: function (evt) {
+    if (evt.isFinal) {
+      this.setState({ isDragging: false });
+    } else {
+      this.setState({ isDragging: true, dragDistance: evt.deltaX });
+    }
+  },
+  handlePanMove: function (evt) {
     console.log('pan', evt);
   },
   render: function() {
-    return (<div className="editor container">
-      <TouchPane onPan={this.handlePan} />
+    var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : '');
+    return (<div className={ className }>
+      <Frame
+        src={this.state.currentFrameSrc} />
+      <TouchPane
+        onPan={this.handlePan} />
     </div>);
   }
 });
