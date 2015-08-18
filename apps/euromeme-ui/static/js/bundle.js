@@ -41389,13 +41389,30 @@ var dateInSec = function dateInSec(date) {
 
 module.exports = React.createClass({
   displayName: 'Editor',
+  draggingTimeout: null,
   componentDidMount: function componentDidMount() {
     // Preload last 30 seconds
     this.preloadImageRange(dateMaths(this.props.endTime, -30), this.props.endTime);
   },
+  componentWillUpdate: function componentWillUpdate(nextProps, nextState) {
+    console.log('componentWillUpdate', nextState.isDragging, this.draggingTimeout);
+    var draggingDidStart = nextState.isDragging === true;
+
+    if (draggingDidStart) {
+      console.log('draggingDidStart');
+
+      if (this.draggingTimeout) {
+        clearTimeout(this.draggingTimeout);
+        this.draggingTimeout = null;
+      }
+
+      this.draggingTimeout = setTimeout(this.cancelDragging, 1000);
+    }
+  },
   getInitialState: function getInitialState() {
     return {
       dragDistance: 0,
+      draggingTimeout: null,
       isDragging: false,
       currentTime: this.props.endTime
     };
@@ -41405,6 +41422,13 @@ module.exports = React.createClass({
       startTime: new Date('2015-05-23T23:28:00Z'),
       endTime: new Date('2015-05-23T23:58:00Z')
     };
+  },
+  cancelDragging: function cancelDragging() {
+    console.log('cancelDragging');
+    this.setState({
+      isDragging: false
+    });
+    this.draggingTimeout = null;
   },
   durationSecs: function durationSecs(start, end) {
     return (end.getTime() - start.getTime()) / 1000;
@@ -41450,6 +41474,7 @@ module.exports = React.createClass({
   handleSliderChange: function handleSliderChange(secsFromStartTime) {
     var currentTime = dateMaths(this.props.startTime, secsFromStartTime);
     this.setState({
+      isDragging: true,
       currentSliderValue: secsFromStartTime,
       currentTime: currentTime
     });

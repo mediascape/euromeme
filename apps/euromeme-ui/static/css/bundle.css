@@ -355,7 +355,7 @@ body {
 }
 
 .editor.is-dragging {
-
+  outline: 10px solid rgba(255, 0, 0, 0.5);
 }
 
 .editor-touch-container {
