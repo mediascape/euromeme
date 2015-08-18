@@ -1,5 +1,7 @@
 var React  = require('react');
 
+var interval = require('../../util/request-interval');
+
 module.exports = React.createClass({
   displayName: 'Editor:Frame',
   getInitialState: function () {
@@ -8,7 +10,7 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function () {
-    setInterval(this.advanceFrame, 150);
+    interval.requestInterval(this.advanceFrame, 150);
   },
   advanceFrame: function () {
     var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;

@@ -44,12 +44,9 @@ module.exports = React.createClass({
     );
   },
   componentWillUpdate: function (nextProps, nextState) {
-    console.log('componentWillUpdate', nextState.isDragging, this.draggingTimeout);
     var draggingDidStart = nextState.isDragging === true;
 
     if (draggingDidStart) {
-      console.log('draggingDidStart');
-
       if (this.draggingTimeout) {
         clearTimeout(this.draggingTimeout);
         this.draggingTimeout = null;

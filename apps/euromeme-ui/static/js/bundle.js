@@ -41416,7 +41416,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/close.svg":269,"./clip":258,"react":249}],258:[function(require,module,exports){
+},{"../../../static/icons/close.svg":271,"./clip":258,"react":249}],258:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41508,6 +41508,8 @@ module.exports = React.createClass({
 
 var React = require('react');
 
+var interval = require('../../util/request-interval');
+
 module.exports = React.createClass({
   displayName: 'Editor:Frame',
   getInitialState: function getInitialState() {
@@ -41516,7 +41518,7 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function componentDidMount() {
-    setInterval(this.advanceFrame, 150);
+    interval.requestInterval(this.advanceFrame, 150);
   },
   advanceFrame: function advanceFrame() {
     var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;
@@ -41532,7 +41534,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":249}],261:[function(require,module,exports){
+},{"../../util/request-interval":270,"react":249}],261:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41578,12 +41580,9 @@ module.exports = React.createClass({
     this.preloadImageRange(dateMaths(this.props.endTime, -30), this.props.endTime);
   },
   componentWillUpdate: function componentWillUpdate(nextProps, nextState) {
-    console.log('componentWillUpdate', nextState.isDragging, this.draggingTimeout);
     var draggingDidStart = nextState.isDragging === true;
 
     if (draggingDidStart) {
-      console.log('draggingDidStart');
-
       if (this.draggingTimeout) {
         clearTimeout(this.draggingTimeout);
         this.draggingTimeout = null;
@@ -41680,6 +41679,7 @@ module.exports = React.createClass({
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
         steps = this.durationSecs(this.props.startTime, this.props.endTime);
+
     return React.createElement(
       'div',
       { className: className },
@@ -41891,7 +41891,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/error.svg":270,"react":249}],267:[function(require,module,exports){
+},{"../../../static/icons/error.svg":272,"react":249}],267:[function(require,module,exports){
 // For fetch
 'use strict';
 
@@ -41916,6 +41916,63 @@ module.exports = {
 };
 
 },{}],269:[function(require,module,exports){
+// requestAnimationFrame() shim by Paul Irish
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+"use strict";
+
+module.exports = (function () {
+	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function ( /* function */callback, /* DOMElement */element) {
+		window.setTimeout(callback, 1000 / 60);
+	};
+})();
+
+},{}],270:[function(require,module,exports){
+/*
+	https://gist.github.com/joelambert/1002116#file-requestinterval-js
+*/
+
+'use strict';
+
+var requestAnimFrame = require('./request-anim-frame');
+
+/**
+ * Behaves the same as setInterval except uses requestAnimationFrame() where possible for better performance
+ * @param {function} fn The callback function
+ * @param {int} delay The delay in milliseconds
+ */
+module.exports.requestInterval = function (fn, delay) {
+	if (!window.requestAnimationFrame && !window.webkitRequestAnimationFrame && !(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
+	!window.oRequestAnimationFrame && !window.msRequestAnimationFrame) return window.setInterval(fn, delay);
+
+	var start = new Date().getTime(),
+	    handle = new Object();
+
+	function loop() {
+		var current = new Date().getTime(),
+		    delta = current - start;
+
+		if (delta >= delay) {
+			fn.call();
+			start = new Date().getTime();
+		}
+
+		handle.value = requestAnimFrame(loop);
+	};
+
+	handle.value = requestAnimFrame(loop);
+	return handle;
+};
+
+/**
+ * Behaves the same as clearInterval except uses cancelRequestAnimationFrame() where possible for better performance
+ * @param {int|object} fn The callback function
+ */
+module.exports.clearRequestInterval = function (handle) {
+	window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) : window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) : window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
+	window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) : window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) : window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) : clearInterval(handle);
+};
+
+},{"./request-anim-frame":269}],271:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -41937,7 +41994,7 @@ module.exports = React.createClass({
         return SVG(this.props);
     }
 });
-},{"react":249}],270:[function(require,module,exports){
+},{"react":249}],272:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
