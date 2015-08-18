@@ -13,9 +13,11 @@ module.exports = React.createClass({
       }
     };
     return (<Hammer
+              component="div"
+              className={this.props.className}
               onPan={this.props.onPan}
               options={options}>
-            Tap Me
+            {this.props.children}
           </Hammer>);
   }
 });

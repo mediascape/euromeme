@@ -40649,7 +40649,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
   };
 };
 
-},{"../util/fetch":261,"lodash/collection/reduce":7}],246:[function(require,module,exports){
+},{"../util/fetch":262,"lodash/collection/reduce":7}],246:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -40674,7 +40674,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":261}],247:[function(require,module,exports){
+},{"../util/fetch":262}],247:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -40759,7 +40759,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":261}],248:[function(require,module,exports){
+},{"../util/fetch":262}],248:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./config');
@@ -41144,7 +41144,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":245,"../api/config":246,"../api/device":247,"../api/discovery":248,"../util/fullscreen":262,"./clip-preview":252,"./device-list":254,"./editor":256,"./grid":258,"./loader-view":260,"lodash/object/merge":65,"react":244,"react/addons":72}],252:[function(require,module,exports){
+},{"../api/clips":245,"../api/config":246,"../api/device":247,"../api/discovery":248,"../util/fullscreen":263,"./clip-preview":252,"./device-list":254,"./editor":256,"./grid":259,"./loader-view":261,"lodash/object/merge":65,"react":244,"react/addons":72}],252:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41181,7 +41181,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/close.svg":263,"./clip":253,"react":244}],253:[function(require,module,exports){
+},{"../../../static/icons/close.svg":264,"./clip":253,"react":244}],253:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41290,7 +41290,8 @@ module.exports = React.createClass({
 var React = require('react');
 
 var TouchPane = require('./touch-pane'),
-    Frame = require('./frame');
+    Frame = require('./frame'),
+    Slider = require('./slider');
 
 module.exports = React.createClass({
   displayName: 'Editor',
@@ -41302,6 +41303,7 @@ module.exports = React.createClass({
     };
   },
   handlePan: function handlePan(evt) {
+    console.log(evt.deltaX);
     if (evt.isFinal) {
       this.setState({ isDragging: false });
     } else {
@@ -41316,15 +41318,36 @@ module.exports = React.createClass({
     return React.createElement(
       'div',
       { className: className },
-      React.createElement(Frame, {
-        src: this.state.currentFrameSrc }),
-      React.createElement(TouchPane, {
-        onPan: this.handlePan })
+      React.createElement(
+        TouchPane,
+        {
+          className: 'editor-touch-container',
+          onPan: this.handlePan },
+        React.createElement(Frame, {
+          src: this.state.currentFrameSrc })
+      ),
+      React.createElement(Slider, null)
     );
   }
 });
 
-},{"./frame":255,"./touch-pane":257,"react":244}],257:[function(require,module,exports){
+},{"./frame":255,"./slider":257,"./touch-pane":258,"react":244}],257:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+module.exports = React.createClass({
+  displayName: 'Editor:Slider',
+  render: function render() {
+    return React.createElement(
+      'div',
+      { className: 'editor-slider-container' },
+      React.createElement('input', { type: 'range', min: '0', max: '10', step: '1' })
+    );
+  }
+});
+
+},{"react":244}],258:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41344,14 +41367,16 @@ module.exports = React.createClass({
     return React.createElement(
       Hammer,
       {
+        component: 'div',
+        className: this.props.className,
         onPan: this.props.onPan,
         options: options },
-      'Tap Me'
+      this.props.children
     );
   }
 });
 
-},{"react":244,"react-hammerjs":70}],258:[function(require,module,exports){
+},{"react":244,"react-hammerjs":70}],259:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -41411,7 +41436,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":253,"./live-tile":259,"lodash":9,"lodash/array/fill":5,"react":244}],259:[function(require,module,exports){
+},{"./clip":253,"./live-tile":260,"lodash":9,"lodash/array/fill":5,"react":244}],260:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41449,7 +41474,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/config":246,"../api/sync":249,"react":244}],260:[function(require,module,exports){
+},{"../api/config":246,"../api/sync":249,"react":244}],261:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -41486,14 +41511,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/error.svg":264,"react":244}],261:[function(require,module,exports){
+},{"../../../static/icons/error.svg":265,"react":244}],262:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":2,"isomorphic-fetch":3}],262:[function(require,module,exports){
+},{"es6-promise":2,"isomorphic-fetch":3}],263:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -41510,7 +41535,7 @@ module.exports = {
   }
 };
 
-},{}],263:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -41532,7 +41557,7 @@ module.exports = React.createClass({
         return SVG(this.props);
     }
 });
-},{"react":244}],264:[function(require,module,exports){
+},{"react":244}],265:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };

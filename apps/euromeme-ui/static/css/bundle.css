@@ -357,3 +357,16 @@ body {
 .editor.is-dragging {
 
 }
+
+.editor-touch-container {
+  border: 1px solid green;
+}
+
+.editor-slider-container {
+  height: 50px;
+  border: 1px solid blue;
+}
+
+.editor-slider-container > * {
+  width: 100%;
+}
