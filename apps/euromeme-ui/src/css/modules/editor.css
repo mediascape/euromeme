@@ -18,3 +18,8 @@
 .editor-slider-container > * {
   width: 100%;
 }
+
+
+.editor-frame-container img {
+  width: 100%;
+}

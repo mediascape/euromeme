@@ -53,7 +53,8 @@ module.exports = React.createClass({
       viewName: this.views.init,
       videoUrl: null,
       clipFormat: 'poster', // gif, poster, mp4
-      clips: []
+      clips: [],
+      config: {}
     };
   },
   /*
@@ -273,7 +274,9 @@ module.exports = React.createClass({
       }
     }
 
-    view = <Editor frameTemplate={this.config ? this.config.frameStoreTemplate : ''} />;
+    if (this.state.config.frameStoreTemplate) {
+      view = <Editor frameTemplate={this.state.config.frameStoreTemplate} />;
+    }
 
     return (
       <div

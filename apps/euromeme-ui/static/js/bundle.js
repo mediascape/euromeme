@@ -40938,7 +40938,8 @@ module.exports = React.createClass({
       viewName: this.views.init,
       videoUrl: null,
       clipFormat: 'poster', // gif, poster, mp4
-      clips: []
+      clips: [],
+      config: {}
     };
   },
   /*
@@ -41128,7 +41129,9 @@ module.exports = React.createClass({
       }
     }
 
-    view = React.createElement(Editor, { frameTemplate: this.config ? this.config.frameStoreTemplate : '' });
+    if (this.state.config.frameStoreTemplate) {
+      view = React.createElement(Editor, { frameTemplate: this.state.config.frameStoreTemplate });
+    }
 
     return React.createElement(
       'div',
@@ -41278,7 +41281,7 @@ module.exports = React.createClass({
   render: function render() {
     return React.createElement(
       'div',
-      null,
+      { className: 'editor-frame-container' },
       React.createElement('img', { src: this.props.src })
     );
   }
@@ -41287,11 +41290,21 @@ module.exports = React.createClass({
 },{"react":244}],256:[function(require,module,exports){
 'use strict';
 
-var React = require('react');
+var React = require('react'),
+    reduce = require('lodash/collection/reduce');
 
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
     Slider = require('./slider');
+
+var momentDateFormatTokens = {
+  '$year': 'YYYY',
+  '$month': 'MM',
+  '$date': 'DD',
+  '$hour': 'HH',
+  '$min': 'mm',
+  '$sec': 'ss'
+};
 
 module.exports = React.createClass({
   displayName: 'Editor',
@@ -41299,8 +41312,35 @@ module.exports = React.createClass({
     return {
       dragDistance: 0,
       isDragging: false,
-      currentFrameSrc: null
+      currentTime: this.props.endTime
     };
+  },
+  getDefaultProps: function getDefaultProps() {
+    return {
+      startTime: new Date('2015-05-23T23:28:00Z'),
+      endTime: new Date('2015-05-23T23:58:00Z')
+    };
+  },
+  // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
+  frameForTime: function frameForTime(date, size, tmpl) {
+    console.log('tmpl', tmpl);
+    var tokens = {
+      '$size': size,
+      '$frame': '1',
+      '$year': date.getUTCFullYear(),
+      '$month': date.getUTCMonth() + 1,
+      '$date': date.getUTCDate(),
+      '$hour': date.getUTCHours(),
+      '$min': date.getUTCMinutes(),
+      '$sec': date.getUTCSeconds()
+    };
+    var url = reduce(tokens, function (acc, value, key) {
+      var val = typeof value !== 'string' && value < 10 ? '0' + value : value;
+      return acc.replace(key, val);
+    }, tmpl);
+
+    console.log('url', url);
+    return url;
   },
   handlePan: function handlePan(evt) {
     console.log(evt.deltaX);
@@ -41314,7 +41354,8 @@ module.exports = React.createClass({
     console.log('pan', evt);
   },
   render: function render() {
-    var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : '');
+    var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
+        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate);
     return React.createElement(
       'div',
       { className: className },
@@ -41324,14 +41365,14 @@ module.exports = React.createClass({
           className: 'editor-touch-container',
           onPan: this.handlePan },
         React.createElement(Frame, {
-          src: this.state.currentFrameSrc })
+          src: currentFrameSrc })
       ),
       React.createElement(Slider, null)
     );
   }
 });
 
-},{"./frame":255,"./slider":257,"./touch-pane":258,"react":244}],257:[function(require,module,exports){
+},{"./frame":255,"./slider":257,"./touch-pane":258,"lodash/collection/reduce":7,"react":244}],257:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
