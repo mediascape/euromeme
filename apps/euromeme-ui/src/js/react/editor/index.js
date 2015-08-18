@@ -1,5 +1,6 @@
 var React = require('react'),
-    reduce = require('lodash/collection/reduce');
+    reduce = require('lodash/collection/reduce'),
+    range  = require('lodash/utility/range');
 
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
@@ -14,8 +15,27 @@ var momentDateFormatTokens = {
   '$sec'  : 'ss'
 };
 
+/*
+  increment/decrement a date object by incrementSec
+  seconds. Returns a new date.
+*/
+var dateMaths = function (date, incrementSec) {
+  return new Date( date.getTime() + (incrementSec * 1000) );
+};
+
+var dateInSec = function (date) {
+  return date.getTime() / 1000;
+};
+
 module.exports = React.createClass({
   displayName: 'Editor',
+  componentDidMount: function () {
+    // Preload last 30 seconds
+    this.preloadImageRange(
+      dateMaths(this.props.endTime, -30),
+      this.props.endTime
+    );
+  },
   getInitialState: function () {
     return {
       dragDistance: 0,
@@ -34,7 +54,6 @@ module.exports = React.createClass({
   },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function (date, size, tmpl) {
-    console.log('tmpl', tmpl);
     var tokens = {
       '$size' : size,
       '$frame': '1',
@@ -53,12 +72,22 @@ module.exports = React.createClass({
                       },
                       tmpl
                   );
-
-    console.log('url', url);
     return url;
   },
+  preloadImage: function (url) {
+    var img = new Image();
+    img.src = url;
+  },
+  preloadImageRange: function (startTime, endTime) {
+    var timeRangeSecs = range( dateInSec(startTime), dateInSec(endTime) );
+    timeRangeSecs.forEach( (r) => {
+      this.preloadImage(
+        this.frameForTime( new Date(r * 1000), '720', this.props.frameTemplate )
+      );
+    });
+  },
   handlePan: function (evt) {
-    console.log(evt.deltaX)
+    console.log(evt.deltaX);
     if (evt.isFinal) {
       this.setState({ isDragging: false });
     } else {
@@ -66,8 +95,7 @@ module.exports = React.createClass({
     }
   },
   handleSliderChange: function (secsFromStartTime) {
-    var msFromStartTime = secsFromStartTime * 1000;
-    var currentTime = new Date(this.props.startTime.getTime() + msFromStartTime);
+    var currentTime = dateMaths( this.props.startTime, secsFromStartTime );
     this.setState({
       currentSliderValue: secsFromStartTime,
       currentTime: currentTime
