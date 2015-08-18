@@ -4,7 +4,7 @@ var mdns = require('mdns'),
 module.exports = function (config) {
 
   var ad = mdns.createAdvertisement(
-    mdns.tcp('mediascape-http'),
+    mdns.tcp('mediascape'),
     parseInt(config.port, 10),
     { name: config.instanceName }
   );
