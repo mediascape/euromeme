@@ -41361,7 +41361,7 @@ module.exports = React.createClass({
       }
     }
 
-    if (this.state.config.frameStoreTemplate) {
+    if (window.location.hash === '#editor' && this.state.config.frameStoreTemplate) {
       view = React.createElement(Editor, { frameTemplate: this.state.config.frameStoreTemplate });
     }
 
