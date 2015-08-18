@@ -8,7 +8,7 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function () {
-    setInterval(this.advanceFrame, 500);
+    setInterval(this.advanceFrame, 150);
   },
   advanceFrame: function () {
     var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;

@@ -1,6 +1,8 @@
 var React = require('react'),
     reduce = require('lodash/collection/reduce'),
-    range  = require('lodash/utility/range');
+    flatten= require('lodash/array/flatten'),
+    range  = require('lodash/utility/range'),
+    times  = require('lodash/utility/times');
 
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
@@ -81,10 +83,10 @@ module.exports = React.createClass({
     return dateInSec(end) - dateInSec(start);
   },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
-  frameForTime: function (date, size, tmpl) {
+  frameForTime: function (date, size, frame, tmpl) {
     var tokens = {
-      '$size' : size,
-      '$frame': '1',
+      '$size' : size.toString(),
+      '$frame': frame.toString(),
       '$year' : date.getUTCFullYear(),
       '$month': date.getUTCMonth() + 1,
       '$date' : date.getUTCDate(),
@@ -102,10 +104,15 @@ module.exports = React.createClass({
                   );
     return url;
   },
-  framesForTime: function (start, end, size, tmpl) {
-    return timeRangeSecs(start, end).map( (r) => {
-      return this.frameForTime( new Date(r * 1000), size, tmpl );
-    });
+  framesForTime: function (start, end, size, tmpl, framesPerSec=1) {
+    var range = timeRangeSecs(start, end);
+    return flatten(
+      range.map( (r) => {
+        return times(framesPerSec, (count) => {
+          return this.frameForTime( new Date(r * 1000), size, count + 1, tmpl );
+        });
+      })
+    );
   },
   preloadImage: function (url) {
     var img = new Image();
@@ -135,8 +142,9 @@ module.exports = React.createClass({
   },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate),
+        frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
         steps = this.durationSecs(this.props.startTime, this.props.endTime);
+
     return (<div className={ className }>
       <TouchPane
         className="editor-touch-container"
