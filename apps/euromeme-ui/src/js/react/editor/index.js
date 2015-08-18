@@ -29,6 +29,9 @@ module.exports = React.createClass({
       endTime: new Date('2015-05-23T23:58:00Z')
     };
   },
+  durationSecs: function (start, end) {
+    return ( end.getTime() - start.getTime() ) / 1000;
+  },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function (date, size, tmpl) {
     console.log('tmpl', tmpl);
@@ -62,12 +65,18 @@ module.exports = React.createClass({
       this.setState({ isDragging: true, dragDistance: evt.deltaX });
     }
   },
-  handlePanMove: function (evt) {
-    console.log('pan', evt);
+  handleSliderChange: function (secsFromStartTime) {
+    var msFromStartTime = secsFromStartTime * 1000;
+    var currentTime = new Date(this.props.startTime.getTime() + msFromStartTime);
+    this.setState({
+      currentSliderValue: secsFromStartTime,
+      currentTime: currentTime
+    });
   },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate);
+        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate),
+        steps = this.durationSecs(this.props.startTime, this.props.endTime);
     return (<div className={ className }>
       <TouchPane
         className="editor-touch-container"
@@ -75,7 +84,10 @@ module.exports = React.createClass({
         <Frame
           src={currentFrameSrc} />
       </TouchPane>
-      <Slider />
+      <Slider
+        totalSteps={steps}
+        value={this.state.currentSliderValue}
+        onChange={this.handleSliderChange} />
     </div>);
   }
 });

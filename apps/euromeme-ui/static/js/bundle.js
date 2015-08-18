@@ -41321,6 +41321,9 @@ module.exports = React.createClass({
       endTime: new Date('2015-05-23T23:58:00Z')
     };
   },
+  durationSecs: function durationSecs(start, end) {
+    return (end.getTime() - start.getTime()) / 1000;
+  },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function frameForTime(date, size, tmpl) {
     console.log('tmpl', tmpl);
@@ -41350,12 +41353,18 @@ module.exports = React.createClass({
       this.setState({ isDragging: true, dragDistance: evt.deltaX });
     }
   },
-  handlePanMove: function handlePanMove(evt) {
-    console.log('pan', evt);
+  handleSliderChange: function handleSliderChange(secsFromStartTime) {
+    var msFromStartTime = secsFromStartTime * 1000;
+    var currentTime = new Date(this.props.startTime.getTime() + msFromStartTime);
+    this.setState({
+      currentSliderValue: secsFromStartTime,
+      currentTime: currentTime
+    });
   },
   render: function render() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate);
+        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate),
+        steps = this.durationSecs(this.props.startTime, this.props.endTime);
     return React.createElement(
       'div',
       { className: className },
@@ -41367,7 +41376,10 @@ module.exports = React.createClass({
         React.createElement(Frame, {
           src: currentFrameSrc })
       ),
-      React.createElement(Slider, null)
+      React.createElement(Slider, {
+        totalSteps: steps,
+        value: this.state.currentSliderValue,
+        onChange: this.handleSliderChange })
     );
   }
 });
@@ -41379,11 +41391,23 @@ var React = require('react');
 
 module.exports = React.createClass({
   displayName: 'Editor:Slider',
+  handleChange: function handleChange(evt) {
+    this.props.onChange(evt.target.value);
+  },
   render: function render() {
+    var min = 0,
+        max = this.props.totalSteps,
+        value = this.props.value;
     return React.createElement(
       'div',
       { className: 'editor-slider-container' },
-      React.createElement('input', { type: 'range', min: '0', max: '10', step: '1' })
+      React.createElement('input', { type: 'range',
+        step: '1',
+        min: min,
+        max: max,
+        value: value,
+        defaultValue: max,
+        onChange: this.handleChange })
     );
   }
 });
