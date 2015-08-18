@@ -27,6 +27,10 @@ var dateInSec = function (date) {
   return date.getTime() / 1000;
 };
 
+var timeRangeSecs = function (start, end) {
+  return range( dateInSec(start), dateInSec(end) );
+}
+
 module.exports = React.createClass({
   displayName: 'Editor',
   draggingTimeout: null,
@@ -63,7 +67,7 @@ module.exports = React.createClass({
   getDefaultProps: function () {
     return {
       startTime: new Date('2015-05-23T23:28:00Z'),
-      endTime: new Date('2015-05-23T23:58:00Z')
+      endTime: dateMaths(new Date('2015-05-23T23:58:00Z'), -6)
     };
   },
   cancelDragging: function () {
@@ -74,7 +78,7 @@ module.exports = React.createClass({
     this.draggingTimeout = null;
   },
   durationSecs: function (start, end) {
-    return ( end.getTime() - start.getTime() ) / 1000;
+    return dateInSec(end) - dateInSec(start);
   },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function (date, size, tmpl) {
@@ -98,16 +102,19 @@ module.exports = React.createClass({
                   );
     return url;
   },
+  framesForTime: function (start, end, size, tmpl) {
+    return timeRangeSecs(start, end).map( (r) => {
+      return this.frameForTime( new Date(r * 1000), size, tmpl );
+    });
+  },
   preloadImage: function (url) {
     var img = new Image();
     img.src = url;
   },
-  preloadImageRange: function (startTime, endTime) {
-    var timeRangeSecs = range( dateInSec(startTime), dateInSec(endTime) );
-    timeRangeSecs.forEach( (r) => {
-      this.preloadImage(
-        this.frameForTime( new Date(r * 1000), '720', this.props.frameTemplate )
-      );
+  preloadImageRange: function (startTime, endTime, shouldIncludeSubFrames=false) {
+    var frames = this.framesForTime(startTime, endTime, '720', this.props.frameTemplate);
+    frames.forEach( (r) => {
+      this.preloadImage(r);
     });
   },
   handlePan: function (evt) {
@@ -128,14 +135,14 @@ module.exports = React.createClass({
   },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate),
+        frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate),
         steps = this.durationSecs(this.props.startTime, this.props.endTime);
     return (<div className={ className }>
       <TouchPane
         className="editor-touch-container"
         onPan={this.handlePan}>
         <Frame
-          src={currentFrameSrc} />
+          frames={frames} />
       </TouchPane>
       <Slider
         totalSteps={steps}

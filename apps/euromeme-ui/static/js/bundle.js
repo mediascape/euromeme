@@ -41346,11 +41346,24 @@ var React = require('react');
 
 module.exports = React.createClass({
   displayName: 'Editor:Frame',
+  getInitialState: function getInitialState() {
+    return {
+      currentFrameIndex: 0
+    };
+  },
+  componentDidMount: function componentDidMount() {
+    setInterval(this.advanceFrame, 500);
+  },
+  advanceFrame: function advanceFrame() {
+    var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;
+    this.setState({ currentFrameIndex: newIndex });
+  },
   render: function render() {
+    var frame = this.props.frames[this.state.currentFrameIndex];
     return React.createElement(
       'div',
       { className: 'editor-frame-container' },
-      React.createElement('img', { src: this.props.src })
+      React.createElement('img', { src: frame })
     );
   }
 });
@@ -41387,6 +41400,10 @@ var dateInSec = function dateInSec(date) {
   return date.getTime() / 1000;
 };
 
+var timeRangeSecs = function timeRangeSecs(start, end) {
+  return range(dateInSec(start), dateInSec(end));
+};
+
 module.exports = React.createClass({
   displayName: 'Editor',
   draggingTimeout: null,
@@ -41420,7 +41437,7 @@ module.exports = React.createClass({
   getDefaultProps: function getDefaultProps() {
     return {
       startTime: new Date('2015-05-23T23:28:00Z'),
-      endTime: new Date('2015-05-23T23:58:00Z')
+      endTime: dateMaths(new Date('2015-05-23T23:58:00Z'), -6)
     };
   },
   cancelDragging: function cancelDragging() {
@@ -41431,7 +41448,7 @@ module.exports = React.createClass({
     this.draggingTimeout = null;
   },
   durationSecs: function durationSecs(start, end) {
-    return (end.getTime() - start.getTime()) / 1000;
+    return dateInSec(end) - dateInSec(start);
   },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function frameForTime(date, size, tmpl) {
@@ -41451,16 +41468,25 @@ module.exports = React.createClass({
     }, tmpl);
     return url;
   },
+  framesForTime: function framesForTime(start, end, size, tmpl) {
+    var _this = this;
+
+    return timeRangeSecs(start, end).map(function (r) {
+      return _this.frameForTime(new Date(r * 1000), size, tmpl);
+    });
+  },
   preloadImage: function preloadImage(url) {
     var img = new Image();
     img.src = url;
   },
   preloadImageRange: function preloadImageRange(startTime, endTime) {
-    var _this = this;
+    var _this2 = this;
 
-    var timeRangeSecs = range(dateInSec(startTime), dateInSec(endTime));
-    timeRangeSecs.forEach(function (r) {
-      _this.preloadImage(_this.frameForTime(new Date(r * 1000), '720', _this.props.frameTemplate));
+    var shouldIncludeSubFrames = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+    var frames = this.framesForTime(startTime, endTime, '720', this.props.frameTemplate);
+    frames.forEach(function (r) {
+      _this2.preloadImage(r);
     });
   },
   handlePan: function handlePan(evt) {
@@ -41481,7 +41507,7 @@ module.exports = React.createClass({
   },
   render: function render() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        currentFrameSrc = this.frameForTime(this.state.currentTime, '720', this.props.frameTemplate),
+        frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate),
         steps = this.durationSecs(this.props.startTime, this.props.endTime);
     return React.createElement(
       'div',
@@ -41492,7 +41518,7 @@ module.exports = React.createClass({
           className: 'editor-touch-container',
           onPan: this.handlePan },
         React.createElement(Frame, {
-          src: currentFrameSrc })
+          frames: frames })
       ),
       React.createElement(Slider, {
         totalSteps: steps,
