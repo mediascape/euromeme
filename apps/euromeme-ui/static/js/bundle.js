@@ -41547,15 +41547,6 @@ var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
     Slider = require('./slider');
 
-var momentDateFormatTokens = {
-  '$year': 'YYYY',
-  '$month': 'MM',
-  '$date': 'DD',
-  '$hour': 'HH',
-  '$min': 'mm',
-  '$sec': 'ss'
-};
-
 /*
   increment/decrement a date object by incrementSec
   seconds. Returns a new date.
