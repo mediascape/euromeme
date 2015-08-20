@@ -56,7 +56,7 @@ module.exports = React.createClass({
   },
   getDefaultProps: function () {
     return {
-      startTime: new Date('2015-05-23T23:28:00Z'),
+      startTime: new Date('2015-05-23T23:53:00Z'),
       endTime: dateMaths(new Date('2015-05-23T23:58:00Z'), -6)
     };
   },
@@ -131,7 +131,8 @@ module.exports = React.createClass({
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
-        steps = this.durationSecs(this.props.startTime, this.props.endTime);
+        steps = this.durationSecs(this.props.startTime, this.props.endTime),
+        selectionSteps = 6 /* 6 seconds */;
 
     return (<div className={ className }>
       <TouchPane
@@ -142,6 +143,7 @@ module.exports = React.createClass({
       </TouchPane>
       <Slider
         totalSteps={steps}
+        selectionSteps={selectionSteps}
         value={this.state.currentSliderValue}
         onChange={this.handleSliderChange} />
     </div>);
