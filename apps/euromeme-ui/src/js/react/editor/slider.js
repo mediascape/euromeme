@@ -19,7 +19,7 @@ module.exports = React.createClass({
 
     this.scale = linear();
     this.scale.domain([0, containerWidth]);
-    this.scale.rangeRound([0, this.props.totalSteps])
+    this.scale.rangeRound([0, this.props.max])
 
     this.setState({
       containerWidth,
@@ -58,8 +58,8 @@ module.exports = React.createClass({
     //this.props.onChange(evt.target.value);
   },
   selectionWidthPercent: function () {
-    var selectionSec   = this.props.selectionSteps,
-        trackSec       = this.props.totalSteps,
+    var selectionSec   = this.props.step,
+        trackSec       = this.props.max,
         selectionWidth = selectionSec / trackSec;
 
     return (selectionWidth * 100) + '%';
@@ -71,8 +71,8 @@ module.exports = React.createClass({
 
   },
   render: function() {
-    var min = 0,
-        max = this.props.totalSteps,
+    var min = this.props.min,
+        max = this.props.max,
         x = this.state.x,
         value = this.props.value;
         console.log('x', x);

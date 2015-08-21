@@ -142,8 +142,9 @@ module.exports = React.createClass({
           frames={frames} />
       </TouchPane>
       <Slider
-        totalSteps={steps}
-        selectionSteps={selectionSteps}
+        min={0}
+        max={steps}
+        step={selectionSteps}
         value={this.state.currentSliderValue}
         onChange={this.handleSliderChange} />
     </div>);
