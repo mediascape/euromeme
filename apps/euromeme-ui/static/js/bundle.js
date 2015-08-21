@@ -44205,7 +44205,8 @@ module.exports = React.createClass({
       React.createElement(Slider, {
         min: 0,
         max: steps,
-        step: selectionSteps,
+        step: 1,
+        sliderStepSize: selectionSteps,
         value: this.state.currentSliderValue,
         defaultValue: steps,
         onChange: this.handleSliderChange })
@@ -44263,7 +44264,7 @@ module.exports = React.createClass({
     this.props.onChange(step);
   },
   selectionWidthPercent: function selectionWidthPercent() {
-    var selectionSec = this.props.step,
+    var selectionSec = this.props.sliderStepSize,
         trackSec = this.props.max,
         selectionWidth = selectionSec / trackSec;
 

@@ -46,7 +46,7 @@ module.exports = React.createClass({
     this.props.onChange(step);
   },
   selectionWidthPercent: function () {
-    var selectionSec   = this.props.step,
+    var selectionSec   = this.props.sliderStepSize,
         trackSec       = this.props.max,
         selectionWidth = selectionSec / trackSec;
 

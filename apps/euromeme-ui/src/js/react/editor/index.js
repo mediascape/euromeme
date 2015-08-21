@@ -144,7 +144,8 @@ module.exports = React.createClass({
       <Slider
         min={0}
         max={steps}
-        step={selectionSteps}
+        step={1}
+        sliderStepSize={selectionSteps}
         value={this.state.currentSliderValue}
         defaultValue={steps}
         onChange={this.handleSliderChange} />
