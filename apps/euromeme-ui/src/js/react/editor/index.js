@@ -146,6 +146,7 @@ module.exports = React.createClass({
         max={steps}
         step={selectionSteps}
         value={this.state.currentSliderValue}
+        defaultValue={steps}
         onChange={this.handleSliderChange} />
     </div>);
   }

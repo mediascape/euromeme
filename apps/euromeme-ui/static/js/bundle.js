@@ -44207,6 +44207,7 @@ module.exports = React.createClass({
         max: steps,
         step: selectionSteps,
         value: this.state.currentSliderValue,
+        defaultValue: steps,
         onChange: this.handleSliderChange })
     );
   }
@@ -44216,7 +44217,7 @@ module.exports = React.createClass({
 'use strict';
 
 var React = require('react'),
-    linear = require('d3-scale').linear;
+    linearScale = require('d3-scale').linear;
 
 var TouchPane = require('./touch-pane');
 
@@ -44224,55 +44225,42 @@ module.exports = React.createClass({
   displayName: 'Editor:Slider',
   getInitialState: function getInitialState() {
     return {
-      prevX: 0,
       x: 0
     };
   },
   componentDidMount: function componentDidMount() {
+    var _this = this;
+
     var $container = React.findDOMNode(this.refs.container),
         containerWidth = $container.getBoundingClientRect().width,
         $selection = React.findDOMNode(this.refs.selection),
         selectionWidth = $selection.getBoundingClientRect().width;
 
-    this.pxToSteps = linear();
-    this.pxToSteps.domain([0, containerWidth]);
-    this.pxToSteps.rangeRound([0, this.props.max]);
+    // Create a scale to translate between screen pixels
+    // and step increments on the slider
+    this.pxToSteps = linearScale();
+    this.pxToSteps.domain([0, containerWidth - selectionWidth]).rangeRound([0, this.props.max]).clamp([true]);
 
-    this.setState({
-      containerWidth: containerWidth,
-      selectionWidth: selectionWidth
-    });
+    // Translate between step increments on the slider
+    // and screen pixels
+    this.stepsToPx = function (step) {
+      return _this.pxToSteps.invert(step);
+    };
+
+    // Trigger initial layout
+    this.componentWillReceiveProps(this.props);
+  },
+  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+    var value = nextProps.value != null ? nextProps.value : nextProps.defaultValue,
+        x = this.stepsToPx(value);
+
+    this.setState({ x: x });
   },
   handleChange: function handleChange(evt) {
-    var maxX = this.state.containerWidth - this.state.selectionWidth,
-        x = this.state.prevX + evt.deltaX,
-        state;
-
-    console.log('handleChange', x, this.state.selectionWidth, this.state.containerWidth);
-
-    if (x < 0) {
-      x = 0;
-    }
-
-    if (x > maxX) {
-      x = maxX;
-    }
-
-    // Snap to step
-    var step = this.pxToSteps(x);
-    console.log('step', step);
-
-    if (evt.isFinal) {
-      state = { x: x, prevX: x };
-    } else {
-      state = { x: x };
-    }
-
-    console.log('state', state);
-    this.setState(state);
+    var x = evt.center.x,
+        step = this.pxToSteps(x);
 
     this.props.onChange(step);
-    //this.props.onChange(evt.target.value);
   },
   selectionWidthPercent: function selectionWidthPercent() {
     var selectionSec = this.props.step,
@@ -44281,14 +44269,12 @@ module.exports = React.createClass({
 
     return selectionWidth * 100 + '%';
   },
-  snapPixelToStep: function snapPixelToStep(px) {},
-  pixelLocationToSecs: function pixelLocationToSecs() {},
   render: function render() {
     var min = this.props.min,
         max = this.props.max,
         x = this.state.x,
         value = this.props.value;
-    console.log('x', x);
+
     return React.createElement(
       'div',
       { className: 'editor-slider-container' },
@@ -44296,31 +44282,22 @@ module.exports = React.createClass({
         'div',
         { ref: 'container', className: 'editor-slider-track' },
         React.createElement(
-          'div',
+          TouchPane,
           {
+            className: 'editor-slider-selection-touch-pane',
+            onPan: this.handleChange },
+          React.createElement('div', {
             ref: 'selection',
             className: 'editor-slider-selection',
             style: {
               width: this.selectionWidthPercent(),
               transform: 'translateX(' + x + 'px)'
-            } },
-          React.createElement(TouchPane, {
-            className: 'editor-slider-selection-touch-pane',
-            onPan: this.handleChange })
+            } })
         )
       )
     );
   }
 });
-
-/*
-<input type="range"
-        step="1"
-        min={min}
-        max={max}
-        value={value}
-        defaultValue={max}
-        onChange={this.handleChange} />*/
 
 },{"./touch-pane":264,"d3-scale":2,"react":250}],264:[function(require,module,exports){
 'use strict';
