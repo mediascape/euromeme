@@ -44234,9 +44234,9 @@ module.exports = React.createClass({
         $selection = React.findDOMNode(this.refs.selection),
         selectionWidth = $selection.getBoundingClientRect().width;
 
-    this.scale = linear();
-    this.scale.domain([0, containerWidth]);
-    this.scale.rangeRound([0, this.props.max]);
+    this.pxToSteps = linear();
+    this.pxToSteps.domain([0, containerWidth]);
+    this.pxToSteps.rangeRound([0, this.props.max]);
 
     this.setState({
       containerWidth: containerWidth,
@@ -44259,7 +44259,7 @@ module.exports = React.createClass({
     }
 
     // Snap to step
-    var step = this.scale(x);
+    var step = this.pxToSteps(x);
     console.log('step', step);
 
     if (evt.isFinal) {
