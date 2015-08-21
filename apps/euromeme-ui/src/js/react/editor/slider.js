@@ -1,5 +1,5 @@
 var React  = require('react'),
-    linear = require('d3').scale.linear;
+    linear = require('d3-scale').linear;
 
 var TouchPane = require('./touch-pane');
 
