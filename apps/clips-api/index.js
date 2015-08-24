@@ -1,7 +1,9 @@
 var express = require('express'),
     fs      = require('q-io/fs'),
     cors    = require('cors'),
+    bodyParser = require('body-parser'),
     latestClips = require('./lib/latest-clips'),
+    createClips = require('./lib/create-clips'),
     app     = express(),
     port    = process.env.PORT || 5000,
     mediaPath = process.env.MEDIA_PATH;
@@ -12,6 +14,7 @@ if(typeof mediaPath === 'undefined') {
 }
 
 app.use(cors());
+app.use(bodyParser.json());
 
 app.get('/clips/latest', function(req, res) {
   fs.listDirectoryTree(mediaPath).then(function(dirs) {
@@ -26,6 +29,17 @@ app.get('/clips/latest', function(req, res) {
   }, function(err) {
     res.send(err);
   });
+});
+
+app.post('/clips', function(req, res) {
+  createClips(req.body).then(
+    function(output) {
+      res.json(output);
+    },
+    function(err) {
+      res.send(err);
+    }
+  );
 });
 
 console.log('listening on '+port);

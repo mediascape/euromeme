@@ -10,9 +10,12 @@
   "author": "Dan Nuttall <dan.nuttall@bbc.co.uk>",
   "license": "Apache2",
   "dependencies": {
+    "body-parser": "^1.13.3",
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "lodash": "^3.10.1",
+    "promised-exec": "^1.0.1",
+    "q": "^1.4.1",
     "q-io": "^1.13.1"
   },
   "devDependencies": {
