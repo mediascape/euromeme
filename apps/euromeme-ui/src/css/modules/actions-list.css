@@ -1,0 +1,21 @@
+.actions-list {
+  position: absolute;
+  top: 0;
+  left: auto;
+  right: 0;
+  width: 100px;
+  z-index: 100;
+  text-align: center;
+}
+
+.actions-list-close-button {
+  display: inline-block;
+  width: 50px;
+  margin: 10px;
+  background: none;
+  border: none;
+}
+
+.actions-list-close-button:hover path {
+  fill: rgba(255, 255, 255, 0.7);
+}

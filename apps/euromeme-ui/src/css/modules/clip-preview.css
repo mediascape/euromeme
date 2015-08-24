@@ -4,28 +4,6 @@
 .clip-preview {
 }
 
-.clip-preview-actions {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  z-index: 100;
-  text-align: right;
-}
-
-.clip-preview-close-button {
-  display: inline-block;
-  width: 50px;
-  margin: 10px;
-  background: none;
-  border: none;
-}
-
-.clip-preview-close-button:hover path {
-  fill: rgba(255, 255, 255, 0.7);
-}
-
 .clip-preview .imageloader {
   display: block;
 }

@@ -218,6 +218,12 @@ module.exports = React.createClass({
       { previewItem: null }
     );
   },
+  handleEditorClose: function () {
+    console.log('Container.handleEditorClose');
+    this.transitionToViewWithState(
+      this.views.grid
+    );
+  },
   handleCreateClip: function (evt) {
     console.log('handleCreateClip', evt);
     this.state.clipsApi
@@ -303,7 +309,8 @@ module.exports = React.createClass({
         case this.views.editor:
           view = <Editor
                    frameTemplate={this.state.config.frameStoreTemplate}
-                   onCreateClip={this.handleCreateClip} />;
+                   onCreateClip={this.handleCreateClip}
+                   onClose={this.handleEditorClose} />;
           break;
         default:
           view = <div key='error'>Error</div>;

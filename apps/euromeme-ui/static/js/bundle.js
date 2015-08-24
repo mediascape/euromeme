@@ -43414,7 +43414,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
   };
 };
 
-},{"../util/fetch":268,"lodash/collection/reduce":9}],252:[function(require,module,exports){
+},{"../util/fetch":269,"lodash/collection/reduce":9}],252:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -43439,7 +43439,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":268}],253:[function(require,module,exports){
+},{"../util/fetch":269}],253:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -43524,7 +43524,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":268}],254:[function(require,module,exports){
+},{"../util/fetch":269}],254:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./config');
@@ -43646,7 +43646,34 @@ var Application = require('./react/application.js');
 React.initializeTouchEvents(true);
 React.render(React.createElement(Application, null), document.querySelector('#app-container'));
 
-},{"./react/application.js":257,"react":250}],257:[function(require,module,exports){
+},{"./react/application.js":258,"react":250}],257:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+var CloseIcon = require('../../../static/icons/close.svg');
+
+module.exports = React.createClass({
+  displayName: 'ActionsList',
+  propTypes: {
+    children: React.PropTypes.node,
+    onClose: React.PropTypes.func.isRequired
+  },
+  render: function render() {
+    return React.createElement(
+      'div',
+      { className: 'actions-list' },
+      React.createElement(
+        'button',
+        { onTouchStart: this.props.onClose, onClick: this.props.onClose, className: 'actions-list-close-button' },
+        React.createElement(CloseIcon, { alt: 'Close' }),
+        this.props.children
+      )
+    );
+  }
+});
+
+},{"../../../static/icons/close.svg":273,"react":250}],258:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -43838,6 +43865,10 @@ module.exports = React.createClass({
     console.log('Container.handleClipPreviewClose');
     this.transitionToViewWithState(this.views.grid, { previewItem: null });
   },
+  handleEditorClose: function handleEditorClose() {
+    console.log('Container.handleEditorClose');
+    this.transitionToViewWithState(this.views.grid);
+  },
   handleCreateClip: function handleCreateClip(evt) {
     console.log('handleCreateClip', evt);
     this.state.clipsApi.create(evt.startTime, evt.endTime).then(this.receiveClipCreation);
@@ -43921,7 +43952,8 @@ module.exports = React.createClass({
         case this.views.editor:
           view = React.createElement(Editor, {
             frameTemplate: this.state.config.frameStoreTemplate,
-            onCreateClip: this.handleCreateClip });
+            onCreateClip: this.handleCreateClip,
+            onClose: this.handleEditorClose });
           break;
         default:
           view = React.createElement(
@@ -43947,13 +43979,13 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/fullscreen":269,"./clip-preview":258,"./device-list":260,"./editor":262,"./grid":265,"./loader-view":267,"lodash/object/merge":69,"react":250,"react/addons":78}],258:[function(require,module,exports){
+},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/fullscreen":270,"./clip-preview":259,"./device-list":261,"./editor":263,"./grid":266,"./loader-view":268,"lodash/object/merge":69,"react":250,"react/addons":78}],259:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 
 var Clip = require('./clip'),
-    CloseIcon = require('../../../static/icons/close.svg');
+    ActionsList = require('./actions-list');
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
@@ -43976,21 +44008,14 @@ module.exports = React.createClass({
     return React.createElement(
       'div',
       { className: 'clip-preview' },
-      React.createElement(
-        'div',
-        { className: 'clip-preview-actions' },
-        React.createElement(
-          'button',
-          { onTouchStart: this.handleClose, onClick: this.handleClose, className: 'clip-preview-close-button' },
-          React.createElement(CloseIcon, { alt: 'Close' })
-        )
-      ),
+      React.createElement(ActionsList, {
+        onClose: this.handleClose }),
       React.createElement(Clip, { src: clipUrl, format: 'video' })
     );
   }
 });
 
-},{"../../../static/icons/close.svg":272,"./clip":259,"react":250}],259:[function(require,module,exports){
+},{"./actions-list":257,"./clip":260,"react":250}],260:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44037,7 +44062,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":250,"react-imageloader":77}],260:[function(require,module,exports){
+},{"react":250,"react-imageloader":77}],261:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -44085,7 +44110,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":250}],261:[function(require,module,exports){
+},{"react":250}],262:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -44125,7 +44150,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../util/request-interval":271,"react":250}],262:[function(require,module,exports){
+},{"../../util/request-interval":272,"react":250}],263:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44136,7 +44161,8 @@ var React = require('react'),
 
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
-    Slider = require('./slider');
+    Slider = require('./slider'),
+    ActionsList = require('../actions-list');
 
 /*
   increment/decrement a date object by incrementSec
@@ -44160,7 +44186,8 @@ module.exports = React.createClass({
     startTime: React.PropTypes.instanceOf(Date).isRequired,
     endTime: React.PropTypes.instanceOf(Date).isRequired,
     frameTemplate: React.PropTypes.string.isRequired,
-    onCreateClip: React.PropTypes.func.isRequired
+    onCreateClip: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired
   },
   draggingTimeout: null,
   componentDidMount: function componentDidMount() {
@@ -44269,6 +44296,7 @@ module.exports = React.createClass({
       endTime: dateMaths(this.state.currentTime, 6)
     });
   },
+  handleClose: function handleClose() {},
   render: function render() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
@@ -44295,15 +44323,21 @@ module.exports = React.createClass({
         defaultValue: steps,
         onChange: this.handleSliderChange }),
       React.createElement(
-        'button',
-        { className: 'editor-clip-button', onClick: this.handleCreateClip },
-        'Share'
+        ActionsList,
+        { onClose: this.props.onClose },
+        React.createElement(
+          'button',
+          {
+            className: 'editor-clip-button',
+            onClick: this.handleCreateClip },
+          'Share'
+        )
       )
     );
   }
 });
 
-},{"./frame":261,"./slider":263,"./touch-pane":264,"lodash/array/flatten":7,"lodash/collection/reduce":9,"lodash/utility/range":73,"lodash/utility/times":74,"react":250}],263:[function(require,module,exports){
+},{"../actions-list":257,"./frame":262,"./slider":264,"./touch-pane":265,"lodash/array/flatten":7,"lodash/collection/reduce":9,"lodash/utility/range":73,"lodash/utility/times":74,"react":250}],264:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44397,7 +44431,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./touch-pane":264,"d3-scale":2,"react":250}],264:[function(require,module,exports){
+},{"./touch-pane":265,"d3-scale":2,"react":250}],265:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44431,7 +44465,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"react":250,"react-hammerjs":76}],265:[function(require,module,exports){
+},{"react":250,"react-hammerjs":76}],266:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44506,7 +44540,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"./clip":259,"./live-tile":266,"lodash":11,"lodash/array/fill":6,"react":250}],266:[function(require,module,exports){
+},{"./clip":260,"./live-tile":267,"lodash":11,"lodash/array/fill":6,"react":250}],267:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -44545,7 +44579,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/config":252,"../api/sync":255,"react":250}],267:[function(require,module,exports){
+},{"../api/config":252,"../api/sync":255,"react":250}],268:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -44592,14 +44626,14 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/error.svg":273,"react":250}],268:[function(require,module,exports){
+},{"../../../static/icons/error.svg":274,"react":250}],269:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":3,"isomorphic-fetch":4}],269:[function(require,module,exports){
+},{"es6-promise":3,"isomorphic-fetch":4}],270:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -44616,7 +44650,7 @@ module.exports = {
   }
 };
 
-},{}],270:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 // requestAnimationFrame() shim by Paul Irish
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 "use strict";
@@ -44627,7 +44661,7 @@ module.exports = (function () {
 	};
 })();
 
-},{}],271:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 /*
 	https://gist.github.com/joelambert/1002116#file-requestinterval-js
 */
@@ -44673,7 +44707,7 @@ module.exports.clearRequestInterval = function (handle) {
 	window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) : window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) : window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) : clearInterval(handle);
 };
 
-},{"./request-anim-frame":270}],272:[function(require,module,exports){
+},{"./request-anim-frame":271}],273:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -44695,7 +44729,7 @@ module.exports = React.createClass({
         return SVG(this.props);
     }
 });
-},{"react":250}],273:[function(require,module,exports){
+},{"react":250}],274:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };

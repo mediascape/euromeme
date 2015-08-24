@@ -1,5 +1,6 @@
 @import url('base.css');
 @import url('layout.css');
+@import url('modules/actions-list.css');
 @import url('modules/centered-view.css');
 @import url('modules/loader.css');
 @import url('modules/image-loader.css');

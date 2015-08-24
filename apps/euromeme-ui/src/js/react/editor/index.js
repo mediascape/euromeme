@@ -6,7 +6,8 @@ var React = require('react'),
 
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
-    Slider = require('./slider');
+    Slider = require('./slider'),
+    ActionsList  = require('../actions-list');
 
 /*
   increment/decrement a date object by incrementSec
@@ -30,7 +31,8 @@ module.exports = React.createClass({
     startTime: React.PropTypes.instanceOf(Date).isRequired,
     endTime  : React.PropTypes.instanceOf(Date).isRequired,
     frameTemplate: React.PropTypes.string.isRequired,
-    onCreateClip: React.PropTypes.func.isRequired
+    onCreateClip: React.PropTypes.func.isRequired,
+    onClose: React.PropTypes.func.isRequired
   },
   draggingTimeout: null,
   componentDidMount: function () {
@@ -140,6 +142,9 @@ module.exports = React.createClass({
       endTime: dateMaths(this.state.currentTime, 6)
     });
   },
+  handleClose: function () {
+
+  },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
@@ -161,7 +166,11 @@ module.exports = React.createClass({
         value={this.state.currentSliderValue}
         defaultValue={steps}
         onChange={this.handleSliderChange} />
-      <button className="editor-clip-button" onClick={this.handleCreateClip}>Share</button>
+      <ActionsList onClose={this.props.onClose}>
+        <button
+          className="editor-clip-button"
+          onClick={this.handleCreateClip}>Share</button>
+      </ActionsList>
     </div>);
   }
 });

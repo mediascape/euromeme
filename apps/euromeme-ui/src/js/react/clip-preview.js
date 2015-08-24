@@ -1,7 +1,7 @@
 var React = require('react');
 
 var Clip = require('./clip'),
-    CloseIcon = require('../../../static/icons/close.svg');
+    ActionsList  = require('./actions-list');
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
@@ -23,11 +23,8 @@ module.exports = React.createClass({
     var clipUrl = this.props.clip.mp4.replace('$size', 720);
     return (
       <div className="clip-preview">
-        <div className="clip-preview-actions">
-          <button onTouchStart={this.handleClose} onClick={this.handleClose} className="clip-preview-close-button">
-            <CloseIcon alt="Close" />
-          </button>
-        </div>
+        <ActionsList
+          onClose={this.handleClose} />
         <Clip src={clipUrl} format="video" />
       </div>
     );
