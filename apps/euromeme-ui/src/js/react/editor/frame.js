@@ -13,7 +13,13 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function () {
-    interval.requestInterval(this.advanceFrame, 150);
+    var id = interval.requestInterval(this.advanceFrame, 150);
+    this.setState({
+      intervalId: id
+    });
+  },
+  componentWillUnmount: function () {
+    interval.clearRequestInterval(this.state.intervalId);
   },
   advanceFrame: function () {
     var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;

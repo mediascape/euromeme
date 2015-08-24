@@ -44073,7 +44073,13 @@ module.exports = React.createClass({
     };
   },
   componentDidMount: function componentDidMount() {
-    interval.requestInterval(this.advanceFrame, 150);
+    var id = interval.requestInterval(this.advanceFrame, 150);
+    this.setState({
+      intervalId: id
+    });
+  },
+  componentWillUnmount: function componentWillUnmount() {
+    interval.clearRequestInterval(this.state.intervalId);
   },
   advanceFrame: function advanceFrame() {
     var newIndex = (this.state.currentFrameIndex + 1) % this.props.frames.length;
