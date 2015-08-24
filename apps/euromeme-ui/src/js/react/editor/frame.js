@@ -4,6 +4,9 @@ var interval = require('../../util/request-interval');
 
 module.exports = React.createClass({
   displayName: 'Editor:Frame',
+  propTypes: {
+    frames: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+  },
   getInitialState: function () {
     return {
       currentFrameIndex: 0

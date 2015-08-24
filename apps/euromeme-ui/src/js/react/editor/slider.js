@@ -10,6 +10,14 @@ module.exports = React.createClass({
       x: 0
     };
   },
+  propTypes: {
+    min           : React.PropTypes.number.isRequired,
+    max           : React.PropTypes.number.isRequired,
+    sliderStepSize: React.PropTypes.number.isRequired,
+    value         : React.PropTypes.number,
+    defaultValue  : React.PropTypes.number,
+    onChange      : React.PropTypes.func.isRequired
+  },
   componentDidMount: function () {
     var $container = React.findDOMNode(this.refs.container),
         containerWidth = $container.getBoundingClientRect().width,

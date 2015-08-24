@@ -3,6 +3,11 @@ var React  = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Editor:TouchPane',
+  propTypes: {
+    className: React.PropTypes.string.isRequired,
+    onPan    : React.PropTypes.func.isRequired,
+    children : React.PropTypes.node
+  },
   render: function() {
     var options = {
       // touchAction: true,

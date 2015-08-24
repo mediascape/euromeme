@@ -5,6 +5,12 @@ var Clip = require('./clip'),
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
+  propTypes: {
+    clip: React.PropTypes.shape({
+      mp4: React.PropTypes.string
+    }).isRequired,
+    onClose: React.PropTypes.func
+  },
   getInitialState: function () {
     return {};
   },

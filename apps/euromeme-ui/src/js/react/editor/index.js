@@ -26,6 +26,11 @@ var timeRangeSecs = function (start, end) {
 
 module.exports = React.createClass({
   displayName: 'Editor',
+  propTypes: {
+    startTime: React.PropTypes.instanceOf(Date).isRequired,
+    endTime  : React.PropTypes.instanceOf(Date).isRequired,
+    frameTemplate: React.PropTypes.string.isRequired
+  },
   draggingTimeout: null,
   componentDidMount: function () {
     // Preload last 30 seconds

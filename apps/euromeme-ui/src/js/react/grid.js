@@ -7,6 +7,17 @@ var LiveTile = require('./live-tile'),
 
 module.exports = React.createClass({
   displayName: 'Grid',
+  propTypes: {
+    clips              : React.PropTypes.array.isRequired,
+    numPlaceholderClips: React.PropTypes.number.isRequired,
+    format             : React.PropTypes.string.isRequired,
+    videoUrl           : React.PropTypes.string.isRequired,
+    sync               : React.PropTypes.shape({
+      msvName: React.PropTypes.string,
+      appId  : React.PropTypes.string
+    }).isRequired,
+    onGridItemSelected : React.PropTypes.func
+  },
   handleItemSelection: function (key) {
     if (this.props.onGridItemSelected) {
       this.props.onGridItemSelected(key);

@@ -43861,7 +43861,7 @@ module.exports = React.createClass({
       console.log('view: loader', loadingMessage);
       view = React.createElement(
         LoaderView,
-        { key: 'loader', isActive: 'true', isError: !!this.state.error },
+        { key: 'loader', isError: !!this.state.error },
         loadingMessage
       );
     } else {
@@ -43927,6 +43927,12 @@ var Clip = require('./clip'),
 
 module.exports = React.createClass({
   displayName: 'ClipPreview',
+  propTypes: {
+    clip: React.PropTypes.shape({
+      mp4: React.PropTypes.string
+    }).isRequired,
+    onClose: React.PropTypes.func
+  },
   getInitialState: function getInitialState() {
     return {};
   },
@@ -43962,6 +43968,10 @@ var React = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Clip',
+  propTypes: {
+    src: React.PropTypes.string.isRequired,
+    format: React.PropTypes.oneOf(['image', 'video'])
+  },
   getInitialState: function getInitialState() {
     return {
       className: 'pre-image-load'
@@ -44004,6 +44014,10 @@ var React = require('react');
 
 module.exports = React.createClass({
   displayName: 'DeviceList',
+  propTypes: {
+    devices: React.PropTypes.array.isRequired,
+    onDeviceSelected: React.PropTypes.func
+  },
   createEventHandlerForItem: function createEventHandlerForItem(data) {
     return (function () {
       console.log('Device selected', data);
@@ -44050,6 +44064,9 @@ var interval = require('../../util/request-interval');
 
 module.exports = React.createClass({
   displayName: 'Editor:Frame',
+  propTypes: {
+    frames: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+  },
   getInitialState: function getInitialState() {
     return {
       currentFrameIndex: 0
@@ -44103,6 +44120,11 @@ var timeRangeSecs = function timeRangeSecs(start, end) {
 
 module.exports = React.createClass({
   displayName: 'Editor',
+  propTypes: {
+    startTime: React.PropTypes.instanceOf(Date).isRequired,
+    endTime: React.PropTypes.instanceOf(Date).isRequired,
+    frameTemplate: React.PropTypes.string.isRequired
+  },
   draggingTimeout: null,
   componentDidMount: function componentDidMount() {
     // Preload last 30 seconds
@@ -44248,6 +44270,14 @@ module.exports = React.createClass({
       x: 0
     };
   },
+  propTypes: {
+    min: React.PropTypes.number.isRequired,
+    max: React.PropTypes.number.isRequired,
+    sliderStepSize: React.PropTypes.number.isRequired,
+    value: React.PropTypes.number,
+    defaultValue: React.PropTypes.number,
+    onChange: React.PropTypes.func.isRequired
+  },
   componentDidMount: function componentDidMount() {
     var _this = this;
 
@@ -44327,6 +44357,11 @@ var React = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Editor:TouchPane',
+  propTypes: {
+    className: React.PropTypes.string.isRequired,
+    onPan: React.PropTypes.func.isRequired,
+    children: React.PropTypes.node
+  },
   render: function render() {
     var options = {
       // touchAction: true,
@@ -44360,6 +44395,17 @@ var LiveTile = require('./live-tile'),
 
 module.exports = React.createClass({
   displayName: 'Grid',
+  propTypes: {
+    clips: React.PropTypes.array.isRequired,
+    numPlaceholderClips: React.PropTypes.number.isRequired,
+    format: React.PropTypes.string.isRequired,
+    videoUrl: React.PropTypes.string.isRequired,
+    sync: React.PropTypes.shape({
+      msvName: React.PropTypes.string,
+      appId: React.PropTypes.string
+    }).isRequired,
+    onGridItemSelected: React.PropTypes.func
+  },
   handleItemSelection: function handleItemSelection(key) {
     if (this.props.onGridItemSelected) {
       this.props.onGridItemSelected(key);
@@ -44460,6 +44506,16 @@ var ErrorIcon = require('../../../static/icons/error.svg');
 
 module.exports = React.createClass({
   displayName: 'LoaderView',
+  propTypes: {
+    isError: React.PropTypes.bool.isRequired,
+    children: React.PropTypes.node.isRequired, // anything that can be rendered
+    isActive: React.PropTypes.bool
+  },
+  getDefaultProps: function getDefaultProps() {
+    return {
+      isActive: true
+    };
+  },
   render: function render() {
     var className = 'fullscreen centered-view',
         errorIcon = this.props.isError ? React.createElement(

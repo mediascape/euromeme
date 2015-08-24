@@ -254,7 +254,7 @@ module.exports = React.createClass({
     if (loadingMessage) {
       console.log('view: loader', loadingMessage);
       view = (
-        <LoaderView key="loader" isActive='true' isError={!!this.state.error}>
+        <LoaderView key="loader" isError={!!this.state.error}>
           {loadingMessage}
         </LoaderView>
       );

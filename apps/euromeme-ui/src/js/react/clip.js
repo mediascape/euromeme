@@ -3,6 +3,10 @@ var React = require('react'),
 
 module.exports = React.createClass({
   displayName: 'Clip',
+  propTypes: {
+    src: React.PropTypes.string.isRequired,
+    format: React.PropTypes.oneOf(['image', 'video'])
+  },
   getInitialState: function () {
     return {
       className: 'pre-image-load'
