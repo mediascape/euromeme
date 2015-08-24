@@ -148,6 +148,13 @@ module.exports = React.createClass({
     this.setState({ clips: clips });
   },
   /*
+    Clip has been created
+  */
+  receiveClipCreation: function () {
+    console.log('receiveClipCreation');
+    this.transitionToViewWithState(this.views.grid, {});
+  },
+  /*
     connect to a remove device and fetch status info
   */
   connectToDevice: function (info) {
@@ -168,10 +175,14 @@ module.exports = React.createClass({
     Fetch clips from remote API
   */
   fetchClips: function () {
-    clipsApi(
+    var clipsApiInstance = clipsApi(
       this.state.config.clipsApiEndpoint,
       this.state.config.mediaStoreUrlTemplate
-    )
+    );
+
+    this.setState({ clipsApi: clipsApiInstance });
+
+    clipsApiInstance
       .recent()
       .then(
         this.receiveClips,
@@ -206,6 +217,12 @@ module.exports = React.createClass({
       this.views.grid,
       { previewItem: null }
     );
+  },
+  handleCreateClip: function (evt) {
+    console.log('handleCreateClip', evt);
+    this.state.clipsApi
+      .create(evt.startTime, evt.endTime)
+      .then(this.receiveClipCreation);
   },
   /*
     Handler to be called on tap. Will call handleDoubleTap
@@ -285,7 +302,8 @@ module.exports = React.createClass({
           break;
         case this.views.editor:
           view = <Editor
-                   frameTemplate={this.state.config.frameStoreTemplate} />;
+                   frameTemplate={this.state.config.frameStoreTemplate}
+                   onCreateClip={this.handleCreateClip} />;
           break;
         default:
           view = <div key='error'>Error</div>;

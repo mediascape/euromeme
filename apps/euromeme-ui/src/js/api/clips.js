@@ -43,6 +43,22 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
         .catch(function () {
           throw new Error('Error parsing recent clips from API');
         });
+    },
+    /*
+      create()
+      Request a clip
+
+      clipStartTime <Date> Clip start time
+      clipEndTime   <Date> Clip end time
+      broadcastStartTime <Date> Start time of broadcast
+
+      Returns: <Promise>
+        Resolves: on successful clip creation
+        Rejects:  if API call fails
+    */
+    create: function (clipStartTime, clipEndTime, broadcastStartTime) {
+      console.log('Clip.create: ', clipStartTime, clipEndTime, broadcastStartTime);
+      return Promise.resolve();
     }
   };
 };

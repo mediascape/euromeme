@@ -43396,6 +43396,20 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
       })['catch'](function () {
         throw new Error('Error parsing recent clips from API');
       });
+    },
+    /*
+      create()
+      Request a clip
+       clipStartTime <Date> Clip start time
+      clipEndTime   <Date> Clip end time
+      broadcastStartTime <Date> Start time of broadcast
+       Returns: <Promise>
+        Resolves: on successful clip creation
+        Rejects:  if API call fails
+    */
+    create: function create(clipStartTime, clipEndTime, broadcastStartTime) {
+      console.log('Clip.create: ', clipStartTime, clipEndTime, broadcastStartTime);
+      return Promise.resolve();
     }
   };
 };
@@ -43773,6 +43787,13 @@ module.exports = React.createClass({
     this.setState({ clips: clips });
   },
   /*
+    Clip has been created
+  */
+  receiveClipCreation: function receiveClipCreation() {
+    console.log('receiveClipCreation');
+    this.transitionToViewWithState(this.views.grid, {});
+  },
+  /*
     connect to a remove device and fetch status info
   */
   connectToDevice: function connectToDevice(info) {
@@ -43785,7 +43806,11 @@ module.exports = React.createClass({
     Fetch clips from remote API
   */
   fetchClips: function fetchClips() {
-    clipsApi(this.state.config.clipsApiEndpoint, this.state.config.mediaStoreUrlTemplate).recent().then(this.receiveClips, this.createErrorHandlerWithMessage('There was a problem loading recent clips'));
+    var clipsApiInstance = clipsApi(this.state.config.clipsApiEndpoint, this.state.config.mediaStoreUrlTemplate);
+
+    this.setState({ clipsApi: clipsApiInstance });
+
+    clipsApiInstance.recent().then(this.receiveClips, this.createErrorHandlerWithMessage('There was a problem loading recent clips'));
   },
   /*
     Handle double tap on application
@@ -43812,6 +43837,10 @@ module.exports = React.createClass({
   handleClipPreviewClose: function handleClipPreviewClose() {
     console.log('Container.handleClipPreviewClose');
     this.transitionToViewWithState(this.views.grid, { previewItem: null });
+  },
+  handleCreateClip: function handleCreateClip(evt) {
+    console.log('handleCreateClip', evt);
+    this.state.clipsApi.create(evt.startTime, evt.endTime).then(this.receiveClipCreation);
   },
   /*
     Handler to be called on tap. Will call handleDoubleTap
@@ -43891,7 +43920,8 @@ module.exports = React.createClass({
           break;
         case this.views.editor:
           view = React.createElement(Editor, {
-            frameTemplate: this.state.config.frameStoreTemplate });
+            frameTemplate: this.state.config.frameStoreTemplate,
+            onCreateClip: this.handleCreateClip });
           break;
         default:
           view = React.createElement(
@@ -44129,7 +44159,8 @@ module.exports = React.createClass({
   propTypes: {
     startTime: React.PropTypes.instanceOf(Date).isRequired,
     endTime: React.PropTypes.instanceOf(Date).isRequired,
-    frameTemplate: React.PropTypes.string.isRequired
+    frameTemplate: React.PropTypes.string.isRequired,
+    onCreateClip: React.PropTypes.func.isRequired
   },
   draggingTimeout: null,
   componentDidMount: function componentDidMount() {
@@ -44232,6 +44263,12 @@ module.exports = React.createClass({
       currentTime: currentTime
     });
   },
+  handleCreateClip: function handleCreateClip() {
+    this.props.onCreateClip({
+      startTime: this.state.currentTime,
+      endTime: dateMaths(this.state.currentTime, 6)
+    });
+  },
   render: function render() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
@@ -44256,7 +44293,12 @@ module.exports = React.createClass({
         sliderStepSize: selectionSteps,
         value: this.state.currentSliderValue,
         defaultValue: steps,
-        onChange: this.handleSliderChange })
+        onChange: this.handleSliderChange }),
+      React.createElement(
+        'button',
+        { className: 'editor-clip-button', onClick: this.handleCreateClip },
+        'Share'
+      )
     );
   }
 });

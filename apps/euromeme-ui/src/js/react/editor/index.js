@@ -29,7 +29,8 @@ module.exports = React.createClass({
   propTypes: {
     startTime: React.PropTypes.instanceOf(Date).isRequired,
     endTime  : React.PropTypes.instanceOf(Date).isRequired,
-    frameTemplate: React.PropTypes.string.isRequired
+    frameTemplate: React.PropTypes.string.isRequired,
+    onCreateClip: React.PropTypes.func.isRequired
   },
   draggingTimeout: null,
   componentDidMount: function () {
@@ -133,6 +134,12 @@ module.exports = React.createClass({
       currentTime: currentTime
     });
   },
+  handleCreateClip: function () {
+    this.props.onCreateClip({
+      startTime: this.state.currentTime,
+      endTime: dateMaths(this.state.currentTime, 6)
+    });
+  },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
@@ -154,6 +161,7 @@ module.exports = React.createClass({
         value={this.state.currentSliderValue}
         defaultValue={steps}
         onChange={this.handleSliderChange} />
+      <button className="editor-clip-button" onClick={this.handleCreateClip}>Share</button>
     </div>);
   }
 });
