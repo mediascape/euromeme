@@ -2,7 +2,13 @@ var fs        = require('q-io/fs'),
     q         = require('q'),
     exec      = require('promised-exec'),
     tmpDir    = __dirname + '/../tmp/',
+    sourceFile = process.env.SOURCE_FILE,
     mediaPath = process.env.MEDIA_PATH;
+
+if(typeof sourceFile === 'undefined') {
+  console.error('SOURCE_FILE not found');
+  process.exit(1);
+}
 
 module.exports = function(params) {
   return validate(params)
@@ -30,12 +36,6 @@ function validate(params) {
     return reject;
   }
 
-  if(params.hasOwnProperty('end')) {
-    validParams.end = new Date(Date.parse(params.end));
-  } else {
-    return reject;
-  }
-
   return q.resolve(validParams);
 }
 
@@ -54,11 +54,24 @@ function createFolder(params) {
 }
 
 function createSubClip(params) {
-  var cmd = 'cd '+params.tmpDir;
+  var cmd = ['cd '+params.tmpDir];
 
-  cmd += ' && touch '+params.name+'.mp4';
+  cmd.push(
+    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss 00:02:00 -t 6 -an '+params.name
+    +'.180.mp4 2>&1'
+  );
 
-  return exec(cmd).then(function(output) { return params; });
+  cmd.push(
+    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss 00:02:00 -t 6 -an '+params.name
+    +'.360.mp4 2>&1'
+  );
+
+  cmd.push(
+    'ffmpeg -i '+sourceFile+' -ss 00:02:00 -t 6 -an '+params.name
+    +'.720.mp4 2>&1'
+  );
+
+  return exec(cmd.join(' && ')).then(function(output) { return params; });
 }
 
 function createGif(params) {
