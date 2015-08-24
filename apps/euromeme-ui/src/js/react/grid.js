@@ -31,7 +31,13 @@ module.exports = React.createClass({
     });
   },
   render: function() {
-    var live  = <li key='live' className="grid-item grid-item-live"><LiveTile src={this.props.videoUrl} msvName={this.props.sync.msvName} appId={this.props.sync.appId} /></li>,
+    var live  = (<li key='live' className="grid-item grid-item-live">
+                    <LiveTile
+                      src={this.props.videoUrl}
+                      msvName={this.props.sync.msvName}
+                      appId={this.props.sync.appId}
+                      onSelect={this.handleItemSelection.bind(this, { type: 'live' })} />
+                  </li>),
         clips = this.clips().concat(live);
 
     return <div className="grid">

@@ -46,6 +46,7 @@ module.exports = React.createClass({
     'connecting' : 'connecting',
     'grid'       : 'grid',
     'preview'    : 'preview',
+    'editor'     : 'editor',
     'error'      : 'error'
   },
   getInitialState: function() {
@@ -188,11 +189,16 @@ module.exports = React.createClass({
     Handle grid item selection
   */
   handleGridItemSelection: function (item) {
+    var state, data;
     console.log('Container.handleGridItemSelection', item);
-    this.transitionToViewWithState(
-      this.views.preview,
-      { previewItem: item }
-    );
+    if (item.type === 'live') {
+      state = this.views.editor;
+      data  = { /* start and end times go here */ };
+    } else {
+      state = this.views.preview;
+      data = { previewItem: item };
+    }
+    this.transitionToViewWithState(state, data);
   },
   handleClipPreviewClose: function () {
     console.log('Container.handleClipPreviewClose');
@@ -218,10 +224,19 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var loadingMessage,
+    var targetViewName = this.state.viewName,
+        loadingMessage,
         view;
 
-    switch(this.state.viewName) {
+    // Feature flags allow overriding of application
+    // flow to jump to a specific view
+    // TODO: Consider using react-router to support this
+    //       across the application
+    if (window.location.hash === '#editor' && this.state.config.frameStoreTemplate) {
+      targetViewName = this.views.editor;
+    }
+
+    switch(targetViewName) {
       case this.views.init:
         loadingMessage = 'Initialising';
         break;
@@ -244,8 +259,8 @@ module.exports = React.createClass({
         </LoaderView>
       );
     } else {
-      console.log('view', this.state.viewName);
-      switch (this.state.viewName) {
+      console.log('view', targetViewName);
+      switch (targetViewName) {
         case this.views.tvs:
           view = <DeviceList
                     key={this.views.tvs}
@@ -268,14 +283,14 @@ module.exports = React.createClass({
                   onClose={this.handleClipPreviewClose}
                   clip={this.state.previewItem} />;
           break;
+        case this.views.editor:
+          view = <Editor
+                   frameTemplate={this.state.config.frameStoreTemplate} />;
+          break;
         default:
           view = <div key='error'>Error</div>;
           console.log('view: error');
       }
-    }
-
-    if (window.location.hash === '#editor' && this.state.config.frameStoreTemplate) {
-      view = <Editor frameTemplate={this.state.config.frameStoreTemplate} />;
     }
 
     return (

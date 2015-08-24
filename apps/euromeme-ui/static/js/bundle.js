@@ -43682,6 +43682,7 @@ module.exports = React.createClass({
     'connecting': 'connecting',
     'grid': 'grid',
     'preview': 'preview',
+    'editor': 'editor',
     'error': 'error'
   },
   getInitialState: function getInitialState() {
@@ -43797,8 +43798,16 @@ module.exports = React.createClass({
     Handle grid item selection
   */
   handleGridItemSelection: function handleGridItemSelection(item) {
+    var state, data;
     console.log('Container.handleGridItemSelection', item);
-    this.transitionToViewWithState(this.views.preview, { previewItem: item });
+    if (item.type === 'live') {
+      state = this.views.editor;
+      data = {/* start and end times go here */};
+    } else {
+        state = this.views.preview;
+        data = { previewItem: item };
+      }
+    this.transitionToViewWithState(state, data);
   },
   handleClipPreviewClose: function handleClipPreviewClose() {
     console.log('Container.handleClipPreviewClose');
@@ -43821,9 +43830,19 @@ module.exports = React.createClass({
     }
   },
   render: function render() {
-    var loadingMessage, view;
+    var targetViewName = this.state.viewName,
+        loadingMessage,
+        view;
 
-    switch (this.state.viewName) {
+    // Feature flags allow overriding of application
+    // flow to jump to a specific view
+    // TODO: Consider using react-router to support this
+    //       across the application
+    if (window.location.hash === '#editor' && this.state.config.frameStoreTemplate) {
+      targetViewName = this.views.editor;
+    }
+
+    switch (targetViewName) {
       case this.views.init:
         loadingMessage = 'Initialising';
         break;
@@ -43846,8 +43865,8 @@ module.exports = React.createClass({
         loadingMessage
       );
     } else {
-      console.log('view', this.state.viewName);
-      switch (this.state.viewName) {
+      console.log('view', targetViewName);
+      switch (targetViewName) {
         case this.views.tvs:
           view = React.createElement(DeviceList, {
             key: this.views.tvs,
@@ -43870,6 +43889,10 @@ module.exports = React.createClass({
             onClose: this.handleClipPreviewClose,
             clip: this.state.previewItem });
           break;
+        case this.views.editor:
+          view = React.createElement(Editor, {
+            frameTemplate: this.state.config.frameStoreTemplate });
+          break;
         default:
           view = React.createElement(
             'div',
@@ -43878,10 +43901,6 @@ module.exports = React.createClass({
           );
           console.log('view: error');
       }
-    }
-
-    if (window.location.hash === '#editor' && this.state.config.frameStoreTemplate) {
-      view = React.createElement(Editor, { frameTemplate: this.state.config.frameStoreTemplate });
     }
 
     return React.createElement(
@@ -44368,7 +44387,11 @@ module.exports = React.createClass({
     var live = React.createElement(
       'li',
       { key: 'live', className: 'grid-item grid-item-live' },
-      React.createElement(LiveTile, { src: this.props.videoUrl, msvName: this.props.sync.msvName, appId: this.props.sync.appId })
+      React.createElement(LiveTile, {
+        src: this.props.videoUrl,
+        msvName: this.props.sync.msvName,
+        appId: this.props.sync.appId,
+        onSelect: this.handleItemSelection.bind(this, { type: 'live' }) })
     ),
         clips = this.clips().concat(live);
 
@@ -44398,20 +44421,21 @@ var configApi = require('../api/config');
 
 module.exports = React.createClass({
   displayName: 'LiveTile',
+  propTypes: {
+    src: React.PropTypes.string.isRequired,
+    appId: React.PropTypes.string.isRequired,
+    msvName: React.PropTypes.string.isRequired,
+    onSelect: React.PropTypes.func.isRequired
+  },
   componentDidMount: function componentDidMount() {
-    configApi.config().then(this.initSync);
+    this.initSync();
   },
   initSync: function initSync(config) {
     var $video = this.refs.video.getDOMNode();
     $video.addEventListener('playing', function () {
       console.log('Event: video.playing');
     });
-    console.log('props', this.props);
     return Sync.init($video, this.props.appId, this.props.msvName, { debug: true });
-  },
-  handleTileSelection: function handleTileSelection() {
-    var $video = this.refs.video.getDOMNode();
-    $video.paused ? $video.play() : $video.pause();
   },
   render: function render() {
     return React.createElement(
@@ -44420,7 +44444,7 @@ module.exports = React.createClass({
       React.createElement('i', { className: 'live-tile-icon' }),
       React.createElement(
         'video',
-        { ref: 'video', onClick: this.handleTileSelection, autoPlay: true, preload: true, muted: true, src: this.props.src },
+        { ref: 'video', onClick: this.props.onSelect, autoPlay: true, preload: true, muted: true, src: this.props.src },
         ' '
       )
     );
