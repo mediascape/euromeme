@@ -54,20 +54,24 @@ function createFolder(params) {
 }
 
 function createSubClip(params) {
-  var cmd = ['cd '+params.tmpDir];
+  var cmd = ['cd '+params.tmpDir],
+      start = '00:02:00';
 
   cmd.push(
-    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss 00:02:00 -t 6 -an '+params.name
+    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
+    ' -t 6 -an '+params.name
     +'.180.mp4 2>&1'
   );
 
   cmd.push(
-    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss 00:02:00 -t 6 -an '+params.name
+    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
+    ' -t 6 -an '+params.name
     +'.360.mp4 2>&1'
   );
 
   cmd.push(
-    'ffmpeg -i '+sourceFile+' -ss 00:02:00 -t 6 -an '+params.name
+    'ffmpeg -i '+sourceFile+' -ss '+start+
+    ' -t 6 -an '+params.name
     +'.720.mp4 2>&1'
   );
 
