@@ -142,9 +142,6 @@ module.exports = React.createClass({
       endTime: dateMaths(this.state.currentTime, 6)
     });
   },
-  handleClose: function () {
-
-  },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
