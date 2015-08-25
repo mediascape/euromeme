@@ -43730,7 +43730,7 @@ module.exports = React.createClass({
     return {
       viewName: this.views.init,
       videoUrl: null,
-      clipFormat: 'poster', // gif, poster, mp4
+      clipFormat: 'gif', // gif, poster, mp4
       clips: [],
       config: {}
     };
@@ -44025,7 +44025,7 @@ module.exports = React.createClass({
   displayName: 'Clip',
   propTypes: {
     src: React.PropTypes.string.isRequired,
-    format: React.PropTypes.oneOf(['image', 'video'])
+    type: React.PropTypes.oneOf(['image', 'video'])
   },
   getInitialState: function getInitialState() {
     return {
@@ -44050,7 +44050,7 @@ module.exports = React.createClass({
   render: function render() {
     if (!this.props.src) {
       return React.createElement('span', null);
-    } else if (this.props.format === 'video') {
+    } else if (this.props.type === 'video') {
       return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true });
     } else {
       return React.createElement(
@@ -44503,11 +44503,12 @@ module.exports = React.createClass({
       clips = clips.concat(lodash.times(this.props.numPlaceholderClips - clips.length).map(lodash.constant({})));
     }
     return clips.map(function (clip, index) {
-      var clipUrl = clip[_this.props.format] ? clip[_this.props.format].replace('$size', 180) : '';
+      var clipUrl = clip[_this.props.format] ? clip[_this.props.format].replace('$size', 180) : '',
+          type = _this.props.format === 'mp4' ? 'video' : 'image';
       return React.createElement(
         'li',
         { key: index, onTouchStart: _this.handleItemSelection.bind(_this, clip), onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
-        React.createElement(Clip, { src: clipUrl })
+        React.createElement(Clip, { src: clipUrl, type: type })
       );
     });
   },

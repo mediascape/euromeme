@@ -53,7 +53,7 @@ module.exports = React.createClass({
     return {
       viewName: this.views.init,
       videoUrl: null,
-      clipFormat: 'poster', // gif, poster, mp4
+      clipFormat: 'gif', // gif, poster, mp4
       clips: [],
       config: {}
     };
