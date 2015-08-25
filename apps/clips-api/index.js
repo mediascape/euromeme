@@ -17,7 +17,7 @@ if(typeof mediaPath === 'undefined') {
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/clips/', serveStatic(mediaPath+'/clips'));
+app.use('/clips/', serveStatic(path.join(mediaPath, 'clips')));
 
 app.get('/clips/latest', function(req, res) {
   fs.listDirectoryTree(path.join(mediaPath, 'clips'))
