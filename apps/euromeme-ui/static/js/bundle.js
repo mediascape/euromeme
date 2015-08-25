@@ -43877,7 +43877,7 @@ module.exports = React.createClass({
   },
   handleEditorClose: function handleEditorClose() {
     console.log('Container.handleEditorClose');
-    this.transitionToViewWithState(this.views.grid);
+    this.transitionToViewWithState(this.views.grid, { startDate: null, endDate: null });
   },
   handleCreateClip: function handleCreateClip(evt) {
     console.log('handleCreateClip', evt);

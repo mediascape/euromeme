@@ -226,7 +226,8 @@ module.exports = React.createClass({
   handleEditorClose: function () {
     console.log('Container.handleEditorClose');
     this.transitionToViewWithState(
-      this.views.grid
+      this.views.grid,
+      { startDate: null, endDate: null }
     );
   },
   handleCreateClip: function (evt) {
