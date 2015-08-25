@@ -2,6 +2,8 @@ var express = require('express'),
     fs      = require('q-io/fs'),
     cors    = require('cors'),
     bodyParser = require('body-parser'),
+    serveStatic = require('serve-static'),
+    path    = require('path'),
     latestClips = require('./lib/latest-clips'),
     createClips = require('./lib/create-clips'),
     app     = express(),
@@ -15,20 +17,22 @@ if(typeof mediaPath === 'undefined') {
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use('/clips/', serveStatic(mediaPath+'/clips'));
 
 app.get('/clips/latest', function(req, res) {
-  fs.listDirectoryTree(mediaPath).then(function(dirs) {
-    // remove root directory
-    var clips = dirs.slice(1);
+  fs.listDirectoryTree(path.join(mediaPath, 'clips'))
+    .then(function(dirs) {
+      // remove root directory
+      var clips = dirs.slice(1);
 
-    clips = clips.map(function(c) {
-      return c.split('/').pop();
+      clips = clips.map(function(c) {
+        return c.split('/').pop();
+      });
+
+      res.json(latestClips(clips, 8));
+    }, function(err) {
+      res.send(err);
     });
-
-    res.json(latestClips(clips, 8));
-  }, function(err) {
-    res.send(err);
-  });
 });
 
 app.post('/clips', function(req, res) {
