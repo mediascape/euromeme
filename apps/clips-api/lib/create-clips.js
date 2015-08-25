@@ -4,16 +4,9 @@ var fs         = require('q-io/fs'),
     path       = require('path'),
     tmpDir     = path.join(__dirname, '..', 'tmp'),
     txTime     = new Date(2015, 4, 23, 20),
-    imgSizes   = [720, 360, 180],
-    sourceFile = process.env.SOURCE_FILE,
-    mediaPath  = process.env.MEDIA_PATH;
-
-console.log(txTime);
-
-if(typeof sourceFile === 'undefined') {
-  console.error('SOURCE_FILE not found');
-  process.exit(1);
-}
+    imgSizes   = [180],
+    mediaPath  = process.env.MEDIA_PATH,
+    sourceFile = path.join(mediaPath, 'eurovision-2015.mp4');
 
 module.exports.validate = validate;
 
@@ -63,17 +56,17 @@ function createSubClip(params) {
   var cmd = ['cd '+params.tmpDir],
       start = '00:02:00';
 
-  cmd.push(
-    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
-    ' -t 6 -an '+params.name
-    +'.180.mp4 2>&1'
-  );
+//  cmd.push(
+//    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
+//    ' -t 6 -an '+params.name
+//    +'.180.mp4 2>&1'
+//  );
 
-  cmd.push(
-    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
-    ' -t 6 -an '+params.name
-    +'.360.mp4 2>&1'
-  );
+//  cmd.push(
+//    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
+//    ' -t 6 -an '+params.name
+//    +'.360.mp4 2>&1'
+//  );
 
   cmd.push(
     'ffmpeg -i '+sourceFile+' -ss '+start+
