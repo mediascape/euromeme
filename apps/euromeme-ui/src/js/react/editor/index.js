@@ -119,7 +119,7 @@ module.exports = React.createClass({
     });
   },
   render: function() {
-    var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
+    var className = 'editor ' + (this.state.isDragging ? ' is-dragging ' : ''),
         frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
         steps = dates.durationInSec(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;

@@ -358,12 +358,13 @@ body {
 }
 
 .editor-touch-container {
-  border: 1px solid green;
+  height: 540px;
+  /*border: 1px solid green;*/
 }
 
 .editor-slider-container {
   height: 50px;
-  border: 1px solid blue;
+  /*border: 1px solid blue;*/
 }
 
 .editor-slider-container > * {
