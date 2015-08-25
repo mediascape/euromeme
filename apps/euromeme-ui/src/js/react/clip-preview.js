@@ -25,7 +25,7 @@ module.exports = React.createClass({
       <div className="clip-preview">
         <ActionsList
           onClose={this.handleClose} />
-        <Clip src={clipUrl} format="video" />
+        <Clip src={clipUrl} type="video" />
       </div>
     );
   }

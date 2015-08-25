@@ -5,7 +5,7 @@ module.exports = React.createClass({
   displayName: 'Clip',
   propTypes: {
     src: React.PropTypes.string.isRequired,
-    format: React.PropTypes.oneOf(['image', 'video'])
+    type: React.PropTypes.oneOf(['image', 'video']).isRequired
   },
   getInitialState: function () {
     return {
@@ -30,7 +30,7 @@ module.exports = React.createClass({
   render: function() {
     if (!this.props.src) {
       return <span></span>
-    } else if (this.props.format === 'video') {
+    } else if (this.props.type === 'video') {
       return <video src={this.props.src} autoPlay loop />;
     } else {
       return <ImageLoader className={this.state.className} src={this.props.src} preloader={this.preloader} onLoad={this.handleLoad} onError={this.handleError}>Clip load failed!</ImageLoader>;
