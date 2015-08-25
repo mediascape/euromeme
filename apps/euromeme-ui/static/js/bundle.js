@@ -43699,7 +43699,8 @@ configApi = require('../api/config'),
     deviceApi = require('../api/device'),
 
 // Utilities
-fullscreen = require('../util/fullscreen');
+fullscreen = require('../util/fullscreen'),
+    dates = require('../util/dates');
 
 /*
   The base Application component for Euromeme.
@@ -43861,8 +43862,8 @@ module.exports = React.createClass({
     console.log('broadcastStartDate', this.state.broadcast.startDate);
 
     if (item.type === 'live') {
-      endDate = new Date(this.state.broadcast.startDate.getTime() + item.timeSecs * 1000);
-      startDate = new Date(endDate.getTime() - 5 * 60 * 1000);
+      endDate = dates.maths(this.state.broadcast.startDate, item.timeSecs);
+      startDate = dates.maths(endDate, -(5 * 60));
       state = this.views.editor;
       data = { startDate: startDate, endDate: endDate };
     } else {
@@ -43991,7 +43992,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/fullscreen":271,"./clip-preview":259,"./device-list":261,"./editor":263,"./grid":266,"./loader-view":268,"lodash/object/merge":69,"react":250,"react/addons":78}],259:[function(require,module,exports){
+},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/dates":269,"../util/fullscreen":271,"./clip-preview":259,"./device-list":261,"./editor":263,"./grid":266,"./loader-view":268,"lodash/object/merge":69,"react":250,"react/addons":78}],259:[function(require,module,exports){
 'use strict';
 
 var React = require('react');

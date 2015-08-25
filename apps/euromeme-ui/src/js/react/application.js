@@ -16,7 +16,8 @@ var LoaderView  = require('./loader-view'),
     deviceApi    = require('../api/device'),
 
     // Utilities
-    fullscreen = require('../util/fullscreen');
+    fullscreen = require('../util/fullscreen'),
+    dates      = require('../util/dates');
 
 
 /*
@@ -206,8 +207,8 @@ module.exports = React.createClass({
     console.log('broadcastStartDate', this.state.broadcast.startDate);
 
     if (item.type === 'live') {
-      endDate = new Date( this.state.broadcast.startDate.getTime() + (item.timeSecs * 1000) );
-      startDate = new Date( endDate.getTime() - (5 * 60 * 1000));
+      endDate = dates.maths(this.state.broadcast.startDate, item.timeSecs);
+      startDate = dates.maths( endDate,  - (5 * 60));
       state = this.views.editor;
       data  = { startDate: startDate, endDate: endDate };
     } else {
