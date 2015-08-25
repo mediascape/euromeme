@@ -7,23 +7,8 @@ var React = require('react'),
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
     Slider = require('./slider'),
-    ActionsList  = require('../actions-list');
-
-/*
-  increment/decrement a date object by incrementSec
-  seconds. Returns a new date.
-*/
-var dateMaths = function (date, incrementSec) {
-  return new Date( date.getTime() + (incrementSec * 1000) );
-};
-
-var dateInSec = function (date) {
-  return date.getTime() / 1000;
-};
-
-var timeRangeSecs = function (start, end) {
-  return range( dateInSec(start), dateInSec(end) );
-}
+    ActionsList  = require('../actions-list'),
+    dates = require('../../util/dates');
 
 module.exports = React.createClass({
   displayName: 'Editor',
@@ -38,7 +23,7 @@ module.exports = React.createClass({
   componentDidMount: function () {
     // Preload last 30 seconds
     this.preloadImageRange(
-      dateMaths(this.props.endDate, -30),
+      dates.maths(this.props.endDate, -30),
       this.props.endDate
     );
   },
@@ -69,9 +54,6 @@ module.exports = React.createClass({
     });
     this.draggingTimeout = null;
   },
-  durationSecs: function (start, end) {
-    return dateInSec(end) - dateInSec(start);
-  },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function (date, size, frame, tmpl) {
     var tokens = {
@@ -95,7 +77,7 @@ module.exports = React.createClass({
     return url;
   },
   framesForTime: function (start, end, size, tmpl, framesPerSec=1) {
-    var range = timeRangeSecs(start, end);
+    var range = dates.rangeInSec(start, end);
     return flatten(
       range.map( (r) => {
         return times(framesPerSec, (count) => {
@@ -123,7 +105,7 @@ module.exports = React.createClass({
     }
   },
   handleSliderChange: function (secsFromStartDate) {
-    var currentDate = dateMaths( this.props.startDate, secsFromStartDate );
+    var currentDate = dates.maths( this.props.startDate, secsFromStartDate );
     this.setState({
       isDragging: true,
       currentSliderValue: secsFromStartDate,
@@ -133,13 +115,13 @@ module.exports = React.createClass({
   handleCreateClip: function () {
     this.props.onCreateClip({
       startDate: this.state.currentDate,
-      endDate: dateMaths(this.state.currentDate, 6)
+      endDate: dates.maths(this.state.currentDate, 6)
     });
   },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentDate, dateMaths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
-        steps = this.durationSecs(this.props.startDate, this.props.endDate),
+        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
+        steps = dates.durationInSec(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;
 
     return (<div className={ className }>

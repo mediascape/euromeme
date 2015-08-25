@@ -43414,7 +43414,7 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
   };
 };
 
-},{"../util/fetch":269,"lodash/collection/reduce":9}],252:[function(require,module,exports){
+},{"../util/fetch":270,"lodash/collection/reduce":9}],252:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -43439,7 +43439,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":269}],253:[function(require,module,exports){
+},{"../util/fetch":270}],253:[function(require,module,exports){
 'use strict';
 
 var fetch = require('../util/fetch');
@@ -43525,7 +43525,7 @@ module.exports = {
   }
 };
 
-},{"../util/fetch":269}],254:[function(require,module,exports){
+},{"../util/fetch":270}],254:[function(require,module,exports){
 'use strict';
 
 var configApi = require('./config');
@@ -43678,7 +43678,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/close.svg":273,"react":250}],258:[function(require,module,exports){
+},{"../../../static/icons/close.svg":274,"react":250}],258:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -43991,7 +43991,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/fullscreen":270,"./clip-preview":259,"./device-list":261,"./editor":263,"./grid":266,"./loader-view":268,"lodash/object/merge":69,"react":250,"react/addons":78}],259:[function(require,module,exports){
+},{"../api/clips":251,"../api/config":252,"../api/device":253,"../api/discovery":254,"../util/fullscreen":271,"./clip-preview":259,"./device-list":261,"./editor":263,"./grid":266,"./loader-view":268,"lodash/object/merge":69,"react":250,"react/addons":78}],259:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -44162,7 +44162,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../util/request-interval":272,"react":250}],263:[function(require,module,exports){
+},{"../../util/request-interval":273,"react":250}],263:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44174,23 +44174,8 @@ var React = require('react'),
 var TouchPane = require('./touch-pane'),
     Frame = require('./frame'),
     Slider = require('./slider'),
-    ActionsList = require('../actions-list');
-
-/*
-  increment/decrement a date object by incrementSec
-  seconds. Returns a new date.
-*/
-var dateMaths = function dateMaths(date, incrementSec) {
-  return new Date(date.getTime() + incrementSec * 1000);
-};
-
-var dateInSec = function dateInSec(date) {
-  return date.getTime() / 1000;
-};
-
-var timeRangeSecs = function timeRangeSecs(start, end) {
-  return range(dateInSec(start), dateInSec(end));
-};
+    ActionsList = require('../actions-list'),
+    dates = require('../../util/dates');
 
 module.exports = React.createClass({
   displayName: 'Editor',
@@ -44204,7 +44189,7 @@ module.exports = React.createClass({
   draggingTimeout: null,
   componentDidMount: function componentDidMount() {
     // Preload last 30 seconds
-    this.preloadImageRange(dateMaths(this.props.endDate, -30), this.props.endDate);
+    this.preloadImageRange(dates.maths(this.props.endDate, -30), this.props.endDate);
   },
   componentWillUpdate: function componentWillUpdate(nextProps, nextState) {
     var draggingDidStart = nextState.isDragging === true;
@@ -44233,9 +44218,6 @@ module.exports = React.createClass({
     });
     this.draggingTimeout = null;
   },
-  durationSecs: function durationSecs(start, end) {
-    return dateInSec(end) - dateInSec(start);
-  },
   // /$size/$year/$month/$date/$hour/$min/$sec/$frame.jpg
   frameForTime: function frameForTime(date, size, frame, tmpl) {
     var tokens = {
@@ -44259,7 +44241,7 @@ module.exports = React.createClass({
 
     var framesPerSec = arguments.length <= 4 || arguments[4] === undefined ? 1 : arguments[4];
 
-    var range = timeRangeSecs(start, end);
+    var range = dates.rangeInSec(start, end);
     return flatten(range.map(function (r) {
       return times(framesPerSec, function (count) {
         return _this.frameForTime(new Date(r * 1000), size, count + 1, tmpl);
@@ -44289,7 +44271,7 @@ module.exports = React.createClass({
     }
   },
   handleSliderChange: function handleSliderChange(secsFromStartDate) {
-    var currentDate = dateMaths(this.props.startDate, secsFromStartDate);
+    var currentDate = dates.maths(this.props.startDate, secsFromStartDate);
     this.setState({
       isDragging: true,
       currentSliderValue: secsFromStartDate,
@@ -44299,13 +44281,13 @@ module.exports = React.createClass({
   handleCreateClip: function handleCreateClip() {
     this.props.onCreateClip({
       startDate: this.state.currentDate,
-      endDate: dateMaths(this.state.currentDate, 6)
+      endDate: dates.maths(this.state.currentDate, 6)
     });
   },
   render: function render() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentDate, dateMaths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
-        steps = this.durationSecs(this.props.startDate, this.props.endDate),
+        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
+        steps = dates.durationInSec(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;
 
     return React.createElement(
@@ -44342,7 +44324,7 @@ module.exports = React.createClass({
   }
 });
 
-},{"../actions-list":257,"./frame":262,"./slider":264,"./touch-pane":265,"lodash/array/flatten":7,"lodash/collection/reduce":9,"lodash/utility/range":73,"lodash/utility/times":74,"react":250}],264:[function(require,module,exports){
+},{"../../util/dates":269,"../actions-list":257,"./frame":262,"./slider":264,"./touch-pane":265,"lodash/array/flatten":7,"lodash/collection/reduce":9,"lodash/utility/range":73,"lodash/utility/times":74,"react":250}],264:[function(require,module,exports){
 'use strict';
 
 var React = require('react'),
@@ -44644,14 +44626,46 @@ module.exports = React.createClass({
   }
 });
 
-},{"../../../static/icons/error.svg":274,"react":250}],269:[function(require,module,exports){
+},{"../../../static/icons/error.svg":275,"react":250}],269:[function(require,module,exports){
+'use strict';
+
+var range = require('lodash/utility/range');
+
+/*
+  increment/decrement a date object by incrementSec
+  seconds. Returns a new date.
+*/
+var dateMaths = function dateMaths(date, incrementSec) {
+  return new Date(date.getTime() + incrementSec * 1000);
+};
+
+var dateInSec = function dateInSec(date) {
+  return date.getTime() / 1000;
+};
+
+var timeRangeSec = function timeRangeSec(start, end) {
+  return range(dateInSec(start), dateInSec(end));
+};
+
+var durationSec = function durationSec(start, end) {
+  return dateInSec(end) - dateInSec(start);
+};
+
+module.exports = {
+  maths: dateMaths,
+  toSec: dateInSec,
+  rangeInSec: timeRangeSec,
+  durationInSec: durationSec
+};
+
+},{"lodash/utility/range":73}],270:[function(require,module,exports){
 // For fetch
 'use strict';
 
 require('es6-promise').polyfill();
 module.exports = require('isomorphic-fetch');
 
-},{"es6-promise":3,"isomorphic-fetch":4}],270:[function(require,module,exports){
+},{"es6-promise":3,"isomorphic-fetch":4}],271:[function(require,module,exports){
 'use strict';
 
 function enterFullScreenMethod() {
@@ -44668,7 +44682,7 @@ module.exports = {
   }
 };
 
-},{}],271:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 // requestAnimationFrame() shim by Paul Irish
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 "use strict";
@@ -44679,7 +44693,7 @@ module.exports = (function () {
 	};
 })();
 
-},{}],272:[function(require,module,exports){
+},{}],273:[function(require,module,exports){
 /*
 	https://gist.github.com/joelambert/1002116#file-requestinterval-js
 */
@@ -44725,7 +44739,7 @@ module.exports.clearRequestInterval = function (handle) {
 	window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) : window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) : window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) : clearInterval(handle);
 };
 
-},{"./request-anim-frame":271}],273:[function(require,module,exports){
+},{"./request-anim-frame":272}],274:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -44747,7 +44761,7 @@ module.exports = React.createClass({
         return SVG(this.props);
     }
 });
-},{"react":250}],274:[function(require,module,exports){
+},{"react":250}],275:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
