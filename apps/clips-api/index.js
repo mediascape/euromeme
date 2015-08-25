@@ -32,12 +32,13 @@ app.get('/clips/latest', function(req, res) {
 });
 
 app.post('/clips', function(req, res) {
-  createClips(req.body).then(
-    function(output) {
-      res.json(output);
+  createClips.validate(req.body).then(
+    function(params) {
+      res.sendStatus(200);
+      createClips.create(params);
     },
     function(err) {
-      res.send(err);
+      res.sendStatus(400);
     }
   );
 });
