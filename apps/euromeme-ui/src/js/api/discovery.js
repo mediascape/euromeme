@@ -33,9 +33,9 @@ function connectToDiscoveryApp (updateFunction) {
   }
 
   function removeDevice(device) {
-    devices = devices.filter(function(device) {
-      return device.host === data.host &&
-             device.port === data.port;
+    devices = devices.filter(function(d) {
+      return d.host === device.host &&
+             d.port === device.port;
     });
   }
 
