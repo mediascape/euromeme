@@ -109,7 +109,7 @@ module.exports = React.createClass({
     console.log('receiveConfig', config);
     this.transitionToViewWithState( this.views.discovering, { config: config } );
     discoveryApi
-      .discover()
+      .discover(this.updateDiscoveryDeviceList.bind(this))
       .then(
         this.receiveDiscoveryDeviceList,
         this.createErrorHandlerWithMessage('Error finding devices')
@@ -120,8 +120,13 @@ module.exports = React.createClass({
   */
   receiveDiscoveryDeviceList: function (list) {
     console.log('receiveDiscoveryDeviceList', list);
-    this.transitionToViewWithState( this.views.tvs, { devices: list } );
+    this.transitionToViewWithState( this.views.tvs, { devices: [] } );
   },
+
+  updateDiscoveryDeviceList: function (list) {
+    this.setState({ devices: list });
+  },
+
   /*
     Receive status of selected device, what it's playing etc.
     We also retrice clips at this point in case we want to
@@ -161,7 +166,7 @@ module.exports = React.createClass({
   */
   connectToDevice: function (info) {
     console.log('connectToDevice', info);
-    var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
+    var device = deviceApi.connect(info);
     this.transitionToViewWithState(
       this.views.connecting,
       { device: device }

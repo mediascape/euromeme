@@ -18,7 +18,7 @@ module.exports = React.createClass({
     var self = this;
     return this.props.devices.map(function (device, index) {
       var handler = self.createEventHandlerForItem(device);
-      return <li key={index} onClick={handler} className="device-list-item">{device.host}</li>;
+      return <li key={index} onClick={handler} className="device-list-item">{device.name}</li>;
     });
   },
   render: function() {

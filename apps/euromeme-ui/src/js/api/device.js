@@ -9,19 +9,19 @@ module.exports = {
 
     Params:
       info <Object>
-      info.ip   <String> IP address of device
+      info.host <String> IP address of device
       info.port <String> Port of device
       info.name <String> Human-readable name of device
     Returns: <Object>
       instance of API object connect to remote device
   */
   connect: function (info) {
-    if (!info.address || !info.port) {
-      throw new Error('Cannot connect to device without address and ip');
+    if (!info.host || !info.port) {
+      throw new Error('Cannot connect to device without address and port');
     }
 
     return {
-      address: info.address,
+      host: info.host,
       port: info.port,
       name: info.name,
       /*
@@ -33,7 +33,7 @@ module.exports = {
             status.videoUrl - current playing video URL
       */
       status: function () {
-        var ws = new WebSocket('ws://' + info.address + ':' + info.port + '/');
+        var ws = new WebSocket('ws://' + info.host + ':' + info.port + '/');
         var statPromise = new Promise(function(resolve, reject) {
           ws.addEventListener('error', function (err) {
             console.log('Device - connection error');
