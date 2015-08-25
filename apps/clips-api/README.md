@@ -5,4 +5,4 @@ A simple API to request and create clips from the Euromeme app.
 `npm install`
 
 ## Usage
-`MEDIA_PATH=<path-to-clips> start`
+`MEDIA_PATH=<path to media API public directory> start`
