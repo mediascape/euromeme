@@ -23,6 +23,9 @@ module.exports = React.createClass({
       this.props.onGridItemSelected(key);
     }
   },
+  handleLiveTileSelection: function (time) {
+    this.handleItemSelection({ type: 'live', timeSecs: time });
+  },
   clips: function () {
     var clips = this.props.clips;
     // Ensure there's a minimum number of clips
@@ -48,7 +51,7 @@ module.exports = React.createClass({
                       src={this.props.videoUrl}
                       msvName={this.props.sync.msvName}
                       appId={this.props.sync.appId}
-                      onSelect={this.handleItemSelection.bind(this, { type: 'live' })} />
+                      onSelect={this.handleLiveTileSelection} />
                   </li>),
         clips = this.clips().concat(live);
 

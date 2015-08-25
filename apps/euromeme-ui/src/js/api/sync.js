@@ -23,6 +23,10 @@ Sync.prototype.pause = function() {
   this._msv.update(null, 0);
 };
 
+Sync.prototype.position = function() {
+  return this._msv.query().pos;
+};
+
 /**
  * Initialises synchronisation between an HTML media element and a
  * MediaScape shared motion.

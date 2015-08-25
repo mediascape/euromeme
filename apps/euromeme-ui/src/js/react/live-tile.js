@@ -11,7 +11,10 @@ module.exports = React.createClass({
     onSelect: React.PropTypes.func.isRequired
   },
   componentDidMount: function () {
-    this.initSync();
+    this.initSync()
+      .then((sync) => {
+        this.sync = sync;
+      });
   },
   initSync: function (config) {
     var $video = this.refs.video.getDOMNode();
@@ -20,11 +23,16 @@ module.exports = React.createClass({
     });
     return Sync.init($video, this.props.appId, this.props.msvName, { debug: true });
   },
+  handleSelection: function (evt) {
+    var pos = this.sync.position();
+    console.log('handleSelection - pos', pos);
+    this.props.onSelect(pos);
+  },
   render: function() {
     return (
       <div className="live-tile">
         <i className="live-tile-icon"></i>
-        <video ref="video" onClick={this.props.onSelect} autoPlay preload muted src={this.props.src}> </video>
+        <video ref="video" onClick={this.handleSelection} autoPlay preload muted src={this.props.src}> </video>
       </div>
     );
   }

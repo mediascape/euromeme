@@ -76,7 +76,8 @@ module.exports = {
             return {
               msvName: json.msvName,
               appId: json.appId,
-              videoUrl: json.videoUrl
+              videoUrl: json.videoUrl,
+              broadcastStartDate: json.broadcastStartDate
             };
           });
       }

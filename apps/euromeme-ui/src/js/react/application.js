@@ -136,7 +136,8 @@ module.exports = React.createClass({
       this.views.grid,
       {
         videoUrl: deviceStatus.videoUrl,
-        sync: { msvName: deviceStatus.msvName, appId: deviceStatus.appId }
+        sync: { msvName: deviceStatus.msvName, appId: deviceStatus.appId },
+        broadcast: { startDate: new Date(deviceStatus.broadcastStartDate) }
       }
     );
   },
@@ -200,11 +201,16 @@ module.exports = React.createClass({
     Handle grid item selection
   */
   handleGridItemSelection: function (item) {
-    var state, data;
+    var state, data, broadcastDate, endDate;
     console.log('Container.handleGridItemSelection', item);
+    console.log('broadcastStartDate', this.state.broadcast.startDate);
+
     if (item.type === 'live') {
+      endDate = new Date( this.state.broadcast.startDate.getTime() + (item.timeSecs * 1000) );
+console.log('endDate', endDate);
+
       state = this.views.editor;
-      data  = { /* start and end times go here */ };
+      data  = { endTime: endDate };
     } else {
       state = this.views.preview;
       data = { previewItem: item };

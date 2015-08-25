@@ -43516,7 +43516,8 @@ module.exports = {
           return {
             msvName: json.msvName,
             appId: json.appId,
-            videoUrl: json.videoUrl
+            videoUrl: json.videoUrl,
+            broadcastStartDate: json.broadcastStartDate
           };
         });
       }
@@ -43591,6 +43592,10 @@ Sync.prototype.play = function () {
 
 Sync.prototype.pause = function () {
   this._msv.update(null, 0);
+};
+
+Sync.prototype.position = function () {
+  return this._msv.query().pos;
 };
 
 /**
@@ -43803,7 +43808,8 @@ module.exports = React.createClass({
 
     this.transitionToViewWithState(this.views.grid, {
       videoUrl: deviceStatus.videoUrl,
-      sync: { msvName: deviceStatus.msvName, appId: deviceStatus.appId }
+      sync: { msvName: deviceStatus.msvName, appId: deviceStatus.appId },
+      broadcast: { startDate: new Date(deviceStatus.broadcastStartDate) }
     });
   },
   /*
@@ -43850,15 +43856,20 @@ module.exports = React.createClass({
     Handle grid item selection
   */
   handleGridItemSelection: function handleGridItemSelection(item) {
-    var state, data;
+    var state, data, broadcastDate, endDate;
     console.log('Container.handleGridItemSelection', item);
+    console.log('broadcastStartDate', this.state.broadcast.startDate);
+
     if (item.type === 'live') {
+      endDate = new Date(this.state.broadcast.startDate.getTime() + item.timeSecs * 1000);
+      console.log('endDate', endDate);
+
       state = this.views.editor;
-      data = {/* start and end times go here */};
+      data = { endTime: endDate };
     } else {
-        state = this.views.preview;
-        data = { previewItem: item };
-      }
+      state = this.views.preview;
+      data = { previewItem: item };
+    }
     this.transitionToViewWithState(state, data);
   },
   handleClipPreviewClose: function handleClipPreviewClose() {
@@ -44493,6 +44504,9 @@ module.exports = React.createClass({
       this.props.onGridItemSelected(key);
     }
   },
+  handleLiveTileSelection: function handleLiveTileSelection(time) {
+    this.handleItemSelection({ type: 'live', timeSecs: time });
+  },
   clips: function clips() {
     var _this = this;
 
@@ -44520,7 +44534,7 @@ module.exports = React.createClass({
         src: this.props.videoUrl,
         msvName: this.props.sync.msvName,
         appId: this.props.sync.appId,
-        onSelect: this.handleItemSelection.bind(this, { type: 'live' }) })
+        onSelect: this.handleLiveTileSelection })
     ),
         clips = this.clips().concat(live);
 
@@ -44557,7 +44571,11 @@ module.exports = React.createClass({
     onSelect: React.PropTypes.func.isRequired
   },
   componentDidMount: function componentDidMount() {
-    this.initSync();
+    var _this = this;
+
+    this.initSync().then(function (sync) {
+      _this.sync = sync;
+    });
   },
   initSync: function initSync(config) {
     var $video = this.refs.video.getDOMNode();
@@ -44566,6 +44584,11 @@ module.exports = React.createClass({
     });
     return Sync.init($video, this.props.appId, this.props.msvName, { debug: true });
   },
+  handleSelection: function handleSelection(evt) {
+    var pos = this.sync.position();
+    console.log('handleSelection - pos', pos);
+    this.props.onSelect(pos);
+  },
   render: function render() {
     return React.createElement(
       'div',
@@ -44573,7 +44596,7 @@ module.exports = React.createClass({
       React.createElement('i', { className: 'live-tile-icon' }),
       React.createElement(
         'video',
-        { ref: 'video', onClick: this.props.onSelect, autoPlay: true, preload: true, muted: true, src: this.props.src },
+        { ref: 'video', onClick: this.handleSelection, autoPlay: true, preload: true, muted: true, src: this.props.src },
         ' '
       )
     );
