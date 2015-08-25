@@ -28,8 +28,8 @@ var timeRangeSecs = function (start, end) {
 module.exports = React.createClass({
   displayName: 'Editor',
   propTypes: {
-    startTime: React.PropTypes.instanceOf(Date).isRequired,
-    endTime  : React.PropTypes.instanceOf(Date).isRequired,
+    startDate: React.PropTypes.instanceOf(Date).isRequired,
+    endDate  : React.PropTypes.instanceOf(Date).isRequired,
     frameTemplate: React.PropTypes.string.isRequired,
     onCreateClip: React.PropTypes.func.isRequired,
     onClose: React.PropTypes.func.isRequired
@@ -38,8 +38,8 @@ module.exports = React.createClass({
   componentDidMount: function () {
     // Preload last 30 seconds
     this.preloadImageRange(
-      dateMaths(this.props.endTime, -30),
-      this.props.endTime
+      dateMaths(this.props.endDate, -30),
+      this.props.endDate
     );
   },
   componentWillUpdate: function (nextProps, nextState) {
@@ -59,13 +59,7 @@ module.exports = React.createClass({
       dragDistance: 0,
       draggingTimeout: null,
       isDragging: false,
-      currentTime: this.props.endTime
-    };
-  },
-  getDefaultProps: function () {
-    return {
-      startTime: new Date('2015-05-23T23:53:00Z'),
-      endTime: dateMaths(new Date('2015-05-23T23:58:00Z'), -6)
+      currentDate: this.props.endDate
     };
   },
   cancelDragging: function () {
@@ -114,8 +108,8 @@ module.exports = React.createClass({
     var img = new Image();
     img.src = url;
   },
-  preloadImageRange: function (startTime, endTime, shouldIncludeSubFrames=false) {
-    var frames = this.framesForTime(startTime, endTime, '720', this.props.frameTemplate);
+  preloadImageRange: function (startDate, endDate, shouldIncludeSubFrames=false) {
+    var frames = this.framesForTime(startDate, endDate, '720', this.props.frameTemplate);
     frames.forEach( (r) => {
       this.preloadImage(r);
     });
@@ -128,24 +122,24 @@ module.exports = React.createClass({
       this.setState({ isDragging: true, dragDistance: evt.deltaX });
     }
   },
-  handleSliderChange: function (secsFromStartTime) {
-    var currentTime = dateMaths( this.props.startTime, secsFromStartTime );
+  handleSliderChange: function (secsFromStartDate) {
+    var currentDate = dateMaths( this.props.startDate, secsFromStartDate );
     this.setState({
       isDragging: true,
-      currentSliderValue: secsFromStartTime,
-      currentTime: currentTime
+      currentSliderValue: secsFromStartDate,
+      currentDate: currentDate
     });
   },
   handleCreateClip: function () {
     this.props.onCreateClip({
-      startTime: this.state.currentTime,
-      endTime: dateMaths(this.state.currentTime, 6)
+      startDate: this.state.currentDate,
+      endDate: dateMaths(this.state.currentDate, 6)
     });
   },
   render: function() {
     var className = 'editor container' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentTime, dateMaths(this.state.currentTime, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
-        steps = this.durationSecs(this.props.startTime, this.props.endTime),
+        frames = this.framesForTime(this.state.currentDate, dateMaths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
+        steps = this.durationSecs(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;
 
     return (<div className={ className }>

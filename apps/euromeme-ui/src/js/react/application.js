@@ -201,16 +201,15 @@ module.exports = React.createClass({
     Handle grid item selection
   */
   handleGridItemSelection: function (item) {
-    var state, data, broadcastDate, endDate;
+    var state, data, broadcastDate, endDate, startDate;
     console.log('Container.handleGridItemSelection', item);
     console.log('broadcastStartDate', this.state.broadcast.startDate);
 
     if (item.type === 'live') {
       endDate = new Date( this.state.broadcast.startDate.getTime() + (item.timeSecs * 1000) );
-console.log('endDate', endDate);
-
+      startDate = new Date( endDate.getTime() - (5 * 60 * 1000));
       state = this.views.editor;
-      data  = { endTime: endDate };
+      data  = { startDate: startDate, endDate: endDate };
     } else {
       state = this.views.preview;
       data = { previewItem: item };
@@ -233,7 +232,7 @@ console.log('endDate', endDate);
   handleCreateClip: function (evt) {
     console.log('handleCreateClip', evt);
     this.state.clipsApi
-      .create(evt.startTime, evt.endTime)
+      .create(evt.startDate, evt.endDate)
       .then(this.receiveClipCreation);
   },
   /*
@@ -314,6 +313,8 @@ console.log('endDate', endDate);
           break;
         case this.views.editor:
           view = <Editor
+                   startDate={this.state.startDate}
+                   endDate={this.state.endDate}
                    frameTemplate={this.state.config.frameStoreTemplate}
                    onCreateClip={this.handleCreateClip}
                    onClose={this.handleEditorClose} />;
