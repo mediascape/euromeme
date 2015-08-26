@@ -9,12 +9,10 @@ module.exports.start = function (server) {
   function broadcast(status, services, connections) {
     connections.forEach(function (connection) {
       services.forEach(function (service) {
-        console.log('service', service);
         var obj = lodash.merge({ status: status }, {
                   host: service.host,
                   port: service.port,
-                  name: service.name,
-                  fullname: service.fullname
+                  name: service.name
                 }),
             msg = JSON.stringify(obj);
         console.log('Sending', msg);
@@ -43,16 +41,22 @@ module.exports.start = function (server) {
   });
 
   browser.on('serviceUp', function(service) {
-    console.log('Service up:', services.length, service.fullname);
+    console.log('Service up:', service.name);
+    // Remove service from array
+    services = lodash.reject(services, { name: service.name });
+    // Add
     services.push(service);
     console.log('There are now %s services', services.length);
     broadcast('found', [service], connections);
   });
   browser.on('serviceDown', function(service) {
-    console.log('Service down:', services.length, service);
+    console.log('Service down:', service.name);
+    // Find service instance
+    var serviceData = lodash.find(services, { name: service.name });
+    // Remove service from array
     services = lodash.reject(services, { name: service.name });
     console.log('There are now %s services', services.length);
-    broadcast('lost', [service], connections);
+    broadcast('lost', [serviceData], connections);
   });
   browser.start();
 
