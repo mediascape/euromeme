@@ -6,7 +6,7 @@ var fs         = require('q-io/fs'),
     txTime     = new Date(Date.UTC(2015, 4, 23, 19)),
     imgSizes   = [180],
     mediaPath  = process.env.MEDIA_PATH,
-    sourceFile = path.join(mediaPath, 'eurovision-2015.mp4');
+    sourceFile = path.join(mediaPath, 'eurovision-2015.720.mp4');
 
 module.exports.validate = validate;
 
