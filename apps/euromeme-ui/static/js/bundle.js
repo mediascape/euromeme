@@ -43452,19 +43452,19 @@ module.exports = {
     Connects to a remote device.
      Params:
       info <Object>
-      info.ip   <String> IP address of device
+      info.host <String> IP address of device
       info.port <String> Port of device
       info.name <String> Human-readable name of device
     Returns: <Object>
       instance of API object connect to remote device
   */
   connect: function connect(info) {
-    if (!info.address || !info.port) {
-      throw new Error('Cannot connect to device without address and ip');
+    if (!info.host || !info.port) {
+      throw new Error('Cannot connect to device without address and port');
     }
 
     return {
-      address: info.address,
+      host: info.host,
       port: info.port,
       name: info.name,
       /*
@@ -43475,7 +43475,7 @@ module.exports = {
             status.videoUrl - current playing video URL
       */
       status: function status() {
-        var ws = new WebSocket('ws://' + info.address + ':' + info.port + '/');
+        var ws = new WebSocket('ws://' + info.host + ':' + info.port + '/');
         var statPromise = new Promise(function (resolve, reject) {
           ws.addEventListener('error', function (err) {
             console.log('Device - connection error');
@@ -43531,7 +43531,7 @@ module.exports = {
 var configApi = require('./config');
 
 /*
-  Returns dummy IP address and port from config API
+  Returns IP address and port of the discovery app from the config API
 */
 function configIpAndHost() {
   return configApi.config().then(function (c) {
@@ -43545,26 +43545,86 @@ function configIpAndHost() {
   });
 }
 
+/*
+  Creates a WebSocket connection to the discovery app
+*/
+function connectToDiscoveryApp(updateFunction) {
+  var devices = [];
+
+  function addDevice(device) {
+    devices = devices.filter(function (d) {
+      return d.host !== device.host && d.port !== device.port;
+    });
+
+    devices.push(device);
+  }
+
+  function removeDevice(device) {
+    devices = devices.filter(function (d) {
+      return d.host === device.host && d.port === device.port;
+    });
+  }
+
+  return function connectToDiscoveryApp(info) {
+    var url = 'ws://' + info.address + ':' + info.port + '/discovery';
+
+    console.log("Connecting to discovery app at url: " + url);
+
+    var ws = new WebSocket(url);
+
+    ws.addEventListener('error', function (err) {
+      console.error('Discovery - connection error');
+    });
+
+    ws.addEventListener('message', function (evt) {
+      console.log('Discovery - data', evt.data);
+
+      var data;
+
+      try {
+        data = JSON.parse(evt.data);
+      } catch (err) {
+        console.error(evt.data);
+        return;
+      }
+
+      switch (data.status) {
+        case 'found':
+          addDevice(data);
+          break;
+
+        case 'lost':
+          removeDevice(data);
+          break;
+
+        default:
+          console.error("Invalid message:", data);
+          break;
+      }
+
+      console.log('Devices:', devices);
+
+      updateFunction(devices);
+    });
+
+    return devices;
+  };
+}
+
 module.exports = {
+
   /*
     discover()
     Discover available devices on the local network
      Returns: <Promise>
       Resolves: <Array> of items representing discovered devices
         name: display name of device
-        ip  : IP address of device
+        type: DNS-SD service type, e.g., _mediascape._tcp
+        host: IP address of device
         port: port API is available on
   */
-  discover: function discover() {
-    return configIpAndHost().then(function (info) {
-      return [{
-        host: 'Kitchen TV',
-        address: info.address,
-        port: info.port,
-        serviceName: "Kitchen TV._mediascape-ws._tcp.local",
-        serviceType: "_mediascape-ws._tcp.local"
-      }];
-    });
+  discover: function discover(updateFunction) {
+    return configIpAndHost().then(connectToDiscoveryApp(updateFunction));
   }
 };
 
@@ -43787,15 +43847,20 @@ module.exports = React.createClass({
   receiveConfig: function receiveConfig(config) {
     console.log('receiveConfig', config);
     this.transitionToViewWithState(this.views.discovering, { config: config });
-    discoveryApi.discover().then(this.receiveDiscoveryDeviceList, this.createErrorHandlerWithMessage('Error finding devices'));
+    discoveryApi.discover(this.updateDiscoveryDeviceList.bind(this)).then(this.receiveDiscoveryDeviceList, this.createErrorHandlerWithMessage('Error finding devices'));
   },
   /*
     Receive list of devices found on the network
   */
   receiveDiscoveryDeviceList: function receiveDiscoveryDeviceList(list) {
     console.log('receiveDiscoveryDeviceList', list);
-    this.transitionToViewWithState(this.views.tvs, { devices: list });
+    this.transitionToViewWithState(this.views.tvs, { devices: [] });
   },
+
+  updateDiscoveryDeviceList: function updateDiscoveryDeviceList(list) {
+    this.setState({ devices: list });
+  },
+
   /*
     Receive status of selected device, what it's playing etc.
     We also retrice clips at this point in case we want to
@@ -43832,7 +43897,7 @@ module.exports = React.createClass({
   */
   connectToDevice: function connectToDevice(info) {
     console.log('connectToDevice', info);
-    var device = deviceApi.connect({ address: info.address, port: info.port, name: info.host });
+    var device = deviceApi.connect(info);
     this.transitionToViewWithState(this.views.connecting, { device: device });
     device.status().then(this.receiveDeviceStatus, this.createErrorHandlerWithMessage('Error connecting to ' + info.host));
   },
@@ -44101,7 +44166,7 @@ module.exports = React.createClass({
       return React.createElement(
         'li',
         { key: index, onClick: handler, className: 'device-list-item' },
-        device.host
+        device.name
       );
     });
   },
