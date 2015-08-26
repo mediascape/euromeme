@@ -43721,7 +43721,15 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
     */
     create: function create(clipStartTime, clipEndTime, broadcastStartTime) {
       console.log('Clip.create: ', clipStartTime, clipEndTime, broadcastStartTime);
-      return Promise.resolve();
+      var start = clipStartTime.toISOString();
+      return fetch(clipsApiEndpoint + '/clips', {
+        method: 'post',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ start: start })
+      });
     }
   };
 };
