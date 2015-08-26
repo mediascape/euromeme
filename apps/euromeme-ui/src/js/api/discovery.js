@@ -1,4 +1,5 @@
-var configApi = require('./config');
+var configApi = require('./config'),
+    reject = require('lodash/collection/reject');
 
 /*
   Returns IP address and port of the discovery app from the config API
@@ -24,19 +25,12 @@ function connectToDiscoveryApp (updateFunction) {
   var devices = [];
 
   function addDevice(device) {
-    devices = devices.filter(function(d) {
-      return d.host !== device.host &&
-             d.port !== device.port;
-    });
-
+    devices = reject(devices, { name: device.name });
     devices.push(device);
   }
 
   function removeDevice(device) {
-    devices = devices.filter(function(d) {
-      return d.host === device.host &&
-             d.port === device.port;
-    });
+    devices = reject(devices, { name: device.name });
   }
 
   return function connectToDiscoveryApp (info) {
