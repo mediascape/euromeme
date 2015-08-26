@@ -4,14 +4,16 @@ var configApi = require('./api/config.js');
 var Sync      = require('./sync.js');
 var Relay     = require('./relay.js');
 
+var startTimeSec = 5 * 60;
+
 configApi
   .config()
   .then(initRelay)
   .then(initVideoSync)
   .then(function(sync) {
     console.log(sync);
-    // Start video from the beginning.
-    sync.restart();
+    // Start video from 5 mins in
+    sync.position(startTimeSec);
   },
   function(error) {
     console.error(error);

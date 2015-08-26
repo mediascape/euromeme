@@ -1066,7 +1066,6 @@ process.umask = function() { return 0; };
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
 },{"_process":1}],3:[function(require,module,exports){
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
@@ -1539,10 +1538,12 @@ var configApi = require('./api/config.js');
 var Sync = require('./sync.js');
 var Relay = require('./relay.js');
 
+var startTimeSec = 5 * 60;
+
 configApi.config().then(initRelay).then(initVideoSync).then(function (sync) {
   console.log(sync);
-  // Start video from the beginning.
-  sync.restart();
+  // Start video from 5 mins in
+  sync.position(startTimeSec);
 }, function (error) {
   console.error(error);
 });
@@ -1641,6 +1642,14 @@ Sync.prototype.play = function () {
 
 Sync.prototype.pause = function () {
   this._msv.update(null, 0);
+};
+
+Sync.prototype.position = function (newPos) {
+  if (typeof newPos === 'number') {
+    this._msv.update(newPos, 1);
+  } else {
+    return this._msv.query().pos;
+  }
 };
 
 /**
@@ -1781,5 +1790,4 @@ JsonWebSocket.prototype._handleError = function (err) {
 
 module.exports = JsonWebSocket;
 
-},{"oo-eventtarget":5}]},{},[8])
-//# sourceMappingURL=bundle.js.map
+},{"oo-eventtarget":5}]},{},[8]);

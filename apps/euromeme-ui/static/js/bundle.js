@@ -43962,8 +43962,12 @@ Sync.prototype.pause = function () {
   this._msv.update(null, 0);
 };
 
-Sync.prototype.position = function () {
-  return this._msv.query().pos;
+Sync.prototype.position = function (newPos) {
+  if (typeof newPos === 'number') {
+    this._msv.update(newPos, 1);
+  } else {
+    return this._msv.query().pos;
+  }
 };
 
 /**
