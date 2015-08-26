@@ -3,7 +3,7 @@ var fs         = require('q-io/fs'),
     exec       = require('promised-exec'),
     path       = require('path'),
     tmpDir     = path.join(__dirname, '..', 'tmp'),
-    txTime     = new Date(2015, 4, 23, 20),
+    txTime     = new Date(Date.UTC(2015, 4, 23, 19)),
     imgSizes   = [180],
     mediaPath  = process.env.MEDIA_PATH,
     sourceFile = path.join(mediaPath, 'eurovision-2015.mp4');
@@ -54,19 +54,23 @@ function createFolder(params) {
 
 function createSubClip(params) {
   var cmd = ['cd '+params.tmpDir],
-      start = '00:02:00';
+      start = hhmmss(params.start);
 
-//  cmd.push(
-//    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
-//    ' -t 6 -an '+params.name
-//    +'.180.mp4 2>&1'
-//  );
+/*
+ * These are for the old, unused video sizes
+ *
+  cmd.push(
+    'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
+    ' -t 6 -an '+params.name
+    +'.180.mp4 2>&1'
+  );
 
-//  cmd.push(
-//    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
-//    ' -t 6 -an '+params.name
-//    +'.360.mp4 2>&1'
-//  );
+  cmd.push(
+    'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
+    ' -t 6 -an '+params.name
+    +'.360.mp4 2>&1'
+  );
+*/
 
   cmd.push(
     'ffmpeg -i '+sourceFile+' -ss '+start+
@@ -79,8 +83,7 @@ function createSubClip(params) {
 
 function createGif(params) {
   var cmd = ['cd '+params.tmpDir],
-      start = new Date(txTime.getTime() + 2*60000),
-      images = imagesForTime(start);
+      images = imagesForTime(params.start);
 
   imgSizes.forEach(function(size) {
     cmd.push(
@@ -110,12 +113,12 @@ function imagesForTime(time) {
       tmpPath.push(path.join(
         mediaPath,
         wrapDigit(size),
-        wrapDigit(newDate.getFullYear()),
-        wrapDigit(newDate.getMonth()+1),
-        wrapDigit(newDate.getDate()),
-        wrapDigit(newDate.getHours()),
-        wrapDigit(newDate.getMinutes()),
-        wrapDigit(newDate.getSeconds()),
+        wrapDigit(newDate.getUTCFullYear()),
+        wrapDigit(newDate.getUTCMonth()+1),
+        wrapDigit(newDate.getUTCDate()),
+        wrapDigit(newDate.getUTCHours()),
+        wrapDigit(newDate.getUTCMinutes()),
+        wrapDigit(newDate.getUTCSeconds()),
         '*.jpg'
       ));
 
@@ -132,4 +135,15 @@ function wrapDigit(digit) {
   }
 
   return String(digit);
+}
+
+function hhmmss(time) {
+  var sep      = ':',
+      totalSec = (time - txTime) / 1000,
+      hours    = parseInt( totalSec / 3600 ) % 24,
+      minutes  = parseInt( totalSec / 60 ) % 60,
+      seconds  = totalSec % 60;
+
+  return wrapDigit(hours) + sep +
+    wrapDigit(minutes) + sep + wrapDigit(seconds);
 }
