@@ -15,6 +15,7 @@ module.exports.create = function(params) {
     .then(createFolder)
     .then(createSubClip)
     .then(createGif)
+    .then(fetchPoster)
     .then(moveToPublic)
     .then(null, console.warn);
 };
@@ -89,6 +90,30 @@ function createGif(params) {
     cmd.push(
       'convert -delay 10 -loop 0 '+images[size]+' '+params.name+'.'+size+'.gif'
     );
+  });
+
+  return exec(cmd.join(' && ')).then(function(output) { return params; });
+}
+
+function fetchPoster(params) {
+  var cmd, poster;
+
+  cmd = ['cd '+params.tmpDir];
+
+  imgSizes.forEach(function(size) {
+    poster = path.join(
+      mediaPath,
+      wrapDigit(size),
+      wrapDigit(params.start.getUTCFullYear()),
+      wrapDigit(params.start.getUTCMonth()+1),
+      wrapDigit(params.start.getUTCDate()),
+      wrapDigit(params.start.getUTCHours()),
+      wrapDigit(params.start.getUTCMinutes()),
+      wrapDigit(params.start.getUTCSeconds()),
+      '1.jpg'
+    );
+
+    cmd.push('cp '+poster+' '+params.name+'.'+size+'.jpg');
   });
 
   return exec(cmd.join(' && ')).then(function(output) { return params; });
