@@ -137,7 +137,7 @@ module.exports = React.createClass({
     this.transitionToViewWithState(
       this.views.grid,
       {
-        videoUrl: deviceStatus.videoUrl,
+        videoUrl: deviceStatus.videoUrl.replace('$size', '180'),
         sync: { msvName: deviceStatus.msvName, appId: deviceStatus.appId },
         broadcast: { startDate: new Date(deviceStatus.broadcastStartDate) }
       }

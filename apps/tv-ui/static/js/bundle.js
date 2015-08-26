@@ -1556,7 +1556,7 @@ function initRelay(config) {
 
 function initVideoSync(config) {
   var video = document.getElementById('video');
-  video.src = config.videoUrl;
+  video.src = config.videoUrl.replace('$size', '720');
 
   return Sync.init(video, config.appId, config.msvName, { debug: true });
 }
