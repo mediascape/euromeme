@@ -1,5 +1,7 @@
 var React = require('react');
 
+var LoaderView = require('./loader-view');
+
 module.exports = React.createClass({
   displayName: 'DeviceList',
   propTypes: {
@@ -14,20 +16,28 @@ module.exports = React.createClass({
       }
     }.bind(this);
   },
+  loadingMessage: function () {
+    return (
+      <LoaderView key="loader" isError={false}>
+        Discovering TVs on the network
+      </LoaderView>
+    );
+  },
   deviceList: function () {
     var self = this;
     return this.props.devices.map(function (device, index) {
       var handler = self.createEventHandlerForItem(device);
-      return <li key={index} onClick={handler} className="device-list-item">{device.name}</li>;
+      return <li key={device.name} onClick={handler} className="device-list-item">{device.name}</li>;
     });
   },
   render: function() {
+    var content = this.props.devices.length === 0
+                    ? this.loadingMessage()
+                    : <ul className="device-list-list">{this.deviceList()}</ul>;
     return (
       <div className="device-list">
         <h2 className="device-list-hd">Connect to TV</h2>
-        <ul className="device-list-list">
-          {this.deviceList()}
-        </ul>
+        {content}
       </div>
     );
   }

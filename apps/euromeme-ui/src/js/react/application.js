@@ -1,6 +1,7 @@
 var React = require('react'),
     ReactCSSTransitionGroup = require('react/addons').addons.CSSTransitionGroup,
-    merge = require('lodash/object/merge');
+    merge = require('lodash/object/merge'),
+    includes = require('lodash/collection/includes');
 
     // React UI Components
 var LoaderView  = require('./loader-view'),
@@ -42,7 +43,6 @@ module.exports = React.createClass({
   */
   views: {
     'init'       : 'init',
-    'discovering': 'discovering',
     'tvs'        : 'tvs',
     'connecting' : 'connecting',
     'grid'       : 'grid',
@@ -107,9 +107,9 @@ module.exports = React.createClass({
   */
   receiveConfig: function (config) {
     console.log('receiveConfig', config);
-    this.transitionToViewWithState( this.views.discovering, { config: config } );
+    this.transitionToViewWithState( this.views.tvs, { config: config, devices: [] } );
     discoveryApi
-      .discover(this.updateDiscoveryDeviceList.bind(this))
+      .discover(this.receiveDiscoveryDeviceList)
       .then(
         this.receiveDiscoveryDeviceList,
         this.createErrorHandlerWithMessage('Error finding devices')
@@ -120,10 +120,6 @@ module.exports = React.createClass({
   */
   receiveDiscoveryDeviceList: function (list) {
     console.log('receiveDiscoveryDeviceList', list);
-    this.transitionToViewWithState( this.views.tvs, { devices: [] } );
-  },
-
-  updateDiscoveryDeviceList: function (list) {
     this.setState({ devices: list });
   },
 
@@ -274,9 +270,6 @@ module.exports = React.createClass({
     switch(targetViewName) {
       case this.views.init:
         loadingMessage = 'Initialising';
-        break;
-      case this.views.discovering:
-        loadingMessage = 'Discovering TVs on the network';
         break;
       case this.views.connecting:
         loadingMessage = 'Connecting to ' + this.state.device.name;
