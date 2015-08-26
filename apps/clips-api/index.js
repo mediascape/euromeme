@@ -1,13 +1,13 @@
-var express = require('express'),
-    fs      = require('q-io/fs'),
-    cors    = require('cors'),
-    bodyParser = require('body-parser'),
+var express     = require('express'),
+    fs          = require('q-io/fs'),
+    cors        = require('cors'),
+    bodyParser  = require('body-parser'),
     serveStatic = require('serve-static'),
-    path    = require('path'),
+    path        = require('path'),
     latestClips = require('./lib/latest-clips'),
     createClips = require('./lib/create-clips'),
-    app     = express(),
-    port    = process.env.PORT || 5000,
+    app         = express(),
+    port        = process.env.PORT || 5000,
     mediaPath = process.env.MEDIA_PATH;
 
 if(typeof mediaPath === 'undefined') {
