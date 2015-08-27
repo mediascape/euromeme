@@ -10,7 +10,10 @@ module.exports.start = function (server) {
     connections.forEach(function (connection) {
       services.forEach(function (service) {
         var obj = lodash.merge({ status: status }, {
-                  host: service.host,
+                  host: lodash.find(
+                          service.addresses,
+                          function (addr) { return !/:/.test(addr); }
+                        ),
                   port: service.port,
                   name: service.name
                 }),
