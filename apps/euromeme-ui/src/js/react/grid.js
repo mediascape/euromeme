@@ -39,8 +39,9 @@ module.exports = React.createClass({
     }
     return clips.map((clip, index) => {
       var clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '',
-          type = this.props.format === 'mp4' ? 'video' : 'image';
-      return <li key={index} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
+          type = this.props.format === 'mp4' ? 'video' : 'image',
+          key = clip.poster || index;
+      return <li key={key} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
         <Clip src={clipUrl} type={type} />
       </li>;
     });

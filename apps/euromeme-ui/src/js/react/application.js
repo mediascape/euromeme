@@ -132,7 +132,7 @@ module.exports = React.createClass({
     console.log('receiveDeviceStatus', deviceStatus);
 
     // Request clips from remote API
-    this.fetchClips();
+    this.pollForClips();
 
     this.transitionToViewWithState(
       this.views.grid,
@@ -177,7 +177,7 @@ module.exports = React.createClass({
   /*
     Fetch clips from remote API
   */
-  fetchClips: function () {
+  pollForClips: function () {
     var clipsApiInstance = clipsApi(
       this.state.config.clipsApiEndpoint,
       this.state.config.mediaStoreUrlTemplate
@@ -185,12 +185,19 @@ module.exports = React.createClass({
 
     this.setState({ clipsApi: clipsApiInstance });
 
-    clipsApiInstance
-      .recent()
-      .then(
-        this.receiveClips,
-        this.createErrorHandlerWithMessage('There was a problem loading recent clips')
-      );
+    clipsApiInstance.recentStream()
+      .on('data', (clips) => {
+        this.receiveClips(clips);
+      });
+
+    // setInterval(function () {
+    //   clipsApiInstance
+    //     .recent()
+    //     .then(
+    //       this.receiveClips,
+    //       this.createErrorHandlerWithMessage('There was a problem loading recent clips')
+    //     );
+    // }.bind(this), 5000);
   },
   /*
     Handle double tap on application
