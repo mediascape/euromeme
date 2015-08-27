@@ -31,12 +31,14 @@ module.exports = React.createClass({
     });
   },
   render: function() {
-    var content = this.props.devices.length === 0
+    var numDevices = this.props.devices.length,
+        content = numDevices === 0
                     ? this.loadingMessage()
                     : <ul className="device-list-list">{this.deviceList()}</ul>;
     return (
       <div className="device-list">
         <h2 className="device-list-hd">Connect to TV</h2>
+        <span>{numDevices} found</span>
         {content}
       </div>
     );

@@ -44897,7 +44897,8 @@ module.exports = React.createClass({
     });
   },
   render: function render() {
-    var content = this.props.devices.length === 0 ? this.loadingMessage() : React.createElement(
+    var numDevices = this.props.devices.length,
+        content = numDevices === 0 ? this.loadingMessage() : React.createElement(
       'ul',
       { className: 'device-list-list' },
       this.deviceList()
@@ -44909,6 +44910,12 @@ module.exports = React.createClass({
         'h2',
         { className: 'device-list-hd' },
         'Connect to TV'
+      ),
+      React.createElement(
+        'span',
+        null,
+        numDevices,
+        ' found'
       ),
       content
     );
