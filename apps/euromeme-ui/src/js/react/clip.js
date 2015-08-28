@@ -31,7 +31,7 @@ module.exports = React.createClass({
     if (!this.props.src) {
       return <span></span>
     } else if (this.props.type === 'video') {
-      return <video src={this.props.src} autoPlay loop />;
+      return <video src={this.props.src} autoPlay loop muted />;
     } else {
       return <ImageLoader className={this.state.className} src={this.props.src} preloader={this.preloader} onLoad={this.handleLoad} onError={this.handleError}>Clip load failed!</ImageLoader>;
     }

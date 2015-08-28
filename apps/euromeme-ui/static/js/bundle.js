@@ -44846,7 +44846,7 @@ module.exports = React.createClass({
     if (!this.props.src) {
       return React.createElement('span', null);
     } else if (this.props.type === 'video') {
-      return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true });
+      return React.createElement('video', { src: this.props.src, autoPlay: true, loop: true, muted: true });
     } else {
       return React.createElement(
         ImageLoader,
