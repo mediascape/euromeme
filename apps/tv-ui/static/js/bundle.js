@@ -1066,6 +1066,7 @@ process.umask = function() { return 0; };
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"_process":1}],3:[function(require,module,exports){
 // the whatwg-fetch polyfill installs the fetch() function
 // on the global object (window or self)
@@ -1661,6 +1662,8 @@ Sync.prototype.position = function (newPos) {
  * @param {string} msvName The name of the MediaScape shared motion to use.
  * @param {Object} options Optional options object.
  * @param {Boolean} options.debug If true, write debug output to the console.
+ * @param {Boolean} options.automute If true, mute the media element when
+ *   playing too fast or too slow.
  */
 
 function init(mediaElement, appId, msvName, options) {
@@ -1682,6 +1685,10 @@ function init(mediaElement, appId, msvName, options) {
 
       if (options.debug === true) {
         mediaSyncOptions.debug = true;
+      }
+
+      if (!options.automute) {
+        mediaSyncOptions.automute = false;
       }
 
       app.sync = mediascape.mediaSync(mediaElement, msv, mediaSyncOptions);
@@ -1790,4 +1797,5 @@ JsonWebSocket.prototype._handleError = function (err) {
 
 module.exports = JsonWebSocket;
 
-},{"oo-eventtarget":5}]},{},[8]);
+},{"oo-eventtarget":5}]},{},[8])
+//# sourceMappingURL=bundle.js.map

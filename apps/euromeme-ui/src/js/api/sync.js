@@ -40,6 +40,8 @@ Sync.prototype.position = function(newPos) {
  * @param {string} msvName The name of the MediaScape shared motion to use.
  * @param {Object} options Optional options object.
  * @param {Boolean} options.debug If true, write debug output to the console.
+ * @param {Boolean} options.automute If true, mute the media element when
+ *   playing too fast or too slow.
  */
 
 function init(mediaElement, appId, msvName, options) {
@@ -61,6 +63,10 @@ function init(mediaElement, appId, msvName, options) {
 
       if (options.debug === true) {
         mediaSyncOptions.debug = true;
+      }
+
+      if (!options.automute) {
+        mediaSyncOptions.automute = false;
       }
 
       app.sync = mediascape.mediaSync(mediaElement, msv, mediaSyncOptions);

@@ -158,7 +158,9 @@ var mediascape = function(_MS_) {
 
         try {
           if (!_vpbr && _bad > 80) {
-            elem.muted = false;
+            if (_options.automute) {
+              elem.muted = false;
+            }
             throw new Error("Variable playback rate seems broken - " + _bad + " bad");
           }
           // If we're WAY OFF, jump
