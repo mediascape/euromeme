@@ -12,6 +12,11 @@
 }
 
 .editor-slider-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
   height: 50px;
   /*border: 1px solid blue;*/
 }

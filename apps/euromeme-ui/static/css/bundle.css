@@ -23,7 +23,7 @@ body {
 
   /* Fix to Nexus 7 (2013) CSS resolution */
   width: 960px;
-  height: 600px;
+  height: 540px;
 }
 
 .container > * {
@@ -366,6 +366,11 @@ body {
 }
 
 .editor-slider-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
   height: 50px;
   /*border: 1px solid blue;*/
 }

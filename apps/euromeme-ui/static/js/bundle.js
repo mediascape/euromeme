@@ -21940,22 +21940,22 @@ var privateProps = {
  */
 
 var HammerComponent = React.createClass({
-
+	
 	displayName: 'Hammer',
-
+	
 	propTypes: {
 		component: React.PropTypes.any,
 		className: React.PropTypes.string
 	},
-
+	
 	getDefaultProps: function() {
 		return {
 			component: 'span'
 		};
 	},
-
+	
 	componentDidMount: function() {
-		this.hammer = new Hammer(React.findDOMNode(this));
+		this.hammer = new Hammer(this.getDOMNode());
 
 		if (this.props.options) {
 			Object.keys(this.props.options).forEach(function(option) {
@@ -21987,7 +21987,7 @@ var HammerComponent = React.createClass({
 		if (this.props.onPinch)         this.hammer.on('pinch', this.props.onPinch);
 		if (this.props.onRotate)        this.hammer.on('rotate', this.props.onRotate);
 	},
-
+	
 	componentWillUnmount: function() {
 		if (this.hammer) {
 		    this.hammer.stop();
@@ -21995,11 +21995,11 @@ var HammerComponent = React.createClass({
 		}
 		this.hammer = null;
 	},
-
+	
 	render: function() {
-
+		
 		var props = {};
-
+		
 		Object.keys(this.props).forEach(function(i) {
 			if (!privateProps[i]) {
 				props[i] = this.props[i];
@@ -22008,7 +22008,7 @@ var HammerComponent = React.createClass({
 
 		return React.createElement(this.props.component, props, this.props.children);
 	}
-
+	
 });
 
 module.exports = HammerComponent;
