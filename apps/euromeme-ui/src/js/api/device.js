@@ -1,4 +1,5 @@
-var fetch = require('../util/fetch');
+var fetch = require('../util/fetch'),
+    URI = require('URIjs');
 
 const TIMEOUT_MS = 10 * 1000;
 
@@ -33,7 +34,14 @@ module.exports = {
             status.videoUrl - current playing video URL
       */
       status: function () {
-        var ws = new WebSocket('ws://' + info.host + ':' + info.port + '/');
+        var url = URI({
+              protocol: 'ws',
+              hostname: info.host,
+              port:     info.port,
+              path:     '/'
+            }),
+            ws = new WebSocket(url);
+
         var statPromise = new Promise(function(resolve, reject) {
           ws.addEventListener('error', function (err) {
             console.log('Device - connection error');
