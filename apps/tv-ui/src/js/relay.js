@@ -4,10 +4,13 @@ var JsonWebSocket = require('./util/json-websocket'),
     Promise = require('es6-promise').Promise;
 
 module.exports.create = function(config) {
-  var ws, uri, ready, instance = {};
+  var ws, ready, instance = {};
 
-  uri = config.relayURI || 'ws://localhost:5001/relay';
-  ws  = new JsonWebSocket(uri);
+  if (!config.relayURI) {
+    throw new Error('relayURI not set in config');
+  }
+
+  ws = new JsonWebSocket(config.relayURI);
 
   ready = new Promise(function(resolve, reject) {
     ws.addEventListener('open', function() {
