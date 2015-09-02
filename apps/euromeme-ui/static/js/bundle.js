@@ -47170,8 +47170,8 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
         }
       }).then(function () {
         setTimeout(makeRequestAndCache, intervalSec);
-      })['catch'](function () {
-        console.error('Error fetching clips/latest');
+      })['catch'](function (err) {
+        console.error('Error fetching clips/latest', err);
         setTimeout(makeRequestAndCache, intervalSec);
       });
     }
