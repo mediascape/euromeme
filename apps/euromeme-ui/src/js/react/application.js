@@ -56,7 +56,8 @@ module.exports = React.createClass({
       videoUrl: null,
       clipFormat: 'gif', // gif, poster, mp4
       clips: [],
-      config: {}
+      config: {},
+      pendingClip: false
     };
   },
   /*
@@ -148,7 +149,7 @@ module.exports = React.createClass({
   */
   receiveClips: function (clips) {
     console.log('receiveClips', clips);
-    this.setState({ clips: clips });
+    this.setState({ clips: clips, pendingClip: false });
   },
   /*
     Clip has been created
@@ -241,6 +242,7 @@ module.exports = React.createClass({
   },
   handleCreateClip: function (evt) {
     console.log('handleCreateClip', evt);
+    this.setState({ pendingClip: true });
     this.state.clipsApi
       .create(evt.startDate, evt.endDate)
       .then(this.receiveClipCreation);
@@ -310,6 +312,7 @@ module.exports = React.createClass({
                     format={this.state.clipFormat}
                     clips={this.state.clips}
                     numPlaceholderClips={8}
+                    pendingClip={this.state.pendingClip}
                     onGridItemSelected={this.handleGridItemSelection} />;
           break;
         case this.views.preview:

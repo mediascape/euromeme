@@ -46210,7 +46210,8 @@ module.exports = React.createClass({
       videoUrl: null,
       clipFormat: 'gif', // gif, poster, mp4
       clips: [],
-      config: {}
+      config: {},
+      pendingClip: false
     };
   },
   /*
@@ -46291,7 +46292,7 @@ module.exports = React.createClass({
   */
   receiveClips: function receiveClips(clips) {
     console.log('receiveClips', clips);
-    this.setState({ clips: clips });
+    this.setState({ clips: clips, pendingClip: false });
   },
   /*
     Clip has been created
@@ -46368,6 +46369,7 @@ module.exports = React.createClass({
   },
   handleCreateClip: function handleCreateClip(evt) {
     console.log('handleCreateClip', evt);
+    this.setState({ pendingClip: true });
     this.state.clipsApi.create(evt.startDate, evt.endDate).then(this.receiveClipCreation);
   },
   /*
@@ -46435,6 +46437,7 @@ module.exports = React.createClass({
             format: this.state.clipFormat,
             clips: this.state.clips,
             numPlaceholderClips: 8,
+            pendingClip: this.state.pendingClip,
             onGridItemSelected: this.handleGridItemSelection });
           break;
         case this.views.preview:
@@ -46991,20 +46994,44 @@ module.exports = React.createClass({
     var _this = this;
 
     var clips = this.props.clips;
+
+    if (this.props.pendingClip) {
+      clips.unshift({ type: 'pending' });
+    }
+
     // Ensure there's a minimum number of clips
     // displayed whilst we wait for them to load
     if (this.props.numPlaceholderClips) {
       clips = clips.concat(lodash.times(this.props.numPlaceholderClips - clips.length).map(lodash.constant({})));
     }
     return clips.map(function (clip, index) {
-      var clipUrl = clip[_this.props.format] ? clip[_this.props.format].replace('$size', 180) : '',
-          type = _this.props.format === 'mp4' ? 'video' : 'image',
-          key = clip.poster || index;
-      return React.createElement(
-        'li',
-        { key: key, onTouchStart: _this.handleItemSelection.bind(_this, clip), onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
-        React.createElement(Clip, { src: clipUrl, type: type })
-      );
+      var key = clip.poster || index,
+          clipUrl,
+          type,
+          component;
+
+      if (clip.type === 'pending') {
+        component = React.createElement(
+          'li',
+          { key: key, className: 'grid-item grid-item-clip' },
+          'Loading',
+          React.createElement(
+            'span',
+            { className: 'centered-view-inner loader' },
+            '…'
+          )
+        );
+      } else {
+        clipUrl = clip[_this.props.format] ? clip[_this.props.format].replace('$size', 180) : '';
+        type = _this.props.format === 'mp4' ? 'video' : 'image';
+        component = React.createElement(
+          'li',
+          { key: key, onTouchStart: _this.handleItemSelection.bind(_this, clip), onClick: _this.handleItemSelection.bind(_this, clip), className: 'grid-item grid-item-clip' },
+          React.createElement(Clip, { src: clipUrl, type: type })
+        );
+      }
+
+      return component;
     });
   },
   render: function render() {

@@ -28,6 +28,11 @@ module.exports = React.createClass({
   },
   clips: function () {
     var clips = this.props.clips;
+
+    if (this.props.pendingClip) {
+      clips.unshift({ type: 'pending' });
+    }
+
     // Ensure there's a minimum number of clips
     // displayed whilst we wait for them to load
     if (this.props.numPlaceholderClips) {
@@ -38,12 +43,22 @@ module.exports = React.createClass({
       );
     }
     return clips.map((clip, index) => {
-      var clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '',
-          type = this.props.format === 'mp4' ? 'video' : 'image',
-          key = clip.poster || index;
-      return <li key={key} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
-        <Clip src={clipUrl} type={type} />
-      </li>;
+      var key = clip.poster || index,
+          clipUrl,
+          type,
+          component;
+
+      if (clip.type === 'pending') {
+        component = (<li key={key} className="grid-item grid-item-clip">Loading<span className="centered-view-inner loader">&hellip;</span></li>);
+      } else {
+        clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
+        type = this.props.format === 'mp4' ? 'video' : 'image';
+        component = (<li key={key} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
+          <Clip src={clipUrl} type={type} />
+        </li>);
+      }
+
+      return component;
     });
   },
   render: function() {
