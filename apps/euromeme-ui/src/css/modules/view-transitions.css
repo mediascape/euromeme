@@ -3,20 +3,24 @@
   component mounts a new view
 */
 
-.view-enter {
+.view-enter,
+.view--enter {
   opacity: 0.01;
 }
 
-.view-enter.view-enter-active {
+.view-enter.view-enter-active,
+.view--enter--active {
   opacity: 1;
-  transition: opacity .5s ease-in;
+  transition: opacity 0.5s ease-in;
 }
 
-.view-leave {
+.view-leave,
+.view--leave {
   opacity: 1;
 }
 
-.view-leave.view-leave-active {
+.view-leave.view-leave-active,
+.view--leave--active {
   opacity: 0.01;
-  transition: opacity .5s ease-in;
+  transition: opacity 0.2s ease-in;
 }

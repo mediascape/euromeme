@@ -1,5 +1,5 @@
 var React = require('react'),
-    ReactCSSTransitionGroup = require('react/addons').addons.CSSTransitionGroup,
+    TimeoutTransitionGroup = require('./timeout-transition-group'),
     merge = require('lodash/object/merge'),
     includes = require('lodash/collection/includes');
 
@@ -336,9 +336,12 @@ module.exports = React.createClass({
       <div
         onTouchStart={this.captureTap}
         onDoubleClick={this.handleDoubleTap}>
-        <ReactCSSTransitionGroup transitionName="view" component="div" className="container">
+        <TimeoutTransitionGroup
+          enterTimeout={500}
+          leaveTimeout={200}
+          transitionName="view" component="div" className="container view-container">
           { view }
-        </ReactCSSTransitionGroup>
+        </TimeoutTransitionGroup>
       </div>
     );
   }
