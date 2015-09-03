@@ -38,7 +38,7 @@ app.get('/clips/latest', function(req, res) {
 app.post('/clips', function(req, res) {
   createClips.validate(req.body).then(
     function(params) {
-      res.sendStatus(200);
+      res.json(params);
       createClips.create(params);
     },
     function(err) {

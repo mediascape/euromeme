@@ -8,11 +8,12 @@ var fs         = require('q-io/fs'),
     mediaPath  = process.env.MEDIA_PATH || '',
     sourceFile = path.join(mediaPath, 'eurovision-2015.720.mp4');
 
-module.exports.validate = validate;
+module.exports.validate = function(params) {
+  return validate(params).then(nameClip);
+};
 
 module.exports.create = function(params) {
-  return nameClip(params)
-    .then(createFolder)
+  return createFolder(params)
     .then(createSubClip)
     .then(createGif)
     .then(fetchPoster)
