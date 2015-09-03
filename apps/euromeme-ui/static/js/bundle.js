@@ -47330,7 +47330,8 @@ module.exports = {
 'use strict';
 
 var configApi = require('./config'),
-    reject = require('lodash/collection/reject');
+    reject = require('lodash/collection/reject'),
+    URI = require('URIjs');
 
 /*
   Returns IP address and port of the discovery app from the config API
@@ -47363,11 +47364,17 @@ function connectToDiscoveryApp(updateFunction) {
   }
 
   return function connectToDiscoveryApp(info) {
-    var url = 'ws://' + info.address + ':' + info.port + '/discovery';
+    var ws,
+        url = URI({
+      protocol: 'ws',
+      hostname: info.address,
+      port: info.port,
+      path: '/discovery'
+    });
 
-    console.log("Connecting to discovery app at url: " + url);
+    console.log("Connecting to discovery app at " + url);
 
-    var ws = new WebSocket(url);
+    ws = new WebSocket(url);
 
     ws.addEventListener('error', function (err) {
       console.error('Discovery - connection error');
@@ -47425,7 +47432,7 @@ module.exports = {
   }
 };
 
-},{"./config":267,"lodash/collection/reject":16}],270:[function(require,module,exports){
+},{"./config":267,"URIjs":3,"lodash/collection/reject":16}],270:[function(require,module,exports){
 'use strict';
 
 var Promise = require('es6-promise').Promise;
