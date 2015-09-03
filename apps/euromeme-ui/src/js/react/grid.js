@@ -43,7 +43,7 @@ module.exports = React.createClass({
       );
     }
     return clips.map((clip, index) => {
-      var key = clip.poster || index,
+      var key = clip.id || index,
           clipUrl,
           type,
           component;

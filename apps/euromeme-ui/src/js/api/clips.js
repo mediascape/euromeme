@@ -100,6 +100,14 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ start: start })
+    }).then(function (response) {
+      return response.json();
+    }, function () { throw new Error('Error fetching recent clips from API')})
+    .then(function (data) {
+      return data;
+    })
+    .catch(function () {
+      throw new Error('Error parsing recent clips from API');
     });
   };
 

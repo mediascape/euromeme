@@ -45799,6 +45799,14 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ start: start })
+    }).then(function (response) {
+      return response.json();
+    }, function () {
+      throw new Error('Error fetching recent clips from API');
+    }).then(function (data) {
+      return data;
+    })['catch'](function () {
+      throw new Error('Error parsing recent clips from API');
     });
   };
 
@@ -47005,7 +47013,7 @@ module.exports = React.createClass({
       clips = clips.concat(lodash.times(this.props.numPlaceholderClips - clips.length).map(lodash.constant({})));
     }
     return clips.map(function (clip, index) {
-      var key = clip.poster || index,
+      var key = clip.id || index,
           clipUrl,
           type,
           component;
