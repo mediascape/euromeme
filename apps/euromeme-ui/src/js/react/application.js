@@ -163,6 +163,7 @@ module.exports = React.createClass({
   */
   receiveClipCreation: function (pendingClip) {
     console.log('receiveClipCreation');
+    pendingClip.type = 'pending';
     this.state
       .pendingClips
       .push(pendingClip);

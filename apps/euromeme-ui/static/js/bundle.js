@@ -46693,6 +46693,7 @@ module.exports = React.createClass({
   */
   receiveClipCreation: function receiveClipCreation(pendingClip) {
     console.log('receiveClipCreation');
+    pendingClip.type = 'pending';
     this.state.pendingClips.push(pendingClip);
     this.transitionToViewWithState(this.views.grid, {});
   },
@@ -47411,7 +47412,7 @@ module.exports = React.createClass({
           type,
           component;
 
-      if (!clip.format && !clip[_this.props.format]) {
+      if (clip.id && clip.type === 'pending') {
         component = React.createElement(
           'li',
           { key: key, className: 'grid-item grid-item-clip is-pending centered-view is-active' },
