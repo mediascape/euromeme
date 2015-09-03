@@ -1,7 +1,9 @@
 var React = require('react'),
+    sortByOrder = require('lodash/collection/sortByOrder'),
     fill  = require('lodash/array/fill');
-    fill  = require('lodash/array/fill');
+
 var lodash = require('lodash');
+
 var LiveTile = require('./live-tile'),
     Clip = require('./clip');
 
@@ -27,15 +29,18 @@ module.exports = React.createClass({
     this.handleItemSelection({ type: 'live', timeSecs: time });
   },
   clips: function () {
-    var clips = this.props.clips;
+    // Merge created and pending clips
+    var clips = this.props.clips.concat(this.props.pendingClips);
 
-    if (this.props.pendingClip) {
-      clips.unshift({ type: 'pending' });
-    }
+    // Order by id, which puts the most recent at the top
+    clips = sortByOrder(clips, ['id'], ['desc']);
 
-    // Ensure there's a minimum number of clips
-    // displayed whilst we wait for them to load
     if (this.props.numPlaceholderClips) {
+      // Ensure that we trim any extra clips
+      clips = clips.slice(0, this.props.numPlaceholderClips);
+
+      // Ensure there's a minimum number of clips
+      // displayed whilst we wait for them to load
       clips = clips.concat(
         lodash
         .times(this.props.numPlaceholderClips - clips.length)
@@ -48,8 +53,8 @@ module.exports = React.createClass({
           type,
           component;
 
-      if (clip.type === 'pending') {
-        component = (<li key={key} className="grid-item grid-item-clip">Loading<span className="centered-view-inner loader">&hellip;</span></li>);
+      if (!clip.format && !clip[this.props.format]) {
+        component = (<li key={key} className="grid-item grid-item-clip">Making your clip<span className="centered-view-inner loader">&hellip;</span></li>);
       } else {
         clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
         type = this.props.format === 'mp4' ? 'video' : 'image';

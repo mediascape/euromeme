@@ -1,6 +1,8 @@
 var React = require('react'),
     TimeoutTransitionGroup = require('./timeout-transition-group'),
     merge = require('lodash/object/merge'),
+    reject = require('lodash/collection/reject'),
+    find = require('lodash/collection/find'),
     includes = require('lodash/collection/includes');
 
     // React UI Components
@@ -57,7 +59,7 @@ module.exports = React.createClass({
       clipFormat: 'gif', // gif, poster, mp4
       clips: [],
       config: {},
-      pendingClip: false
+      pendingClips: []
     };
   },
   /*
@@ -149,13 +151,21 @@ module.exports = React.createClass({
   */
   receiveClips: function (clips) {
     console.log('receiveClips', clips);
-    this.setState({ clips: clips, pendingClip: false });
+    // Remove any new clips from the pending list
+    var stillPendingClips = reject(
+      this.state.pendingClips,
+      (clip) => { return find(clips, { id: clip.id} ); }
+    );
+    this.setState({ clips: clips, pendingClips: stillPendingClips });
   },
   /*
     Clip has been created
   */
-  receiveClipCreation: function () {
+  receiveClipCreation: function (pendingClip) {
     console.log('receiveClipCreation');
+    this.state
+      .pendingClips
+      .push(pendingClip);
     this.transitionToViewWithState(this.views.grid, {});
   },
   /*
@@ -311,6 +321,7 @@ module.exports = React.createClass({
                     videoUrl={this.state.videoUrl}
                     format={this.state.clipFormat}
                     clips={this.state.clips}
+                    pendingClips={this.state.pendingClips}
                     numPlaceholderClips={8}
                     pendingClip={this.state.pendingClip}
                     onGridItemSelected={this.handleGridItemSelection} />;

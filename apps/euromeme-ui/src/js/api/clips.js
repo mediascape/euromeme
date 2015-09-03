@@ -20,7 +20,9 @@ module.exports = function (clipsApiEndpoint, mediaStoreUrlTemplate) {
   */
   function addEndpointToObject(o) {
     return reduce(o, function (result, value, key) {
-      result[key] = mediaStoreUrlTemplate.replace('$mediaPath', value);
+        result[key] = (key === 'id')
+                        ? value
+                        : mediaStoreUrlTemplate.replace('$mediaPath', value);
       return result;
     }, {});
   }
