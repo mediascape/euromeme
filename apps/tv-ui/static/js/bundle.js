@@ -1611,10 +1611,17 @@ module.exports.create = function (config) {
 
     switch (msg.topic) {
       case 'status':
-        instance.send('status', config);
+        instance.send('status', {
+          appId: config.appId,
+          msvName: config.msvName,
+          videoUrl: config.videoUrl,
+          broadcastStartDate: config.broadcastStartDate
+        });
         break;
+
       default:
-        console.warn('Unknown topic ' + msg.topic);
+        console.warn('Unknown topic:', msg.topic);
+        break;
     }
   };
 
