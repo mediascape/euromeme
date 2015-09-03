@@ -54,7 +54,7 @@ module.exports = React.createClass({
           component;
 
       if (!clip.format && !clip[this.props.format]) {
-        component = (<li key={key} className="grid-item grid-item-clip">Making your clip<span className="centered-view-inner loader">&hellip;</span></li>);
+        component = (<li key={key} className="grid-item grid-item-clip is-pending centered-view is-active"><span className="centered-view-message">Making your clip</span><span className="centered-view-inner loader">&hellip;</span></li>);
       } else {
         clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
         type = this.props.format === 'mp4' ? 'video' : 'image';

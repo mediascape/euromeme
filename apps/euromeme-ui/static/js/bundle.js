@@ -47414,8 +47414,12 @@ module.exports = React.createClass({
       if (!clip.format && !clip[_this.props.format]) {
         component = React.createElement(
           'li',
-          { key: key, className: 'grid-item grid-item-clip' },
-          'Making your clip',
+          { key: key, className: 'grid-item grid-item-clip is-pending centered-view is-active' },
+          React.createElement(
+            'span',
+            { className: 'centered-view-message' },
+            'Making your clip'
+          ),
           React.createElement(
             'span',
             { className: 'centered-view-inner loader' },
