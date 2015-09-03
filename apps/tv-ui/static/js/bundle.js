@@ -1570,12 +1570,14 @@ var JsonWebSocket = require('./util/json-websocket'),
 
 module.exports.create = function (config) {
   var ws,
-      uri,
       ready,
       instance = {};
 
-  uri = config.relayURI || 'ws://localhost:5001/relay';
-  ws = new JsonWebSocket(uri);
+  if (!config.relayURI) {
+    throw new Error('relayURI not set in config');
+  }
+
+  ws = new JsonWebSocket(config.relayURI);
 
   ready = new Promise(function (resolve, reject) {
     ws.addEventListener('open', function () {
@@ -1609,10 +1611,17 @@ module.exports.create = function (config) {
 
     switch (msg.topic) {
       case 'status':
-        instance.send('status', config);
+        instance.send('status', {
+          appId: config.appId,
+          msvName: config.msvName,
+          videoUrl: config.videoUrl,
+          broadcastStartDate: config.broadcastStartDate
+        });
         break;
+
       default:
-        console.warn('Unknown topic ' + msg.topic);
+        console.warn('Unknown topic:', msg.topic);
+        break;
     }
   };
 

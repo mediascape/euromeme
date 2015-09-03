@@ -8,11 +8,12 @@ var fs         = require('q-io/fs'),
     mediaPath  = process.env.MEDIA_PATH || '',
     sourceFile = path.join(mediaPath, 'eurovision-2015.720.mp4');
 
-module.exports.validate = validate;
+module.exports.validate = function(params) {
+  return validate(params).then(nameClip);
+};
 
 module.exports.create = function(params) {
-  return nameClip(params)
-    .then(createFolder)
+  return createFolder(params)
     .then(createSubClip)
     .then(createGif)
     .then(fetchPoster)
@@ -40,13 +41,13 @@ function validate(params) {
 }
 
 function nameClip(params) {
-  params.name = Date.now() + '-gen';
+  params.id = Date.now() + '-gen';
 
   return q.resolve(params);
 }
 
 function createFolder(params) {
-  var dirName = path.join(tmpDir, params.name);
+  var dirName = path.join(tmpDir, params.id);
 
   params.tmpDir = dirName;
 
@@ -62,20 +63,20 @@ function createSubClip(params) {
  *
   cmd.push(
     'ffmpeg -i '+sourceFile+' -vf scale=360:180 -ss '+start+
-    ' -t 6 -an '+params.name
+    ' -t 6 -an '+params.id
     +'.180.mp4 2>&1'
   );
 
   cmd.push(
     'ffmpeg -i '+sourceFile+' -vf scale=640:360 -ss '+start+
-    ' -t 6 -an '+params.name
+    ' -t 6 -an '+params.id
     +'.360.mp4 2>&1'
   );
 */
 
   cmd.push(
     'ffmpeg -i '+sourceFile+' -ss '+start+
-    ' -t 6 -an '+params.name
+    ' -t 6 -an '+params.id
     +'.720.mp4 2>&1'
   );
 
@@ -88,7 +89,7 @@ function createGif(params) {
 
   imgSizes.forEach(function(size) {
     cmd.push(
-      'convert -delay 10 -loop 0 '+images[size]+' '+params.name+'.'+size+'.gif'
+      'convert -delay 10 -loop 0 '+images[size]+' '+params.id+'.'+size+'.gif'
     );
   });
 
@@ -113,14 +114,14 @@ function fetchPoster(params) {
       '1.jpg'
     );
 
-    cmd.push('cp '+poster+' '+params.name+'.'+size+'.jpg');
+    cmd.push('cp '+poster+' '+params.id+'.'+size+'.jpg');
   });
 
   return exec(cmd.join(' && ')).then(function(output) { return params; });
 }
 
 function moveToPublic(params) {
-  var target = path.join(mediaPath, 'clips', params.name);
+  var target = path.join(mediaPath, 'clips', params.id);
 
   return fs.move(params.tmpDir, target)
     .then(function() { return params; });
