@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MediaScape Discovery</string>
+
+    <string name="settings">Settings</string>
+    <string name="refresh">Refresh</string>
+
+    <string name="ok">OK</string>
+
+    <string name="invalid_url">Please set WebView URL in Settings</string>
+    <string name="invalid_port">"Please set WebSocket port in Settings"</string>
+    <string name="websockets_disabled">WebSockets disabled</string>
+    <string name="nsd_manager_failed">Unable to access Network Service Discovery</string>
+</resources>

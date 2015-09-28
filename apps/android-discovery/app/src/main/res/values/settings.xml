@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_title_enable_websocket">Enable WebSocket server</string>
+    <string name="pref_description_enable_websocket">Announce discovered devices to WebSocket clients</string>
+
+    <string name="pref_title_webview_url">URL</string>
+    <string name="pref_description_webview_url">The URL to open in the Web view</string>
+    <string name="pref_default_webview_url"></string>
+
+    <string name="pref_title_websocket_port">WebSocket server port</string>
+    <string name="pref_description_websocket_port">The port to listen on for WebSocket connections</string>
+    <string name="pref_default_websocket_port">5000</string>
+</resources>
