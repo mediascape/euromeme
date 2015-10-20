@@ -26,7 +26,12 @@ module.exports = React.createClass({
         <ActionsList
           onClose={this.handleClose} />
         <Clip src={clipUrl} type="gif" />
-        <p>Twitter stuff here</p>
+        <form id="tweet">
+          <textarea rows="4" cols="50">
+           #euromeme #eurovision
+          </textarea>
+        </form>
+        <button>Tweet this</button>
       </div>
     );
   }
