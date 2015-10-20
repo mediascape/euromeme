@@ -46848,9 +46848,18 @@ module.exports = React.createClass({
         onClose: this.handleClose }),
       React.createElement(Clip, { src: clipUrl, type: 'gif' }),
       React.createElement(
-        'p',
+        'form',
+        { id: 'tweet' },
+        React.createElement(
+          'textarea',
+          { rows: '4', cols: '50', style: 'font-size:x-large;' },
+          '#euromeme #eurovision'
+        )
+      ),
+      React.createElement(
+        'button',
         null,
-        'Twitter stuff here'
+        'Tweet this'
       )
     );
   }
