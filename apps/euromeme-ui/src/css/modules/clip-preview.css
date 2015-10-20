@@ -2,13 +2,18 @@
   Clip preview view
 */
 .clip-preview {
+  background:black;
 }
 
 .clip-preview .imageloader {
   display: block;
 }
 
-.clip-preview img,
+.clip-preview img {
+  width: 75%;
+}
+
 .clip-preview video {
   width: 100%;
 }
+
