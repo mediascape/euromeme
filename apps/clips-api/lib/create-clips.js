@@ -72,9 +72,7 @@ function createSubClip(params) {
     ' -t 6 -an '+params.id
     +'.360.mp4 2>&1'
   );
-*/
 
-/*
   cmd.push(
     'ffmpeg -i '+sourceFile+' -ss '+start+
     ' -c copy '+
@@ -82,9 +80,6 @@ function createSubClip(params) {
     +'.720.mp4 2>&1'
   );
 
-*/
-
-/*
   cmd.push(
     'ffmpeg -ss '+start+
     ' -i '+sourceFile+
