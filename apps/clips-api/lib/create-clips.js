@@ -3,10 +3,11 @@ var fs         = require('q-io/fs'),
     exec       = require('promised-exec'),
     path       = require('path'),
     tmpDir     = path.join(__dirname, '..', 'tmp'),
-    txTime     = new Date(Date.UTC(2015, 4, 23, 19)),
-    imgSizes   = [180],
+    txTime     = new Date(Date.UTC(2015, 4, 23, 20)),
+//    txTime     = new Date(Date.UTC(2015, 4, 23, 19)),
+    imgSizes   = [180,360],
     mediaPath  = process.env.MEDIA_PATH || '',
-    sourceFile = path.join(mediaPath, 'eurovision-2015.720.mp4');
+    sourceFile = path.join(mediaPath, 'eurovision-2015.30.720.mp4');
 
 module.exports.validate = function(params) {
   return validate(params).then(nameClip);
@@ -74,12 +75,28 @@ function createSubClip(params) {
   );
 */
 
+/*
   cmd.push(
     'ffmpeg -i '+sourceFile+' -ss '+start+
+    ' -c copy '+
     ' -t 6 -an '+params.id
     +'.720.mp4 2>&1'
   );
 
+*/
+
+/*
+  cmd.push(
+    'ffmpeg -ss '+start+
+    ' -i '+sourceFile+
+    ' -c copy '+
+    ' -t 6 '+
+    ' -an '+
+    params.id+'.720.mp4 2>&1'
+  );
+
+  console.log(cmd);
+*/
   return exec(cmd.join(' && ')).then(function(output) { return params; });
 }
 
