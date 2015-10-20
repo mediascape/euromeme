@@ -21,9 +21,10 @@ module.exports = React.createClass({
   },
   draggingTimeout: null,
   componentDidMount: function () {
-    // Preload last 30 seconds
+    // Preload last 10 seconds
+    console.log("preloading 10 secs - "+this.props.endDate+" "+dates.maths(this.props.endDate, -10));
     this.preloadImageRange(
-      dates.maths(this.props.endDate, -30),
+      dates.maths(this.props.endDate, -10),
       this.props.endDate
     );
   },
@@ -91,7 +92,7 @@ module.exports = React.createClass({
     img.src = url;
   },
   preloadImageRange: function (startDate, endDate, shouldIncludeSubFrames=false) {
-    var frames = this.framesForTime(startDate, endDate, '720', this.props.frameTemplate);
+    var frames = this.framesForTime(startDate, endDate, '360', this.props.frameTemplate);
     frames.forEach( (r) => {
       this.preloadImage(r);
     });
@@ -120,7 +121,7 @@ module.exports = React.createClass({
   },
   render: function() {
     var className = 'editor ' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '720', this.props.frameTemplate, 5 /* framesPerSec */),
+        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '360', this.props.frameTemplate, 5 /* framesPerSec */),
         steps = dates.durationInSec(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;
 
