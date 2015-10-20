@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.js $IP",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify -t svg-reactify -t babelify -t brfs src/js/bootstrap.js -o static/js/bundle.js",
     "watch": "watchify -t svg-reactify -t babelify -t brfs src/js/bootstrap.js -o 'exorcist static/js/bundle.js.map > static/js/bundle.js' --debug --verbose",
