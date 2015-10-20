@@ -20,12 +20,13 @@ module.exports = React.createClass({
     }
   },
   render: function() {
-    var clipUrl = this.props.clip.mp4.replace('$size', 720);
+    var clipUrl = this.props.clip.gif.replace('$size', 360);
     return (
       <div className="clip-preview">
         <ActionsList
           onClose={this.handleClose} />
-        <Clip src={clipUrl} type="video" />
+        <Clip src={clipUrl} type="gif" />
+        <p>Twitter stuff here</p>
       </div>
     );
   }
