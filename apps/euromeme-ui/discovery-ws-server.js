@@ -25,6 +25,12 @@ module.exports.start = function (server) {
   }
 
   var browser = mdns.createBrowser(mdns.tcp('mediascape'));
+
+  browser.on('error', function(error) {
+     //sometimes - mac os 10.10.4 - gets a strange error, but this allows us to get past it
+     console.error(error);
+  });
+
   server.on('upgrade', function (request, socket, body) {
     if (WebSocket.isWebSocket(request)) {
       var ws = new WebSocket(request, socket, body);
