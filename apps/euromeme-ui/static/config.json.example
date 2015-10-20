@@ -8,3 +8,4 @@
   "clipsApiEndpoint": "http://example.com/api",
   "mediaStoreUrlTemplate": "http://cdn.example.com/$mediaPath?k=XXX"
 }
+
