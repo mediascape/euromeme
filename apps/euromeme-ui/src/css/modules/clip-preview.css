@@ -2,7 +2,20 @@
   Clip preview view
 */
 .clip-preview {
-  background:white;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    background-color: black;
+    opacity: 0.9;
+    z-index:1002;
+    overflow: auto;
+}
+
+.clip-preview .hidden {
+  display:none;
 }
 
 .clip-preview .imageloader {
@@ -16,4 +29,5 @@
 .clip-preview video {
   width: 100%;
 }
+
 

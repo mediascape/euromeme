@@ -5,7 +5,10 @@ var React = require('react'),
 var lodash = require('lodash');
 
 var LiveTile = require('./live-tile'),
-    Clip = require('./clip');
+    Clip = require('./clip'),
+    ClipPreview =  require('./clip-preview');
+
+//import Modal, {closeStyle} from 'simple-react-modal';
 
 module.exports = React.createClass({
   displayName: 'Grid',
@@ -21,9 +24,11 @@ module.exports = React.createClass({
     onGridItemSelected : React.PropTypes.func
   },
   handleItemSelection: function (key) {
-    if (this.props.onGridItemSelected) {
-      this.props.onGridItemSelected(key);
-    }
+//    this.refs.modal.setState({show:true});
+    
+//    if (this.props.onGridItemSelected) {
+  //    this.props.onGridItemSelected(key);
+    //}
   },
   handleLiveTileSelection: function (time) {
     this.handleItemSelection({ type: 'live', timeSecs: time });
@@ -58,7 +63,8 @@ module.exports = React.createClass({
       } else {
         clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
         type = this.props.format === 'mp4' ? 'video' : 'image';
-        component = (<li key={key} onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} className="grid-item grid-item-clip">
+//onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} 
+        component = (<li key={key} className="grid-item grid-item-clip">
           <Clip src={clipUrl} type={type} />
         </li>);
       }
