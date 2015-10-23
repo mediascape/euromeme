@@ -24,11 +24,10 @@ module.exports = React.createClass({
     onGridItemSelected : React.PropTypes.func
   },
   handleItemSelection: function (key) {
-//    this.refs.modal.setState({show:true});
-    
-//    if (this.props.onGridItemSelected) {
-  //    this.props.onGridItemSelected(key);
-    //}
+
+    if (this.props.onGridItemSelected) {
+      this.props.onGridItemSelected(key);
+    }
   },
   handleLiveTileSelection: function (time) {
     this.handleItemSelection({ type: 'live', timeSecs: time });
@@ -62,8 +61,7 @@ module.exports = React.createClass({
         component = (<li key={key} className="grid-item grid-item-clip is-pending centered-view is-active"><span className="centered-view-message">Making your clip</span><span className="centered-view-inner loader">&hellip;</span></li>);
       } else {
         clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
-        type = this.props.format === 'mp4' ? 'video' : 'image';
-//onTouchStart={this.handleItemSelection.bind(this, clip)} onClick={this.handleItemSelection.bind(this, clip)} 
+        type = this.props.format === 'mp4' ? 'video' : 'image' 
         component = (<li key={key} className="grid-item grid-item-clip">
           <Clip src={clipUrl} type={type} />
         </li>);
