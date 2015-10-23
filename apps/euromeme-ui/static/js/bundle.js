@@ -3415,7 +3415,9 @@ function drainQueue() {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
         queueIndex = -1;
         len = queue.length;
@@ -3467,7 +3469,6 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
@@ -3475,158 +3476,26 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],7:[function(require,module,exports){
-if (typeof Map === "undefined") {
-  Map = function() { this.clear(); };
-  Map.prototype = {
-    set: function(k, v) { this._[k] = v; return this; },
-    get: function(k) { return this._[k]; },
-    has: function(k) { return k in this._; },
-    delete: function(k) { return k in this._ && delete this._[k]; },
-    clear: function() { this._ = Object.create(null); },
-    get size() { var n = 0; for (var k in this._) ++n; return n; },
-    forEach: function(c) { for (var k in this._) c(this._[k], k, this); }
-  };
-} else (function() {
-  var m = new Map;
-  if (m.set(0, 0) !== m) {
-    m = m.set;
-    Map.prototype.set = function() { m.apply(this, arguments); return this; };
-  }
-})();
-
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   factory((global.scale = {}));
 }(this, function (exports) { 'use strict';
 
-  function utcDate(d) {
-    if (0 <= d.y && d.y < 100) {
-      var date = new Date(Date.UTC(-1, d.m, d.d, d.H, d.M, d.S, d.L));
-      date.setUTCFullYear(d.y);
-      return date;
-    }
-    return new Date(Date.UTC(d.y, d.m, d.d, d.H, d.M, d.S, d.L));
-  }
+  var enUs = {
+    dateTime: "%a %b %e %X %Y",
+    date: "%m/%d/%Y",
+    time: "%H:%M:%S",
+    periods: ["AM", "PM"],
+    days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  };
 
-  function localDate(d) {
-    if (0 <= d.y && d.y < 100) {
-      var date = new Date(-1, d.m, d.d, d.H, d.M, d.S, d.L);
-      date.setFullYear(d.y);
-      return date;
-    }
-    return new Date(d.y, d.m, d.d, d.H, d.M, d.S, d.L);
-  }
-
-  var pads = {"-": "", "_": " ", "0": "0"};
-
-  function newYear(y) {
-    return {y: y, m: 0, d: 1, H: 0, M: 0, S: 0, L: 0};
-  }
-
-  var percentRe = /^%/;
-
-  function parseLiteralPercent(d, string, i) {
-    var n = percentRe.exec(string.slice(i, i + 1));
-    return n ? i + n[0].length : -1;
-  }
-
-  function parseZone(d, string, i) {
-    return /^[+-]\d{4}$/.test(string = string.slice(i, i + 5))
-        ? (d.Z = -string, i + 5) // sign differs from getTimezoneOffset!
-        : -1;
-  }
-
-  var numberRe = /^\s*\d+/;
-
-  function parseWeekdayNumber(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 1));
-    return n ? (d.w = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseWeekNumberSunday(d, string, i) {
-    var n = numberRe.exec(string.slice(i));
-    return n ? (d.U = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseWeekNumberMonday(d, string, i) {
-    var n = numberRe.exec(string.slice(i));
-    return n ? (d.W = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseYear(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.y = +n[0] + (+n[0] > 68 ? 1900 : 2000), i + n[0].length) : -1;
-  }
-
-  function parseMonthNumber(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.m = n[0] - 1, i + n[0].length) : -1;
-  }
-
-  function parseDayOfMonth(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.d = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseDayOfYear(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 3));
-    return n ? (d.m = 0, d.d = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseHour24(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.H = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseMinutes(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.M = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseSeconds(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 2));
-    return n ? (d.S = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseMilliseconds(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 3));
-    return n ? (d.L = +n[0], i + n[0].length) : -1;
-  }
-
-  function parseFullYear(d, string, i) {
-    var n = numberRe.exec(string.slice(i, i + 4));
-    return n ? (d.y = +n[0], i + n[0].length) : -1;
-  }
-
-  function formatLiteralPercent() {
-    return "%";
-  }
-
-  function formatUTCZone() {
-    return "+0000";
-  }
-
-  function pad(value, fill, width) {
-    var sign = value < 0 ? "-" : "",
-        string = (sign ? -value : value) + "",
-        length = string.length;
-    return sign + (length < width ? new Array(width - length + 1).join(fill) + string : string);
-  }
-
-  function formatUTCFullYear(d, p) {
-    return pad(d.getUTCFullYear() % 10000, p, 4);
-  }
-
-  function _formatUTCYear(d, p) {
-    return pad(d.getUTCFullYear() % 100, p, 2);
-  }
-
-  var t1 = new Date;
-
-  var t0 = new Date;
-
-  function newInterval(floori, offseti, count) {
+  var ___t0 = new Date;
+  var ___t1 = new Date;
+  function _newInterval(floori, offseti, count) {
 
     function interval(date) {
       return floori(date = new Date(+date)), date;
@@ -3662,7 +3531,7 @@ if (typeof Map === "undefined") {
     };
 
     interval.filter = function(test) {
-      return newInterval(function(date) {
+      return _newInterval(function(date) {
         while (floori(date), !test(date)) date.setTime(date - 1);
       }, function(date, step) {
         while (--step >= 0) while (offseti(date, 1), !test(date));
@@ -3670,116 +3539,24 @@ if (typeof Map === "undefined") {
     };
 
     if (count) interval.count = function(start, end) {
-      t0.setTime(+start), t1.setTime(+end);
-      floori(t0), floori(t1);
-      return Math.floor(count(t0, t1));
+      ___t0.setTime(+start), ___t1.setTime(+end);
+      floori(___t0), floori(___t1);
+      return Math.floor(count(___t0, ___t1));
     };
 
     return interval;
   }
 
-  var utcYear = newInterval(function(date) {
-    date.setUTCHours(0, 0, 0, 0);
-    date.setUTCMonth(0, 1);
-  }, function(date, step) {
-    date.setUTCFullYear(date.getUTCFullYear() + step);
-  }, function(start, end) {
-    return end.getUTCFullYear() - start.getUTCFullYear();
-  });
-
-  function utcWeekday(i) {
-    return newInterval(function(date) {
-      date.setUTCHours(0, 0, 0, 0);
-      date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 7 - i) % 7);
-    }, function(date, step) {
-      date.setUTCDate(date.getUTCDate() + step * 7);
-    }, function(start, end) {
-      return (end - start) / 6048e5;
-    });
-  }
-
-  var utcMonday = utcWeekday(1);
-
-  function formatUTCWeekNumberMonday(d, p) {
-    return pad(utcMonday.count(utcYear(d), d), p, 2);
-  }
-
-  function formatUTCWeekdayNumber(d) {
-    return d.getUTCDay();
-  }
-
-  var utcSunday = utcWeekday(0);
-
-  function formatUTCWeekNumberSunday(d, p) {
-    return pad(utcSunday.count(utcYear(d), d), p, 2);
-  }
-
-  function formatUTCSeconds(d, p) {
-    return pad(d.getUTCSeconds(), p, 2);
-  }
-
-  function formatUTCMinutes(d, p) {
-    return pad(d.getUTCMinutes(), p, 2);
-  }
-
-  function formatUTCMonthNumber(d, p) {
-    return pad(d.getUTCMonth() + 1, p, 2);
-  }
-
-  function formatUTCMilliseconds(d, p) {
-    return pad(d.getUTCMilliseconds(), p, 3);
-  }
-
-  var utcDay = newInterval(function(date) {
-    date.setUTCHours(0, 0, 0, 0);
-  }, function(date, step) {
-    date.setUTCDate(date.getUTCDate() + step);
-  }, function(start, end) {
-    return (end - start) / 864e5;
-  });
-
-  function formatUTCDayOfYear(d, p) {
-    return pad(1 + utcDay.count(utcYear(d), d), p, 3);
-  }
-
-  function formatUTCHour12(d, p) {
-    return pad(d.getUTCHours() % 12 || 12, p, 2);
-  }
-
-  function formatUTCHour24(d, p) {
-    return pad(d.getUTCHours(), p, 2);
-  }
-
-  function formatUTCDayOfMonth(d, p) {
-    return pad(d.getUTCDate(), p, 2);
-  }
-
-  function formatZone(d) {
-    var z = d.getTimezoneOffset();
-    return (z > 0 ? "-" : (z *= -1, "+"))
-        + pad(z / 60 | 0, "0", 2)
-        + pad(z % 60, "0", 2);
-  }
-
-  function formatFullYear(d, p) {
-    return pad(d.getFullYear() % 10000, p, 4);
-  }
-
-  function _formatYear(d, p) {
-    return pad(d.getFullYear() % 100, p, 2);
-  }
-
-  var year = newInterval(function(date) {
+  var day = _newInterval(function(date) {
     date.setHours(0, 0, 0, 0);
-    date.setMonth(0, 1);
   }, function(date, step) {
-    date.setFullYear(date.getFullYear() + step);
+    date.setDate(date.getDate() + step);
   }, function(start, end) {
-    return end.getFullYear() - start.getFullYear();
+    return (end - start - (end.getTimezoneOffset() - start.getTimezoneOffset()) * 6e4) / 864e5;
   });
 
-  function weekday(i) {
-    return newInterval(function(date) {
+  function _weekday(i) {
+    return _newInterval(function(date) {
       date.setHours(0, 0, 0, 0);
       date.setDate(date.getDate() - (date.getDay() + 7 - i) % 7);
     }, function(date, step) {
@@ -3789,79 +3566,72 @@ if (typeof Map === "undefined") {
     });
   }
 
-  var monday = weekday(1);
+  var _sunday = _weekday(0);
+  var _monday = _weekday(1);
 
-  function formatWeekNumberMonday(d, p) {
-    return pad(monday.count(year(d), d), p, 2);
-  }
-
-  function formatWeekdayNumber(d) {
-    return d.getDay();
-  }
-
-  var sunday = weekday(0);
-
-  function formatWeekNumberSunday(d, p) {
-    return pad(sunday.count(year(d), d), p, 2);
-  }
-
-  function formatSeconds(d, p) {
-    return pad(d.getSeconds(), p, 2);
-  }
-
-  function formatMinutes(d, p) {
-    return pad(d.getMinutes(), p, 2);
-  }
-
-  function formatMonthNumber(d, p) {
-    return pad(d.getMonth() + 1, p, 2);
-  }
-
-  function formatMilliseconds(d, p) {
-    return pad(d.getMilliseconds(), p, 3);
-  }
-
-  var day = newInterval(function(date) {
+  var year = _newInterval(function(date) {
     date.setHours(0, 0, 0, 0);
+    date.setMonth(0, 1);
   }, function(date, step) {
-    date.setDate(date.getDate() + step);
+    date.setFullYear(date.getFullYear() + step);
   }, function(start, end) {
-    return (end - start - (end.getTimezoneOffset() - start.getTimezoneOffset()) * 6e4) / 864e5;
+    return end.getFullYear() - start.getFullYear();
   });
 
-  function formatDayOfYear(d, p) {
-    return pad(1 + day.count(year(d), d), p, 3);
+  var utcDay = _newInterval(function(date) {
+    date.setUTCHours(0, 0, 0, 0);
+  }, function(date, step) {
+    date.setUTCDate(date.getUTCDate() + step);
+  }, function(start, end) {
+    return (end - start) / 864e5;
+  });
+
+  function _utcWeekday(i) {
+    return _newInterval(function(date) {
+      date.setUTCHours(0, 0, 0, 0);
+      date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 7 - i) % 7);
+    }, function(date, step) {
+      date.setUTCDate(date.getUTCDate() + step * 7);
+    }, function(start, end) {
+      return (end - start) / 6048e5;
+    });
   }
 
-  function formatHour12(d, p) {
-    return pad(d.getHours() % 12 || 12, p, 2);
+  var _utcSunday = _utcWeekday(0);
+  var _utcMonday = _utcWeekday(1);
+
+  var utcYear = _newInterval(function(date) {
+    date.setUTCHours(0, 0, 0, 0);
+    date.setUTCMonth(0, 1);
+  }, function(date, step) {
+    date.setUTCFullYear(date.getUTCFullYear() + step);
+  }, function(start, end) {
+    return end.getUTCFullYear() - start.getUTCFullYear();
+  });
+
+  function localDate(d) {
+    if (0 <= d.y && d.y < 100) {
+      var date = new Date(-1, d.m, d.d, d.H, d.M, d.S, d.L);
+      date.setFullYear(d.y);
+      return date;
+    }
+    return new Date(d.y, d.m, d.d, d.H, d.M, d.S, d.L);
   }
 
-  function formatHour24(d, p) {
-    return pad(d.getHours(), p, 2);
+  function utcDate(d) {
+    if (0 <= d.y && d.y < 100) {
+      var date = new Date(Date.UTC(-1, d.m, d.d, d.H, d.M, d.S, d.L));
+      date.setUTCFullYear(d.y);
+      return date;
+    }
+    return new Date(Date.UTC(d.y, d.m, d.d, d.H, d.M, d.S, d.L));
   }
 
-  function formatDayOfMonth(d, p) {
-    return pad(d.getDate(), p, 2);
+  function newYear(y) {
+    return {y: y, m: 0, d: 1, H: 0, M: 0, S: 0, L: 0};
   }
 
-  function formatLookup(names) {
-    var map = new Map, i = -1, n = names.length;
-    while (++i < n) map.set(names[i].toLowerCase(), i);
-    return map;
-  }
-
-  var requoteRe = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
-
-  function requote(s) {
-    return s.replace(requoteRe, "\\$&");
-  }
-
-  function formatRe(names) {
-    return new RegExp("^(?:" + names.map(requote).join("|") + ")", "i");
-  }
-
-  function _localeFormat(locale) {
+  function _locale(locale) {
     var locale_dateTime = locale.dateTime,
         locale_date = locale.date,
         locale_time = locale.time,
@@ -4053,22 +3823,22 @@ if (typeof Map === "undefined") {
 
     function parseShortWeekday(d, string, i) {
       var n = shortWeekdayRe.exec(string.slice(i));
-      return n ? (d.w = shortWeekdayLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
+      return n ? (d.w = shortWeekdayLookup[n[0].toLowerCase()], i + n[0].length) : -1;
     }
 
     function parseWeekday(d, string, i) {
       var n = weekdayRe.exec(string.slice(i));
-      return n ? (d.w = weekdayLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
+      return n ? (d.w = weekdayLookup[n[0].toLowerCase()], i + n[0].length) : -1;
     }
 
     function parseShortMonth(d, string, i) {
       var n = shortMonthRe.exec(string.slice(i));
-      return n ? (d.m = shortMonthLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
+      return n ? (d.m = shortMonthLookup[n[0].toLowerCase()], i + n[0].length) : -1;
     }
 
     function parseMonth(d, string, i) {
       var n = monthRe.exec(string.slice(i));
-      return n ? (d.m = monthLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
+      return n ? (d.m = monthLookup[n[0].toLowerCase()], i + n[0].length) : -1;
     }
 
     function parseLocaleDateTime(d, string, i) {
@@ -4084,7 +3854,7 @@ if (typeof Map === "undefined") {
     }
 
     function parsePeriod(d, string, i) {
-      var n = periodLookup.get(string.slice(i, i += 2).toLowerCase());
+      var n = periodLookup[string.slice(i, i += 2).toLowerCase()];
       return n == null ? -1 : (d.p = n, i);
     }
 
@@ -4142,30 +3912,386 @@ if (typeof Map === "undefined") {
         return f;
       }
     };
+  }var pads = {"-": "", "_": " ", "0": "0"};
+  var numberRe = /^\s*\d+/;
+  var percentRe = /^%/;
+  var requoteRe = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
+  function pad(value, fill, width) {
+    var sign = value < 0 ? "-" : "",
+        string = (sign ? -value : value) + "",
+        length = string.length;
+    return sign + (length < width ? new Array(width - length + 1).join(fill) + string : string);
   }
 
-  var _locale = _localeFormat({
-    dateTime: "%a %b %e %X %Y",
-    date: "%m/%d/%Y",
-    time: "%H:%M:%S",
-    periods: ["AM", "PM"],
-    days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  function requote(s) {
+    return s.replace(requoteRe, "\\$&");
+  }
+
+  function formatRe(names) {
+    return new RegExp("^(?:" + names.map(requote).join("|") + ")", "i");
+  }
+
+  function formatLookup(names) {
+    var map = {}, i = -1, n = names.length;
+    while (++i < n) map[names[i].toLowerCase()] = i;
+    return map;
+  }
+
+  function parseWeekdayNumber(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 1));
+    return n ? (d.w = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseWeekNumberSunday(d, string, i) {
+    var n = numberRe.exec(string.slice(i));
+    return n ? (d.U = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseWeekNumberMonday(d, string, i) {
+    var n = numberRe.exec(string.slice(i));
+    return n ? (d.W = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseFullYear(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 4));
+    return n ? (d.y = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseYear(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.y = +n[0] + (+n[0] > 68 ? 1900 : 2000), i + n[0].length) : -1;
+  }
+
+  function parseZone(d, string, i) {
+    return /^[+-]\d{4}$/.test(string = string.slice(i, i + 5))
+        ? (d.Z = -string, i + 5) // sign differs from getTimezoneOffset!
+        : -1;
+  }
+
+  function parseMonthNumber(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.m = n[0] - 1, i + n[0].length) : -1;
+  }
+
+  function parseDayOfMonth(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.d = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseDayOfYear(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 3));
+    return n ? (d.m = 0, d.d = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseHour24(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.H = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseMinutes(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.M = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseSeconds(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 2));
+    return n ? (d.S = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseMilliseconds(d, string, i) {
+    var n = numberRe.exec(string.slice(i, i + 3));
+    return n ? (d.L = +n[0], i + n[0].length) : -1;
+  }
+
+  function parseLiteralPercent(d, string, i) {
+    var n = percentRe.exec(string.slice(i, i + 1));
+    return n ? i + n[0].length : -1;
+  }
+
+  function formatDayOfMonth(d, p) {
+    return pad(d.getDate(), p, 2);
+  }
+
+  function formatHour24(d, p) {
+    return pad(d.getHours(), p, 2);
+  }
+
+  function formatHour12(d, p) {
+    return pad(d.getHours() % 12 || 12, p, 2);
+  }
+
+  function formatDayOfYear(d, p) {
+    return pad(1 + day.count(year(d), d), p, 3);
+  }
+
+  function formatMilliseconds(d, p) {
+    return pad(d.getMilliseconds(), p, 3);
+  }
+
+  function formatMonthNumber(d, p) {
+    return pad(d.getMonth() + 1, p, 2);
+  }
+
+  function formatMinutes(d, p) {
+    return pad(d.getMinutes(), p, 2);
+  }
+
+  function formatSeconds(d, p) {
+    return pad(d.getSeconds(), p, 2);
+  }
+
+  function formatWeekNumberSunday(d, p) {
+    return pad(_sunday.count(year(d), d), p, 2);
+  }
+
+  function formatWeekdayNumber(d) {
+    return d.getDay();
+  }
+
+  function formatWeekNumberMonday(d, p) {
+    return pad(_monday.count(year(d), d), p, 2);
+  }
+
+  function _formatYear(d, p) {
+    return pad(d.getFullYear() % 100, p, 2);
+  }
+
+  function formatFullYear(d, p) {
+    return pad(d.getFullYear() % 10000, p, 4);
+  }
+
+  function formatZone(d) {
+    var z = d.getTimezoneOffset();
+    return (z > 0 ? "-" : (z *= -1, "+"))
+        + pad(z / 60 | 0, "0", 2)
+        + pad(z % 60, "0", 2);
+  }
+
+  function formatUTCDayOfMonth(d, p) {
+    return pad(d.getUTCDate(), p, 2);
+  }
+
+  function formatUTCHour24(d, p) {
+    return pad(d.getUTCHours(), p, 2);
+  }
+
+  function formatUTCHour12(d, p) {
+    return pad(d.getUTCHours() % 12 || 12, p, 2);
+  }
+
+  function formatUTCDayOfYear(d, p) {
+    return pad(1 + utcDay.count(utcYear(d), d), p, 3);
+  }
+
+  function formatUTCMilliseconds(d, p) {
+    return pad(d.getUTCMilliseconds(), p, 3);
+  }
+
+  function formatUTCMonthNumber(d, p) {
+    return pad(d.getUTCMonth() + 1, p, 2);
+  }
+
+  function formatUTCMinutes(d, p) {
+    return pad(d.getUTCMinutes(), p, 2);
+  }
+
+  function formatUTCSeconds(d, p) {
+    return pad(d.getUTCSeconds(), p, 2);
+  }
+
+  function formatUTCWeekNumberSunday(d, p) {
+    return pad(_utcSunday.count(utcYear(d), d), p, 2);
+  }
+
+  function formatUTCWeekdayNumber(d) {
+    return d.getUTCDay();
+  }
+
+  function formatUTCWeekNumberMonday(d, p) {
+    return pad(_utcMonday.count(utcYear(d), d), p, 2);
+  }
+
+  function _formatUTCYear(d, p) {
+    return pad(d.getUTCFullYear() % 100, p, 2);
+  }
+
+  function formatUTCFullYear(d, p) {
+    return pad(d.getUTCFullYear() % 10000, p, 4);
+  }
+
+  function formatUTCZone() {
+    return "+0000";
+  }
+
+  function formatLiteralPercent() {
+    return "%";
+  }
+
+  var _defaultLocale = _locale(enUs);
+  var ____format = _defaultLocale.format;
+  var utcFormat = _defaultLocale.utcFormat;
+
+  var __t0 = new Date;
+  var __t1 = new Date;
+  function newInterval(floori, offseti, count) {
+
+    function interval(date) {
+      return floori(date = new Date(+date)), date;
+    }
+
+    interval.floor = interval;
+
+    interval.round = function(date) {
+      var d0 = new Date(+date),
+          d1 = new Date(date - 1);
+      floori(d0), floori(d1), offseti(d1, 1);
+      return date - d0 < d1 - date ? d0 : d1;
+    };
+
+    interval.ceil = function(date) {
+      return floori(date = new Date(date - 1)), offseti(date, 1), date;
+    };
+
+    interval.offset = function(date, step) {
+      return offseti(date = new Date(+date), step == null ? 1 : Math.floor(step)), date;
+    };
+
+    interval.range = function(start, stop, step) {
+      var range = [];
+      start = new Date(start - 1);
+      stop = new Date(+stop);
+      step = step == null ? 1 : Math.floor(step);
+      if (!(start < stop) || !(step > 0)) return range; // also handles Invalid Date
+      offseti(start, 1), floori(start);
+      if (start < stop) range.push(new Date(+start));
+      while (offseti(start, step), floori(start), start < stop) range.push(new Date(+start));
+      return range;
+    };
+
+    interval.filter = function(test) {
+      return newInterval(function(date) {
+        while (floori(date), !test(date)) date.setTime(date - 1);
+      }, function(date, step) {
+        while (--step >= 0) while (offseti(date, 1), !test(date));
+      });
+    };
+
+    if (count) interval.count = function(start, end) {
+      __t0.setTime(+start), __t1.setTime(+end);
+      floori(__t0), floori(__t1);
+      return Math.floor(count(__t0, __t1));
+    };
+
+    return interval;
+  }
+
+  var second = newInterval(function(date) {
+    date.setMilliseconds(0);
+  }, function(date, step) {
+    date.setTime(+date + step * 1e3);
+  }, function(start, end) {
+    return (end - start) / 1e3;
   });
 
-  var utcFormat = _locale.utcFormat;
+  var minute = newInterval(function(date) {
+    date.setSeconds(0, 0);
+  }, function(date, step) {
+    date.setTime(+date + step * 6e4);
+  }, function(start, end) {
+    return (end - start) / 6e4;
+  });
 
-  var formatUTCYear = utcFormat("%Y");
+  var hour = newInterval(function(date) {
+    date.setMinutes(0, 0, 0);
+  }, function(date, step) {
+    date.setTime(+date + step * 36e5);
+  }, function(start, end) {
+    return (end - start) / 36e5;
+  });
 
-  var formatUTCMonth = utcFormat("%B");
+  var _day = newInterval(function(date) {
+    date.setHours(0, 0, 0, 0);
+  }, function(date, step) {
+    date.setDate(date.getDate() + step);
+  }, function(start, end) {
+    return (end - start - (end.getTimezoneOffset() - start.getTimezoneOffset()) * 6e4) / 864e5;
+  });
 
-  var formatUTCWeek = utcFormat("%b %d");
+  function weekday(i) {
+    return newInterval(function(date) {
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - (date.getDay() + 7 - i) % 7);
+    }, function(date, step) {
+      date.setDate(date.getDate() + step * 7);
+    }, function(start, end) {
+      return (end - start - (end.getTimezoneOffset() - start.getTimezoneOffset()) * 6e4) / 6048e5;
+    });
+  }
 
-  var formatUTCDay = utcFormat("%a %d");
+  var sunday = weekday(0);
 
-  var utcWeek = utcSunday;
+  var month = newInterval(function(date) {
+    date.setHours(0, 0, 0, 0);
+    date.setDate(1);
+  }, function(date, step) {
+    date.setMonth(date.getMonth() + step);
+  }, function(start, end) {
+    return end.getMonth() - start.getMonth() + (end.getFullYear() - start.getFullYear()) * 12;
+  });
+
+  var _year = newInterval(function(date) {
+    date.setHours(0, 0, 0, 0);
+    date.setMonth(0, 1);
+  }, function(date, step) {
+    date.setFullYear(date.getFullYear() + step);
+  }, function(start, end) {
+    return end.getFullYear() - start.getFullYear();
+  });
+
+  var utcSecond = newInterval(function(date) {
+    date.setUTCMilliseconds(0);
+  }, function(date, step) {
+    date.setTime(+date + step * 1e3);
+  }, function(start, end) {
+    return (end - start) / 1e3;
+  });
+
+  var utcMinute = newInterval(function(date) {
+    date.setUTCSeconds(0, 0);
+  }, function(date, step) {
+    date.setTime(+date + step * 6e4);
+  }, function(start, end) {
+    return (end - start) / 6e4;
+  });
+
+  var utcHour = newInterval(function(date) {
+    date.setUTCMinutes(0, 0, 0);
+  }, function(date, step) {
+    date.setTime(+date + step * 36e5);
+  }, function(start, end) {
+    return (end - start) / 36e5;
+  });
+
+  var _utcDay = newInterval(function(date) {
+    date.setUTCHours(0, 0, 0, 0);
+  }, function(date, step) {
+    date.setUTCDate(date.getUTCDate() + step);
+  }, function(start, end) {
+    return (end - start) / 864e5;
+  });
+
+  function utcWeekday(i) {
+    return newInterval(function(date) {
+      date.setUTCHours(0, 0, 0, 0);
+      date.setUTCDate(date.getUTCDate() - (date.getUTCDay() + 7 - i) % 7);
+    }, function(date, step) {
+      date.setUTCDate(date.getUTCDate() + step * 7);
+    }, function(start, end) {
+      return (end - start) / 6048e5;
+    });
+  }
+
+  var utcSunday = utcWeekday(0);
 
   var utcMonth = newInterval(function(date) {
     date.setUTCHours(0, 0, 0, 0);
@@ -4176,147 +4302,122 @@ if (typeof Map === "undefined") {
     return end.getUTCMonth() - start.getUTCMonth() + (end.getUTCFullYear() - start.getUTCFullYear()) * 12;
   });
 
-  var formatUTCHour = utcFormat("%I %p");
-
-  var formatUTCMinute = utcFormat("%I:%M");
-
-  var utcHour = newInterval(function(date) {
-    date.setUTCMinutes(0, 0, 0);
+  var _utcYear = newInterval(function(date) {
+    date.setUTCHours(0, 0, 0, 0);
+    date.setUTCMonth(0, 1);
   }, function(date, step) {
-    date.setTime(+date + step * 36e5);
+    date.setUTCFullYear(date.getUTCFullYear() + step);
   }, function(start, end) {
-    return (end - start) / 36e5;
+    return end.getUTCFullYear() - start.getUTCFullYear();
   });
 
-  var formatUTCSecond = utcFormat(":%S");
+  var prefix = "$";
 
-  var utcMinute = newInterval(function(date) {
-    date.setUTCSeconds(0, 0);
-  }, function(date, step) {
-    date.setTime(+date + step * 6e4);
-  }, function(start, end) {
-    return (end - start) / 6e4;
-  });
+  function _Map() {}
 
-  var formatUTCMillisecond = utcFormat(".%L");
+  _Map.prototype = _map.prototype = {
+    has: function(key) {
+      return (prefix + key) in this;
+    },
+    get: function(key) {
+      return this[prefix + key];
+    },
+    set: function(key, value) {
+      return this[prefix + key] = value;
+    },
+    remove: function(key) {
+      var property = prefix + key;
+      return property in this && delete this[property];
+    },
+    keys: function() {
+      var keys = [];
+      for (var property in this) if (property[0] === prefix) keys.push(property.slice(1));
+      return keys;
+    },
+    values: function() {
+      var values = [];
+      for (var property in this) if (property[0] === prefix) values.push(this[property]);
+      return values;
+    },
+    entries: function() {
+      var entries = [];
+      for (var property in this) if (property[0] === prefix) entries.push({key: property.slice(1), value: this[property]});
+      return entries;
+    },
+    size: function() {
+      var size = 0;
+      for (var property in this) if (property[0] === prefix) ++size;
+      return size;
+    },
+    empty: function() {
+      for (var property in this) if (property[0] === prefix) return false;
+      return true;
+    },
+    forEach: function(f) {
+      for (var property in this) if (property[0] === prefix) f.call(this, property.slice(1), this[property]);
+    }
+  };
 
-  var utcSecond = newInterval(function(date) {
-    date.setUTCMilliseconds(0);
-  }, function(date, step) {
-    date.setTime(+date + step * 1e3);
-  }, function(start, end) {
-    return (end - start) / 1e3;
-  });
+  function _map(object, f) {
+    var map = new _Map;
 
-  function _tickFormat(date) {
-    return (utcSecond(date) < date ? formatUTCMillisecond
-        : utcMinute(date) < date ? formatUTCSecond
-        : utcHour(date) < date ? formatUTCMinute
-        : utcDay(date) < date ? formatUTCHour
-        : utcMonth(date) < date ? (utcWeek(date) < date ? formatUTCDay : formatUTCWeek)
-        : utcYear(date) < date ? formatUTCMonth
-        : formatUTCYear)(date);
+    // Copy constructor.
+    if (object instanceof _Map) object.forEach(function(key, value) { map.set(key, value); });
+
+    // Index array by numeric index or specified key function.
+    else if (Array.isArray(object)) {
+      var i = -1,
+          n = object.length,
+          o;
+
+      if (arguments.length === 1) while (++i < n) map.set(i, object[i]);
+      else while (++i < n) map.set(f.call(object, o = object[i], i), o);
+    }
+
+    // Convert object to map.
+    else for (var key in object) map.set(key, object[key]);
+
+    return map;
   }
 
-  function newDate(t) {
-    return new Date(t);
+  function _range(start, stop, step) {
+    if ((n = arguments.length) < 3) {
+      step = 1;
+      if (n < 2) {
+        stop = start;
+        start = 0;
+      }
+    }
+
+    var i = -1,
+        n = Math.max(0, Math.ceil((stop - start) / step)) | 0,
+        k = _scale(Math.abs(step)),
+        range = new Array(n);
+
+    start *= k;
+    step *= k;
+    while (++i < n) {
+      range[i] = (start + i * step) / k;
+    }
+
+    return range;
+  }function _scale(x) {
+    var k = 1;
+    while (x * k % 1) k *= 10;
+    return k;
   }
 
-  function rebind(scale, linear) {
-    scale.range = function() {
-      var x = linear.range.apply(linear, arguments);
-      return x === linear ? scale : x;
-    };
-
-    scale.rangeRound = function() {
-      var x = linear.rangeRound.apply(linear, arguments);
-      return x === linear ? scale : x;
-    };
-
-    scale.clamp = function() {
-      var x = linear.clamp.apply(linear, arguments);
-      return x === linear ? scale : x;
-    };
-
-    scale.interpolate = function() {
-      var x = linear.interpolate.apply(linear, arguments);
-      return x === linear ? scale : x;
-    };
-
-    return scale;
+  // R-7 per <http://en.wikipedia.org/wiki/Quantile>
+  function quantile(values, p) {
+    var H = (values.length - 1) * p + 1,
+        h = Math.floor(H),
+        v = +values[h - 1],
+        e = H - h;
+    return e ? v + e * (values[h] - v) : v;
   }
-
-  var e2 = Math.sqrt(2);
-
-  var e5 = Math.sqrt(10);
-
-  var e10 = Math.sqrt(50);
-
-  function tickRange(domain, count) {
-    if (count == null) count = 10;
-
-    var start = domain[0],
-        stop = domain[domain.length - 1];
-
-    if (stop < start) error = stop, stop = start, start = error;
-
-    var span = stop - start,
-        step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10)),
-        error = span / count / step;
-
-    // Filter ticks to get closer to the desired count.
-    if (error >= e10) step *= 10;
-    else if (error >= e5) step *= 5;
-    else if (error >= e2) step *= 2;
-
-    // Round start and stop values to step interval.
-    return [
-      Math.ceil(start / step) * step,
-      Math.floor(stop / step) * step + step / 2, // inclusive
-      step
-    ];
-  }
-
-  var millisecondsPerSecond = 1000;
-  var millisecondsPerMinute = millisecondsPerSecond * 60;
-  var millisecondsPerHour = millisecondsPerMinute * 60;
-  var millisecondsPerDay = millisecondsPerHour * 24;
-
-  var millisecondsPerYear = millisecondsPerDay * 365;
-
-  var millisecondsPerMonth = millisecondsPerDay * 30;
-
-  var millisecondsPerWeek = millisecondsPerDay * 7;
-
-  var tickIntervals = [
-    ["seconds",  1,      millisecondsPerSecond],
-    ["seconds",  5,  5 * millisecondsPerSecond],
-    ["seconds", 15, 15 * millisecondsPerSecond],
-    ["seconds", 30, 30 * millisecondsPerSecond],
-    ["minutes",  1,      millisecondsPerMinute],
-    ["minutes",  5,  5 * millisecondsPerMinute],
-    ["minutes", 15, 15 * millisecondsPerMinute],
-    ["minutes", 30, 30 * millisecondsPerMinute],
-    [  "hours",  1,      millisecondsPerHour  ],
-    [  "hours",  3,  3 * millisecondsPerHour  ],
-    [  "hours",  6,  6 * millisecondsPerHour  ],
-    [  "hours", 12, 12 * millisecondsPerHour  ],
-    [   "days",  1,      millisecondsPerDay   ],
-    [   "days",  2,  2 * millisecondsPerDay   ],
-    [  "weeks",  1,      millisecondsPerWeek  ],
-    [ "months",  1,      millisecondsPerMonth ],
-    [ "months",  3,  3 * millisecondsPerMonth ],
-    [  "years",  1,      millisecondsPerYear  ]
-  ];
 
   function ascending(a, b) {
     return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
-  }
-
-  function ascendingComparator(f) {
-    return function(d, x) {
-      return ascending(f(d), x);
-    };
   }
 
   function bisector(compare) {
@@ -4343,153 +4444,25 @@ if (typeof Map === "undefined") {
         return lo;
       }
     };
-  }
-
-  var bisectTickIntervals = bisector(function(method) {
-    return method[2];
-  }).right;
-
-  function chooseTickInterval(start, stop, count) {
-    var target = Math.abs(stop - start) / count,
-        i = bisectTickIntervals(tickIntervals, target);
-    return i === tickIntervals.length ? ["years", tickRange([start / millisecondsPerYear, stop / millisecondsPerYear], count)[2]]
-        : i ? tickIntervals[target / tickIntervals[i - 1][2] < tickIntervals[i][2] / target ? i - 1 : i]
-        : ["milliseconds", tickRange([start, stop], count)[2]];
-  }
-
-  function newTime(linear, timeInterval, tickFormat, format) {
-
-    function scale(x) {
-      return linear(x);
-    }
-
-    scale.invert = function(x) {
-      return newDate(linear.invert(x));
-    };
-
-    scale.domain = function(x) {
-      if (!arguments.length) return linear.domain().map(newDate);
-      linear.domain(x);
-      return scale;
-    };
-
-    function tickInterval(interval, start, stop, step) {
-      if (interval == null) interval = 10;
-
-      // If a desired tick count is specified, pick a reasonable tick interval
-      // based on the extent of the domain and a rough estimate of tick size.
-      // If a named interval such as "seconds" was specified, convert to the
-      // corresponding time interval and optionally filter using the step.
-      // Otherwise, assume interval is already a time interval and use it.
-      switch (typeof interval) {
-        case "number": interval = chooseTickInterval(start, stop, interval), step = interval[1], interval = interval[0]; break;
-        case "string": step = step == null ? 1 : Math.floor(step); break;
-        default: return interval;
-      }
-
-      return isFinite(step) && step > 0 ? timeInterval(interval, step) : null;
-    }
-
-    scale.ticks = function(interval, step) {
-      var domain = linear.domain(),
-          t0 = domain[0],
-          t1 = domain[domain.length - 1],
-          t;
-
-      if (t1 < t0) t = t0, t0 = t1, t1 = t;
-
-      return (interval = tickInterval(interval, t0, t1, step))
-          ? interval.range(t0, t1 + 1) // inclusive stop
-          : [];
-    };
-
-    scale.tickFormat = function(specifier) {
-      return specifier == null ? tickFormat : format(specifier);
-    };
-
-    scale.nice = function(interval, step) {
-      var domain = linear.domain(),
-          i0 = 0,
-          i1 = domain.length - 1,
-          t0 = domain[i0],
-          t1 = domain[i1],
-          t;
-
-      if (t1 < t0) {
-        t = i0, i0 = i1, i1 = t;
-        t = t0, t0 = t1, t1 = t;
-      }
-
-      if (interval = tickInterval(interval, t0, t1, step)) {
-        domain[i0] = +interval.floor(t0);
-        domain[i1] = +interval.ceil(t1);
-        linear.domain(domain);
-      }
-
-      return scale;
-    };
-
-    scale.copy = function() {
-      return newTime(linear.copy(), timeInterval, tickFormat, format);
-    };
-
-    return rebind(scale, linear);
-  }
-
-  function scale(x) {
-    var k = 1;
-    while (x * k % 1) k *= 10;
-    return k;
-  }
-
-  function range(start, stop, step) {
-    if ((n = arguments.length) < 3) {
-      step = 1;
-      if (n < 2) {
-        stop = start;
-        start = 0;
-      }
-    }
-
-    var i = -1,
-        n = Math.max(0, Math.ceil((stop - start) / step)) | 0,
-        k = scale(Math.abs(step)),
-        range = new Array(n);
-
-    start *= k;
-    step *= k;
-    while (++i < n) {
-      range[i] = (start + i * step) / k;
-    }
-
-    return range;
-  }
-
-  function millisecond(step) {
-    return {
-      range: function(start, stop) { return range(Math.ceil(start / step) * step, stop, step).map(newDate); },
-      floor: function(date) { return newDate(Math.floor(date / step) * step); },
-      ceil: function(date) { return newDate(Math.ceil(date / step) * step); }
+  }function ascendingComparator(f) {
+    return function(d, x) {
+      return ascending(f(d), x);
     };
   }
 
-  function _timeInterval(interval, step) {
-    switch (interval) {
-      case "milliseconds": return millisecond(step);
-      case "seconds": return step > 1 ? utcSecond.filter(function(d) { return d.getUTCSeconds() % step === 0; }) : utcSecond;
-      case "minutes": return step > 1 ? utcMinute.filter(function(d) { return d.getUTCMinutes() % step === 0; }) : utcMinute;
-      case "hours": return step > 1 ? utcHour.filter(function(d) { return d.getUTCHours() % step === 0; }) : utcHour;
-      case "days": return step > 1 ? utcDay.filter(function(d) { return (d.getUTCDate() - 1) % step === 0; }) : utcDay;
-      case "weeks": return step > 1 ? utcWeek.filter(function(d) { return utcWeek.count(0, d) % step === 0; }) : utcWeek;
-      case "months": return step > 1 ? utcMonth.filter(function(d) { return d.getUTCMonth() % step === 0; }) : utcMonth;
-      case "years": return step > 1 ? utcYear.filter(function(d) { return d.getUTCFullYear() % step === 0; }) : utcYear;
-    }
-  }
+  var ascendingBisect = bisector(ascending);
+  var bisectRight = ascendingBisect.right;
 
   function interpolateNumber(a, b) {
     return a = +a, b -= a, function(t) {
       return a + b * t;
     };
+  }
+
+  function interpolate(a, b) {
+    var i = interpolators.length, f;
+    while (--i >= 0 && !(f = interpolators[i](a, b)));
+    return f;
   }
 
   function interpolateObject(a, b) {
@@ -4517,7 +4490,6 @@ if (typeof Map === "undefined") {
     };
   }
 
-
   // TODO sparse arrays?
   function interpolateArray(a, b) {
     var x = [],
@@ -4537,258 +4509,248 @@ if (typeof Map === "undefined") {
     };
   }
 
-  function _format(r, g, b) {
-    if (isNaN(r)) r = 0;
-    if (isNaN(g)) g = 0;
-    if (isNaN(b)) b = 0;
-    return "#"
-        + (r < 16 ? "0" + r.toString(16) : r.toString(16))
-        + (g < 16 ? "0" + g.toString(16) : g.toString(16))
-        + (b < 16 ? "0" + b.toString(16) : b.toString(16));
-  }
-
-  function Rgb(r, g, b) {
-    this.r = Math.max(0, Math.min(255, Math.round(r)));
-    this.g = Math.max(0, Math.min(255, Math.round(g)));
-    this.b = Math.max(0, Math.min(255, Math.round(b)));
-  }
-
-  function Color() {}
-
-  Color.prototype = {
+  function _Color() {}var _reHex3 = /^#([0-9a-f]{3})$/;
+  var _reHex6 = /^#([0-9a-f]{6})$/;
+  var _reRgbInteger = /^rgb\(\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*\)$/;
+  var _reRgbPercent = /^rgb\(\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
+  var _reHslPercent = /^hsl\(\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
+  _color.prototype = _Color.prototype = {
+    displayable: function() {
+      return this.rgb().displayable();
+    },
     toString: function() {
       return this.rgb() + "";
     }
   };
 
-  var _prototype = Rgb.prototype = new Color;
+  function _color(format) {
+    var m;
+    format = (format + "").trim().toLowerCase();
+    return (m = _reHex3.exec(format)) ? (m = parseInt(m[1], 16), _rgb((m >> 8 & 0xf) | (m >> 4 & 0x0f0), (m >> 4 & 0xf) | (m & 0xf0), ((m & 0xf) << 4) | (m & 0xf))) // #f00
+        : (m = _reHex6.exec(format)) ? _rgbn(parseInt(m[1], 16)) // #ff0000
+        : (m = _reRgbInteger.exec(format)) ? _rgb(m[1], m[2], m[3]) // rgb(255,0,0)
+        : (m = _reRgbPercent.exec(format)) ? _rgb(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100) // rgb(100%,0%,0%)
+        : (m = _reHslPercent.exec(format)) ? _hsl(m[1], m[2] / 100, m[3] / 100) // hsl(120,50%,50%)
+        : _named.hasOwnProperty(format) ? _rgbn(_named[format])
+        : null;
+  }function _rgbn(n) {
+    return _rgb(n >> 16 & 0xff, n >> 8 & 0xff, n & 0xff);
+  }
 
-  var darker = .7;
-
-  _prototype.darker = function(k) {
-    k = k == null ? darker : Math.pow(darker, k);
-    return new Rgb(this.r * k, this.g * k, this.b * k);
+  var _named = {
+    aliceblue: 0xf0f8ff,
+    antiquewhite: 0xfaebd7,
+    aqua: 0x00ffff,
+    aquamarine: 0x7fffd4,
+    azure: 0xf0ffff,
+    beige: 0xf5f5dc,
+    bisque: 0xffe4c4,
+    black: 0x000000,
+    blanchedalmond: 0xffebcd,
+    blue: 0x0000ff,
+    blueviolet: 0x8a2be2,
+    brown: 0xa52a2a,
+    burlywood: 0xdeb887,
+    cadetblue: 0x5f9ea0,
+    chartreuse: 0x7fff00,
+    chocolate: 0xd2691e,
+    coral: 0xff7f50,
+    cornflowerblue: 0x6495ed,
+    cornsilk: 0xfff8dc,
+    crimson: 0xdc143c,
+    cyan: 0x00ffff,
+    darkblue: 0x00008b,
+    darkcyan: 0x008b8b,
+    darkgoldenrod: 0xb8860b,
+    darkgray: 0xa9a9a9,
+    darkgreen: 0x006400,
+    darkgrey: 0xa9a9a9,
+    darkkhaki: 0xbdb76b,
+    darkmagenta: 0x8b008b,
+    darkolivegreen: 0x556b2f,
+    darkorange: 0xff8c00,
+    darkorchid: 0x9932cc,
+    darkred: 0x8b0000,
+    darksalmon: 0xe9967a,
+    darkseagreen: 0x8fbc8f,
+    darkslateblue: 0x483d8b,
+    darkslategray: 0x2f4f4f,
+    darkslategrey: 0x2f4f4f,
+    darkturquoise: 0x00ced1,
+    darkviolet: 0x9400d3,
+    deeppink: 0xff1493,
+    deepskyblue: 0x00bfff,
+    dimgray: 0x696969,
+    dimgrey: 0x696969,
+    dodgerblue: 0x1e90ff,
+    firebrick: 0xb22222,
+    floralwhite: 0xfffaf0,
+    forestgreen: 0x228b22,
+    fuchsia: 0xff00ff,
+    gainsboro: 0xdcdcdc,
+    ghostwhite: 0xf8f8ff,
+    gold: 0xffd700,
+    goldenrod: 0xdaa520,
+    gray: 0x808080,
+    green: 0x008000,
+    greenyellow: 0xadff2f,
+    grey: 0x808080,
+    honeydew: 0xf0fff0,
+    hotpink: 0xff69b4,
+    indianred: 0xcd5c5c,
+    indigo: 0x4b0082,
+    ivory: 0xfffff0,
+    khaki: 0xf0e68c,
+    lavender: 0xe6e6fa,
+    lavenderblush: 0xfff0f5,
+    lawngreen: 0x7cfc00,
+    lemonchiffon: 0xfffacd,
+    lightblue: 0xadd8e6,
+    lightcoral: 0xf08080,
+    lightcyan: 0xe0ffff,
+    lightgoldenrodyellow: 0xfafad2,
+    lightgray: 0xd3d3d3,
+    lightgreen: 0x90ee90,
+    lightgrey: 0xd3d3d3,
+    lightpink: 0xffb6c1,
+    lightsalmon: 0xffa07a,
+    lightseagreen: 0x20b2aa,
+    lightskyblue: 0x87cefa,
+    lightslategray: 0x778899,
+    lightslategrey: 0x778899,
+    lightsteelblue: 0xb0c4de,
+    lightyellow: 0xffffe0,
+    lime: 0x00ff00,
+    limegreen: 0x32cd32,
+    linen: 0xfaf0e6,
+    magenta: 0xff00ff,
+    maroon: 0x800000,
+    mediumaquamarine: 0x66cdaa,
+    mediumblue: 0x0000cd,
+    mediumorchid: 0xba55d3,
+    mediumpurple: 0x9370db,
+    mediumseagreen: 0x3cb371,
+    mediumslateblue: 0x7b68ee,
+    mediumspringgreen: 0x00fa9a,
+    mediumturquoise: 0x48d1cc,
+    mediumvioletred: 0xc71585,
+    midnightblue: 0x191970,
+    mintcream: 0xf5fffa,
+    mistyrose: 0xffe4e1,
+    moccasin: 0xffe4b5,
+    navajowhite: 0xffdead,
+    navy: 0x000080,
+    oldlace: 0xfdf5e6,
+    olive: 0x808000,
+    olivedrab: 0x6b8e23,
+    orange: 0xffa500,
+    orangered: 0xff4500,
+    orchid: 0xda70d6,
+    palegoldenrod: 0xeee8aa,
+    palegreen: 0x98fb98,
+    paleturquoise: 0xafeeee,
+    palevioletred: 0xdb7093,
+    papayawhip: 0xffefd5,
+    peachpuff: 0xffdab9,
+    peru: 0xcd853f,
+    pink: 0xffc0cb,
+    plum: 0xdda0dd,
+    powderblue: 0xb0e0e6,
+    purple: 0x800080,
+    rebeccapurple: 0x663399,
+    red: 0xff0000,
+    rosybrown: 0xbc8f8f,
+    royalblue: 0x4169e1,
+    saddlebrown: 0x8b4513,
+    salmon: 0xfa8072,
+    sandybrown: 0xf4a460,
+    seagreen: 0x2e8b57,
+    seashell: 0xfff5ee,
+    sienna: 0xa0522d,
+    silver: 0xc0c0c0,
+    skyblue: 0x87ceeb,
+    slateblue: 0x6a5acd,
+    slategray: 0x708090,
+    slategrey: 0x708090,
+    snow: 0xfffafa,
+    springgreen: 0x00ff7f,
+    steelblue: 0x4682b4,
+    tan: 0xd2b48c,
+    teal: 0x008080,
+    thistle: 0xd8bfd8,
+    tomato: 0xff6347,
+    turquoise: 0x40e0d0,
+    violet: 0xee82ee,
+    wheat: 0xf5deb3,
+    white: 0xffffff,
+    whitesmoke: 0xf5f5f5,
+    yellow: 0xffff00,
+    yellowgreen: 0x9acd32
   };
 
-  var brighter = 1 / darker;
+  var _darker = .7;
+  var _brighter = 1 / _darker;
 
-  _prototype.brighter = function(k) {
-    k = k == null ? brighter : Math.pow(brighter, k);
-    return new Rgb(this.r * k, this.g * k, this.b * k);
+  function _rgb(r, g, b) {
+    if (arguments.length === 1) {
+      if (!(r instanceof _Color)) r = _color(r);
+      if (r) {
+        r = r.rgb();
+        b = r.b;
+        g = r.g;
+        r = r.r;
+      } else {
+        r = g = b = NaN;
+      }
+    }
+    return new _Rgb(r, g, b);
+  }function _Rgb(r, g, b) {
+    this.r = +r;
+    this.g = +g;
+    this.b = +b;
+  }var _________prototype = _rgb.prototype = _Rgb.prototype = new _Color;
+
+  _________prototype.brighter = function(k) {
+    k = k == null ? _brighter : Math.pow(_brighter, k);
+    return new _Rgb(this.r * k, this.g * k, this.b * k);
   };
 
-  _prototype.rgb = function() {
+  _________prototype.darker = function(k) {
+    k = k == null ? _darker : Math.pow(_darker, k);
+    return new _Rgb(this.r * k, this.g * k, this.b * k);
+  };
+
+  _________prototype.rgb = function() {
     return this;
   };
 
-  _prototype.toString = function() {
-    return _format(this.r, this.g, this.b);
+  _________prototype.displayable = function() {
+    return (0 <= this.r && this.r <= 255)
+        && (0 <= this.g && this.g <= 255)
+        && (0 <= this.b && this.b <= 255);
   };
 
-  var named = (new Map)
-      .set("aliceblue", 0xf0f8ff)
-      .set("antiquewhite", 0xfaebd7)
-      .set("aqua", 0x00ffff)
-      .set("aquamarine", 0x7fffd4)
-      .set("azure", 0xf0ffff)
-      .set("beige", 0xf5f5dc)
-      .set("bisque", 0xffe4c4)
-      .set("black", 0x000000)
-      .set("blanchedalmond", 0xffebcd)
-      .set("blue", 0x0000ff)
-      .set("blueviolet", 0x8a2be2)
-      .set("brown", 0xa52a2a)
-      .set("burlywood", 0xdeb887)
-      .set("cadetblue", 0x5f9ea0)
-      .set("chartreuse", 0x7fff00)
-      .set("chocolate", 0xd2691e)
-      .set("coral", 0xff7f50)
-      .set("cornflowerblue", 0x6495ed)
-      .set("cornsilk", 0xfff8dc)
-      .set("crimson", 0xdc143c)
-      .set("cyan", 0x00ffff)
-      .set("darkblue", 0x00008b)
-      .set("darkcyan", 0x008b8b)
-      .set("darkgoldenrod", 0xb8860b)
-      .set("darkgray", 0xa9a9a9)
-      .set("darkgreen", 0x006400)
-      .set("darkgrey", 0xa9a9a9)
-      .set("darkkhaki", 0xbdb76b)
-      .set("darkmagenta", 0x8b008b)
-      .set("darkolivegreen", 0x556b2f)
-      .set("darkorange", 0xff8c00)
-      .set("darkorchid", 0x9932cc)
-      .set("darkred", 0x8b0000)
-      .set("darksalmon", 0xe9967a)
-      .set("darkseagreen", 0x8fbc8f)
-      .set("darkslateblue", 0x483d8b)
-      .set("darkslategray", 0x2f4f4f)
-      .set("darkslategrey", 0x2f4f4f)
-      .set("darkturquoise", 0x00ced1)
-      .set("darkviolet", 0x9400d3)
-      .set("deeppink", 0xff1493)
-      .set("deepskyblue", 0x00bfff)
-      .set("dimgray", 0x696969)
-      .set("dimgrey", 0x696969)
-      .set("dodgerblue", 0x1e90ff)
-      .set("firebrick", 0xb22222)
-      .set("floralwhite", 0xfffaf0)
-      .set("forestgreen", 0x228b22)
-      .set("fuchsia", 0xff00ff)
-      .set("gainsboro", 0xdcdcdc)
-      .set("ghostwhite", 0xf8f8ff)
-      .set("gold", 0xffd700)
-      .set("goldenrod", 0xdaa520)
-      .set("gray", 0x808080)
-      .set("green", 0x008000)
-      .set("greenyellow", 0xadff2f)
-      .set("grey", 0x808080)
-      .set("honeydew", 0xf0fff0)
-      .set("hotpink", 0xff69b4)
-      .set("indianred", 0xcd5c5c)
-      .set("indigo", 0x4b0082)
-      .set("ivory", 0xfffff0)
-      .set("khaki", 0xf0e68c)
-      .set("lavender", 0xe6e6fa)
-      .set("lavenderblush", 0xfff0f5)
-      .set("lawngreen", 0x7cfc00)
-      .set("lemonchiffon", 0xfffacd)
-      .set("lightblue", 0xadd8e6)
-      .set("lightcoral", 0xf08080)
-      .set("lightcyan", 0xe0ffff)
-      .set("lightgoldenrodyellow", 0xfafad2)
-      .set("lightgray", 0xd3d3d3)
-      .set("lightgreen", 0x90ee90)
-      .set("lightgrey", 0xd3d3d3)
-      .set("lightpink", 0xffb6c1)
-      .set("lightsalmon", 0xffa07a)
-      .set("lightseagreen", 0x20b2aa)
-      .set("lightskyblue", 0x87cefa)
-      .set("lightslategray", 0x778899)
-      .set("lightslategrey", 0x778899)
-      .set("lightsteelblue", 0xb0c4de)
-      .set("lightyellow", 0xffffe0)
-      .set("lime", 0x00ff00)
-      .set("limegreen", 0x32cd32)
-      .set("linen", 0xfaf0e6)
-      .set("magenta", 0xff00ff)
-      .set("maroon", 0x800000)
-      .set("mediumaquamarine", 0x66cdaa)
-      .set("mediumblue", 0x0000cd)
-      .set("mediumorchid", 0xba55d3)
-      .set("mediumpurple", 0x9370db)
-      .set("mediumseagreen", 0x3cb371)
-      .set("mediumslateblue", 0x7b68ee)
-      .set("mediumspringgreen", 0x00fa9a)
-      .set("mediumturquoise", 0x48d1cc)
-      .set("mediumvioletred", 0xc71585)
-      .set("midnightblue", 0x191970)
-      .set("mintcream", 0xf5fffa)
-      .set("mistyrose", 0xffe4e1)
-      .set("moccasin", 0xffe4b5)
-      .set("navajowhite", 0xffdead)
-      .set("navy", 0x000080)
-      .set("oldlace", 0xfdf5e6)
-      .set("olive", 0x808000)
-      .set("olivedrab", 0x6b8e23)
-      .set("orange", 0xffa500)
-      .set("orangered", 0xff4500)
-      .set("orchid", 0xda70d6)
-      .set("palegoldenrod", 0xeee8aa)
-      .set("palegreen", 0x98fb98)
-      .set("paleturquoise", 0xafeeee)
-      .set("palevioletred", 0xdb7093)
-      .set("papayawhip", 0xffefd5)
-      .set("peachpuff", 0xffdab9)
-      .set("peru", 0xcd853f)
-      .set("pink", 0xffc0cb)
-      .set("plum", 0xdda0dd)
-      .set("powderblue", 0xb0e0e6)
-      .set("purple", 0x800080)
-      .set("rebeccapurple", 0x663399)
-      .set("red", 0xff0000)
-      .set("rosybrown", 0xbc8f8f)
-      .set("royalblue", 0x4169e1)
-      .set("saddlebrown", 0x8b4513)
-      .set("salmon", 0xfa8072)
-      .set("sandybrown", 0xf4a460)
-      .set("seagreen", 0x2e8b57)
-      .set("seashell", 0xfff5ee)
-      .set("sienna", 0xa0522d)
-      .set("silver", 0xc0c0c0)
-      .set("skyblue", 0x87ceeb)
-      .set("slateblue", 0x6a5acd)
-      .set("slategray", 0x708090)
-      .set("slategrey", 0x708090)
-      .set("snow", 0xfffafa)
-      .set("springgreen", 0x00ff7f)
-      .set("steelblue", 0x4682b4)
-      .set("tan", 0xd2b48c)
-      .set("teal", 0x008080)
-      .set("thistle", 0xd8bfd8)
-      .set("tomato", 0xff6347)
-      .set("turquoise", 0x40e0d0)
-      .set("violet", 0xee82ee)
-      .set("wheat", 0xf5deb3)
-      .set("white", 0xffffff)
-      .set("whitesmoke", 0xf5f5f5)
-      .set("yellow", 0xffff00)
-      .set("yellowgreen", 0x9acd32);
+  _________prototype.toString = function() {
+    return ___format(this.r, this.g, this.b);
+  };
 
-  function rgbn(n) {
-    return rgb(n >> 16 & 0xff, n >> 8 & 0xff, n & 0xff);
+  function ___format(r, g, b) {
+    return "#"
+        + (isNaN(r) ? "00" : (r = Math.round(r)) < 16 ? "0" + Math.max(0, r).toString(16) : Math.min(255, r).toString(16))
+        + (isNaN(g) ? "00" : (g = Math.round(g)) < 16 ? "0" + Math.max(0, g).toString(16) : Math.min(255, g).toString(16))
+        + (isNaN(b) ? "00" : (b = Math.round(b)) < 16 ? "0" + Math.max(0, b).toString(16) : Math.min(255, b).toString(16));
   }
 
-  function Hsl(h, s, l) {
-    this.h = +h;
-    this.s = Math.max(0, Math.min(1, +s));
-    this.l = Math.max(0, Math.min(1, +l));
-  }
-
-  var prototype = Hsl.prototype = new Color;
-
-  prototype.brighter = function(k) {
-    k = k == null ? brighter : Math.pow(brighter, k);
-    return new Hsl(this.h, this.s, this.l * k);
-  };
-
-  prototype.darker = function(k) {
-    k = k == null ? darker : Math.pow(darker, k);
-    return new Hsl(this.h, this.s, this.l * k);
-  };
-
-
-  /* From FvD 13.37, CSS Color Module Level 3 */
-  function hsl2rgb(h, m1, m2) {
-    return (h < 60 ? m1 + (m2 - m1) * h / 60
-        : h < 180 ? m2
-        : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60
-        : m1) * 255;
-  }
-
-  prototype.rgb = function() {
-    var h = this.h % 360 + (this.h < 0) * 360,
-        s = isNaN(h) || isNaN(this.s) ? 0 : this.s,
-        l = this.l,
-        m2 = l <= .5 ? l * (1 + s) : l + s - l * s,
-        m1 = 2 * l - m2;
-    return new Rgb(
-      hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2),
-      hsl2rgb(h, m1, m2),
-      hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2)
-    );
-  };
-
-  function hsl(h, s, l) {
+  function _hsl(h, s, l) {
     if (arguments.length === 1) {
-      if (h instanceof Hsl) {
+      if (h instanceof _Hsl) {
         l = h.l;
         s = h.s;
         h = h.h;
       } else {
-        if (!(h instanceof Color)) h = color(h);
+        if (!(h instanceof _Color)) h = _color(h);
         if (h) {
-          if (h instanceof Hsl) return h;
+          if (h instanceof _Hsl) return h;
           h = h.rgb();
           var r = h.r / 255,
               g = h.g / 255,
@@ -4812,49 +4774,109 @@ if (typeof Map === "undefined") {
         }
       }
     }
-    return new Hsl(h, s, l);
+    return new _Hsl(h, s, l);
+  }function _Hsl(h, s, l) {
+    this.h = +h;
+    this.s = +s;
+    this.l = +l;
+  }var ________prototype = _hsl.prototype = _Hsl.prototype = new _Color;
+
+  ________prototype.brighter = function(k) {
+    k = k == null ? _brighter : Math.pow(_brighter, k);
+    return new _Hsl(this.h, this.s, this.l * k);
+  };
+
+  ________prototype.darker = function(k) {
+    k = k == null ? _darker : Math.pow(_darker, k);
+    return new _Hsl(this.h, this.s, this.l * k);
+  };
+
+  ________prototype.rgb = function() {
+    var h = this.h % 360 + (this.h < 0) * 360,
+        s = isNaN(h) || isNaN(this.s) ? 0 : this.s,
+        l = this.l,
+        m2 = l + (l < .5 ? l : 1 - l) * s,
+        m1 = 2 * l - m2;
+    return new _Rgb(
+      _hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2),
+      _hsl2rgb(h, m1, m2),
+      _hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2)
+    );
+  };
+
+  ________prototype.displayable = function() {
+    return (0 <= this.s && this.s <= 1 || isNaN(this.s))
+        && (0 <= this.l && this.l <= 1);
+  };
+
+  /* From FvD 13.37, CSS Color Module Level 3 */
+  function _hsl2rgb(h, m1, m2) {
+    return (h < 60 ? m1 + (m2 - m1) * h / 60
+        : h < 180 ? m2
+        : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60
+        : m1) * 255;
   }
 
-  var reHslPercent = /^hsl\(\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
+  var _deg2rad = Math.PI / 180;
+  var __rad2deg = 180 / Math.PI;
 
-  var reRgbPercent = /^rgb\(\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
-
-  var reRgbInteger = /^rgb\(\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*\)$/;
-
-  var reHex6 = /^#([0-9a-f]{6})$/;
-
-  var reHex3 = /^#([0-9a-f]{3})$/;
-
-  function color(format) {
-    var m;
-    format = (format + "").trim().toLowerCase();
-    return (m = reHex3.exec(format)) ? (m = parseInt(m[1], 16), rgb((m >> 8 & 0xf) | (m >> 4 & 0x0f0), (m >> 4 & 0xf) | (m & 0xf0), ((m & 0xf) << 4) | (m & 0xf))) // #f00
-        : (m = reHex6.exec(format)) ? rgbn(parseInt(m[1], 16)) // #ff0000
-        : (m = reRgbInteger.exec(format)) ? rgb(m[1], m[2], m[3]) // rgb(255,0,0)
-        : (m = reRgbPercent.exec(format)) ? rgb(m[1] * 2.55, m[2] * 2.55, m[3] * 2.55) // rgb(100%,0%,0%)
-        : (m = reHslPercent.exec(format)) ? hsl(m[1], m[2] * .01, m[3] * .01) // hsl(120,50%,50%)
-        : named.has(format) ? rgbn(named.get(format))
-        : null;
-  }
-
-  function rgb(r, g, b) {
+  var _A = -0.14861;
+  var _B = +1.78277;
+  var _C = -0.29227;
+  var _D = -0.90649;
+  var _E = +1.97294;
+  var _ED = _E * _D;
+  var _EB = _E * _B;
+  var _BC_DA = _B * _C - _D * _A;
+  function _cubehelix(h, s, l) {
     if (arguments.length === 1) {
-      if (!(r instanceof Color)) r = color(r);
-      if (r) {
-        r = r.rgb();
-        b = r.b;
-        g = r.g;
-        r = r.r;
+      if (h instanceof _Cubehelix) {
+        l = h.l;
+        s = h.s;
+        h = h.h;
       } else {
-        r = g = b = NaN;
+        if (!(h instanceof _Rgb)) h = _rgb(h);
+        var r = h.r / 255, g = h.g / 255, b = h.b / 255;
+        l = (_BC_DA * b + _ED * r - _EB * g) / (_BC_DA + _ED - _EB);
+        var bl = b - l, k = (_E * (g - l) - _C * bl) / _D;
+        s = Math.sqrt(k * k + bl * bl) / (_E * l * (1 - l)); // NaN if l=0 or l=1
+        h = s ? Math.atan2(k, bl) * __rad2deg - 120 : NaN;
+        if (h < 0) h += 360;
       }
     }
-    return new Rgb(r, g, b);
-  }
+    return new _Cubehelix(h, s, l);
+  }function _Cubehelix(h, s, l) {
+    this.h = +h;
+    this.s = +s;
+    this.l = +l;
+  }var _____prototype = _cubehelix.prototype = _Cubehelix.prototype = new _Color;
+
+  _____prototype.brighter = function(k) {
+    k = k == null ? _brighter : Math.pow(_brighter, k);
+    return new _Cubehelix(this.h, this.s, this.l * k);
+  };
+
+  _____prototype.darker = function(k) {
+    k = k == null ? _darker : Math.pow(_darker, k);
+    return new _Cubehelix(this.h, this.s, this.l * k);
+  };
+
+  _____prototype.rgb = function() {
+    var h = isNaN(this.h) ? 0 : (this.h + 120) * _deg2rad,
+        l = +this.l,
+        a = isNaN(this.s) ? 0 : this.s * l * (1 - l),
+        cosh = Math.cos(h),
+        sinh = Math.sin(h);
+    return new _Rgb(
+      255 * (l + a * (_A * cosh + _B * sinh)),
+      255 * (l + a * (_C * cosh + _D * sinh)),
+      255 * (l + a * (_E * cosh))
+    );
+  };
 
   function interpolateRgb(a, b) {
-    a = rgb(a);
-    b = rgb(b);
+    a = _rgb(a);
+    b = _rgb(b);
     var ar = a.r,
         ag = a.g,
         ab = a.b,
@@ -4862,10 +4884,12 @@ if (typeof Map === "undefined") {
         bg = b.g - ag,
         bb = b.b - ab;
     return function(t) {
-      return _format(Math.round(ar + br * t), Math.round(ag + bg * t), Math.round(ab + bb * t));
+      return ___format(Math.round(ar + br * t), Math.round(ag + bg * t), Math.round(ab + bb * t));
     };
   }
 
+  var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g;
+  var reB = new RegExp(reA.source, "g");
   function interpolate0(b) {
     return function() {
       return b;
@@ -4877,9 +4901,6 @@ if (typeof Map === "undefined") {
       return b(t) + "";
     };
   }
-
-  var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g;
-  var reB = new RegExp(reA.source, "g");
 
   function interpolateString(a, b) {
     var bi = reA.lastIndex = reB.lastIndex = 0, // scan index for next number in b
@@ -4932,18 +4953,48 @@ if (typeof Map === "undefined") {
   var interpolators = [
     function(a, b) {
       var t = typeof b, c;
-      return (t === "string" ? ((c = color(b)) ? (b = c, interpolateRgb) : interpolateString)
-          : b instanceof color ? interpolateRgb
+      return (t === "string" ? ((c = _color(b)) ? (b = c, interpolateRgb) : interpolateString)
+          : b instanceof _color ? interpolateRgb
           : Array.isArray(b) ? interpolateArray
           : t === "object" && isNaN(b) ? interpolateObject
           : interpolateNumber)(a, b);
     }
   ];
 
-  function interpolate(a, b) {
-    var i = interpolators.length, f;
-    while (--i >= 0 && !(f = interpolators[i](a, b)));
-    return f;
+  function interpolateRound(a, b) {
+    return a = +a, b -= a, function(t) {
+      return Math.round(a + b * t);
+    };
+  }
+
+  var e10 = Math.sqrt(50);
+  var e5 = Math.sqrt(10);
+  var e2 = Math.sqrt(2);
+  function tickRange(domain, count) {
+    if (count == null) count = 10;
+
+    var start = domain[0],
+        stop = domain[domain.length - 1];
+
+    if (stop < start) error = stop, stop = start, start = error;
+
+    var span = stop - start,
+        step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10)),
+        error = span / count / step;
+
+    // Filter ticks to get closer to the desired count.
+    if (error >= e10) step *= 10;
+    else if (error >= e5) step *= 5;
+    else if (error >= e2) step *= 2;
+
+    // Round start and stop values to step interval.
+    return [
+      Math.ceil(start / step) * step,
+      Math.floor(stop / step) * step + step / 2, // inclusive
+      step
+    ];
+  }function ticks(domain, count) {
+    return _range.apply(null, tickRange(domain, count));
   }
 
   function nice(domain, step) {
@@ -4966,8 +5017,12 @@ if (typeof Map === "undefined") {
     return domain;
   }
 
-  var prefixes = ["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];
-
+  var _enUs = {
+    decimal: ".",
+    thousands: ",",
+    grouping: [3],
+    currency: ["$", ""]
+  };
 
   // Computes the decimal coefficient and exponent of the specified number x with
   // significant digits p, where x is positive and p is in [1, 21] or undefined.
@@ -4984,7 +5039,7 @@ if (typeof Map === "undefined") {
     ];
   }
 
-  function exponent(x) {
+  function _exponent(x) {
     return x = formatDecimal(Math.abs(x)), x ? x[1] : NaN;
   }
 
@@ -5045,11 +5100,12 @@ if (typeof Map === "undefined") {
     "x": function(x) { return Math.round(x).toString(16); }
   };
 
-
   // [[fill]align][sign][symbol][0][width][,][.precision][type]
   var re = /^(?:(.)?([<>=^]))?([+\-\( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?([a-z%])?$/i;
 
-  function FormatSpecifier(specifier) {
+  function formatSpecifier(specifier) {
+    return new FormatSpecifier(specifier);
+  }function FormatSpecifier(specifier) {
     if (!(match = re.exec(specifier))) throw new Error("invalid format: " + specifier);
 
     var match,
@@ -5095,14 +5151,6 @@ if (typeof Map === "undefined") {
         + this.type;
   };
 
-  function formatSpecifier(specifier) {
-    return new FormatSpecifier(specifier);
-  }
-
-  function _identity(x) {
-    return x;
-  }
-
   function formatGroup(grouping, thousands) {
     return function(value, width) {
       var i = value.length,
@@ -5122,8 +5170,14 @@ if (typeof Map === "undefined") {
     };
   }
 
-  function localeFormat(locale) {
-    var group = locale.grouping && locale.thousands ? formatGroup(locale.grouping, locale.thousands) : _identity,
+  var prefixes = ["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];
+
+  function identity(x) {
+    return x;
+  }
+
+  function __locale(locale) {
+    var group = locale.grouping && locale.thousands ? formatGroup(locale.grouping, locale.thousands) : identity,
         currency = locale.currency,
         decimal = locale.decimal;
 
@@ -5216,7 +5270,7 @@ if (typeof Map === "undefined") {
 
     function formatPrefix(specifier, value) {
       var f = format((specifier = formatSpecifier(specifier), specifier.type = "f", specifier)),
-          e = Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3,
+          e = Math.max(-8, Math.min(8, Math.floor(_exponent(value) / 3))) * 3,
           k = Math.pow(10, -e),
           prefix = prefixes[8 + e / 3];
       return function(value) {
@@ -5230,28 +5284,21 @@ if (typeof Map === "undefined") {
     };
   }
 
-  var locale = localeFormat({
-    decimal: ".",
-    thousands: ",",
-    grouping: [3],
-    currency: ["$", ""]
-  });
-
-  var __format = locale.format;
-
-  function precisionFixed(step) {
-    return Math.max(0, -exponent(Math.abs(step)));
-  }
-
   function precisionRound(step, max) {
-    return Math.max(0, exponent(Math.abs(max)) - exponent(Math.abs(step))) + 1;
+    return Math.max(0, _exponent(Math.abs(max)) - _exponent(Math.abs(step))) + 1;
   }
-
-  var formatPrefix = locale.formatPrefix;
 
   function precisionPrefix(step, value) {
-    return Math.max(0, Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3 - exponent(Math.abs(step)));
+    return Math.max(0, Math.max(-8, Math.min(8, Math.floor(_exponent(value) / 3))) * 3 - _exponent(Math.abs(step)));
   }
+
+  function precisionFixed(step) {
+    return Math.max(0, -_exponent(Math.abs(step)));
+  }
+
+  var defaultLocale = __locale(_enUs);
+  var __format = defaultLocale.format;
+  var formatPrefix = defaultLocale.formatPrefix;
 
   function __tickFormat(domain, count, specifier) {
     var range = tickRange(domain, count);
@@ -5282,13 +5329,10 @@ if (typeof Map === "undefined") {
     return __format(specifier);
   }
 
-  function ticks(domain, count) {
-    return range.apply(null, tickRange(domain, count));
-  }
-
-  function interpolateRound(a, b) {
-    return a = +a, b -= a, function(t) {
-      return Math.round(a + b * t);
+  function uninterpolateClamp(a, b) {
+    b = (b -= a = +a) || 1 / b;
+    return function(x) {
+      return Math.max(0, Math.min(1, (x - a) / b));
     };
   }
 
@@ -5299,13 +5343,6 @@ if (typeof Map === "undefined") {
     };
   }
 
-  function uninterpolateClamp(a, b) {
-    b = (b -= a = +a) || 1 / b;
-    return function(x) {
-      return Math.max(0, Math.min(1, (x - a) / b));
-    };
-  }
-
   function bilinear(domain, range, uninterpolate, interpolate) {
     var u = uninterpolate(domain[0], domain[1]),
         i = interpolate(range[0], range[1]);
@@ -5313,11 +5350,6 @@ if (typeof Map === "undefined") {
       return i(u(x));
     };
   }
-
-  var ascendingBisect = bisector(ascending);
-  var bisectRight = ascendingBisect.right;
-
-  var bisect = bisectRight;
 
   function polylinear(domain, range, uninterpolate, interpolate) {
     var k = Math.min(domain.length, range.length) - 1,
@@ -5337,7 +5369,7 @@ if (typeof Map === "undefined") {
     }
 
     return function(x) {
-      var j = bisect(domain, x, 1, k) - 1;
+      var j = bisectRight(domain, x, 1, k) - 1;
       return i[j](u[j](x));
     };
   }
@@ -5410,98 +5442,233 @@ if (typeof Map === "undefined") {
     return rescale();
   }
 
-  function linear() {
+  function rebind(scale, linear) {
+    scale.range = function() {
+      var x = linear.range.apply(linear, arguments);
+      return x === linear ? scale : x;
+    };
+
+    scale.rangeRound = function() {
+      var x = linear.rangeRound.apply(linear, arguments);
+      return x === linear ? scale : x;
+    };
+
+    scale.clamp = function() {
+      var x = linear.clamp.apply(linear, arguments);
+      return x === linear ? scale : x;
+    };
+
+    scale.interpolate = function() {
+      var x = linear.interpolate.apply(linear, arguments);
+      return x === linear ? scale : x;
+    };
+
+    return scale;
+  }function _linear() {
     return newLinear([0, 1], [0, 1], interpolate, false);
   }
 
-  function utcTime() {
-    return newTime(linear(), _timeInterval, _tickFormat, utcFormat).domain([Date.UTC(2000, 0, 1), Date.UTC(2000, 0, 2)]);
+  function _newDate(t) {
+    return new Date(t);
   }
 
-  var format = _locale.format;
+  function newTime(linear, timeInterval, tickFormat, format) {
 
-  var formatYear = format("%Y");
+    function scale(x) {
+      return linear(x);
+    }
 
-  var formatMonth = format("%B");
+    scale.invert = function(x) {
+      return _newDate(linear.invert(x));
+    };
 
-  var formatWeek = format("%b %d");
+    scale.domain = function(x) {
+      if (!arguments.length) return linear.domain().map(_newDate);
+      linear.domain(x);
+      return scale;
+    };
 
-  var formatDay = format("%a %d");
+    function tickInterval(interval, start, stop, step) {
+      if (interval == null) interval = 10;
 
-  var week = sunday;
+      // If a desired tick count is specified, pick a reasonable tick interval
+      // based on the extent of the domain and a rough estimate of tick size.
+      // If a named interval such as "seconds" was specified, convert to the
+      // corresponding time interval and optionally filter using the step.
+      // Otherwise, assume interval is already a time interval and use it.
+      switch (typeof interval) {
+        case "number": interval = chooseTickInterval(start, stop, interval), step = interval[1], interval = interval[0]; break;
+        case "string": step = step == null ? 1 : Math.floor(step); break;
+        default: return interval;
+      }
 
-  var month = newInterval(function(date) {
-    date.setHours(0, 0, 0, 0);
-    date.setDate(1);
-  }, function(date, step) {
-    date.setMonth(date.getMonth() + step);
-  }, function(start, end) {
-    return end.getMonth() - start.getMonth() + (end.getFullYear() - start.getFullYear()) * 12;
-  });
+      return isFinite(step) && step > 0 ? timeInterval(interval, step) : null;
+    }
 
-  var formatHour = format("%I %p");
+    scale.ticks = function(interval, step) {
+      var domain = linear.domain(),
+          t0 = domain[0],
+          t1 = domain[domain.length - 1],
+          t;
 
-  var formatMinute = format("%I:%M");
+      if (t1 < t0) t = t0, t0 = t1, t1 = t;
 
-  var hour = newInterval(function(date) {
-    date.setMinutes(0, 0, 0);
-  }, function(date, step) {
-    date.setTime(+date + step * 36e5);
-  }, function(start, end) {
-    return (end - start) / 36e5;
-  });
+      return (interval = tickInterval(interval, t0, t1, step))
+          ? interval.range(t0, t1 + 1) // inclusive stop
+          : [];
+    };
 
-  var formatSecond = format(":%S");
+    scale.tickFormat = function(specifier) {
+      return specifier == null ? tickFormat : format(specifier);
+    };
 
-  var minute = newInterval(function(date) {
-    date.setSeconds(0, 0);
-  }, function(date, step) {
-    date.setTime(+date + step * 6e4);
-  }, function(start, end) {
-    return (end - start) / 6e4;
-  });
+    scale.nice = function(interval, step) {
+      var domain = linear.domain(),
+          i0 = 0,
+          i1 = domain.length - 1,
+          t0 = domain[i0],
+          t1 = domain[i1],
+          t;
 
-  var formatMillisecond = format(".%L");
+      if (t1 < t0) {
+        t = i0, i0 = i1, i1 = t;
+        t = t0, t0 = t1, t1 = t;
+      }
 
-  var second = newInterval(function(date) {
-    date.setMilliseconds(0);
-  }, function(date, step) {
-    date.setTime(+date + step * 1e3);
-  }, function(start, end) {
-    return (end - start) / 1e3;
-  });
+      if (interval = tickInterval(interval, t0, t1, step)) {
+        domain[i0] = +interval.floor(t0);
+        domain[i1] = +interval.ceil(t1);
+        linear.domain(domain);
+      }
 
-  function tickFormat(date) {
+      return scale;
+    };
+
+    scale.copy = function() {
+      return newTime(linear.copy(), timeInterval, tickFormat, format);
+    };
+
+    return rebind(scale, linear);
+  }var millisecondsPerSecond = 1000;
+  var millisecondsPerMinute = millisecondsPerSecond * 60;
+  var millisecondsPerHour = millisecondsPerMinute * 60;
+  var millisecondsPerDay = millisecondsPerHour * 24;
+  var millisecondsPerWeek = millisecondsPerDay * 7;
+  var millisecondsPerMonth = millisecondsPerDay * 30;
+  var millisecondsPerYear = millisecondsPerDay * 365;
+  var tickIntervals = [
+    ["seconds",  1,      millisecondsPerSecond],
+    ["seconds",  5,  5 * millisecondsPerSecond],
+    ["seconds", 15, 15 * millisecondsPerSecond],
+    ["seconds", 30, 30 * millisecondsPerSecond],
+    ["minutes",  1,      millisecondsPerMinute],
+    ["minutes",  5,  5 * millisecondsPerMinute],
+    ["minutes", 15, 15 * millisecondsPerMinute],
+    ["minutes", 30, 30 * millisecondsPerMinute],
+    [  "hours",  1,      millisecondsPerHour  ],
+    [  "hours",  3,  3 * millisecondsPerHour  ],
+    [  "hours",  6,  6 * millisecondsPerHour  ],
+    [  "hours", 12, 12 * millisecondsPerHour  ],
+    [   "days",  1,      millisecondsPerDay   ],
+    [   "days",  2,  2 * millisecondsPerDay   ],
+    [  "weeks",  1,      millisecondsPerWeek  ],
+    [ "months",  1,      millisecondsPerMonth ],
+    [ "months",  3,  3 * millisecondsPerMonth ],
+    [  "years",  1,      millisecondsPerYear  ]
+  ];
+
+  var bisectTickIntervals = bisector(function(method) {
+    return method[2];
+  }).right;
+
+  function chooseTickInterval(start, stop, count) {
+    var target = Math.abs(stop - start) / count,
+        i = bisectTickIntervals(tickIntervals, target);
+    return i === tickIntervals.length ? ["years", tickRange([start / millisecondsPerYear, stop / millisecondsPerYear], count)[2]]
+        : i ? tickIntervals[target / tickIntervals[i - 1][2] < tickIntervals[i][2] / target ? i - 1 : i]
+        : ["milliseconds", tickRange([start, stop], count)[2]];
+  }
+
+  var formatMillisecond = ____format(".%L");
+  var formatSecond = ____format(":%S");
+  var formatMinute = ____format("%I:%M");
+  var formatHour = ____format("%I %p");
+  var formatDay = ____format("%a %d");
+  var formatWeek = ____format("%b %d");
+  var formatMonth = ____format("%B");
+  var formatYear = ____format("%Y");
+  function _tickFormat(date) {
     return (second(date) < date ? formatMillisecond
         : minute(date) < date ? formatSecond
         : hour(date) < date ? formatMinute
-        : day(date) < date ? formatHour
-        : month(date) < date ? (week(date) < date ? formatDay : formatWeek)
-        : year(date) < date ? formatMonth
+        : _day(date) < date ? formatHour
+        : month(date) < date ? (sunday(date) < date ? formatDay : formatWeek)
+        : _year(date) < date ? formatMonth
         : formatYear)(date);
   }
 
-  function timeInterval(interval, step) {
+  function millisecond(step) {
+    return {
+      range: function(start, stop) { return _range(Math.ceil(start / step) * step, stop, step).map(_newDate); },
+      floor: function(date) { return _newDate(Math.floor(date / step) * step); },
+      ceil: function(date) { return _newDate(Math.ceil(date / step) * step); }
+    };
+  }function _timeInterval(interval, step) {
     switch (interval) {
       case "milliseconds": return millisecond(step);
       case "seconds": return step > 1 ? second.filter(function(d) { return d.getSeconds() % step === 0; }) : second;
       case "minutes": return step > 1 ? minute.filter(function(d) { return d.getMinutes() % step === 0; }) : minute;
       case "hours": return step > 1 ? hour.filter(function(d) { return d.getHours() % step === 0; }) : hour;
-      case "days": return step > 1 ? day.filter(function(d) { return (d.getDate() - 1) % step === 0; }) : day;
-      case "weeks": return step > 1 ? week.filter(function(d) { return week.count(0, d) % step === 0; }) : week;
+      case "days": return step > 1 ? _day.filter(function(d) { return (d.getDate() - 1) % step === 0; }) : _day;
+      case "weeks": return step > 1 ? sunday.filter(function(d) { return sunday.count(0, d) % step === 0; }) : sunday;
       case "months": return step > 1 ? month.filter(function(d) { return d.getMonth() % step === 0; }) : month;
-      case "years": return step > 1 ? year.filter(function(d) { return d.getFullYear() % step === 0; }) : year;
+      case "years": return step > 1 ? _year.filter(function(d) { return d.getFullYear() % step === 0; }) : _year;
     }
   }
 
   function time() {
-    return newTime(linear(), timeInterval, tickFormat, format).domain([new Date(2000, 0, 1), new Date(2000, 0, 2)]);
+    return newTime(_linear(), _timeInterval, _tickFormat, ____format).domain([new Date(2000, 0, 1), new Date(2000, 0, 2)]);
+  }
+
+  var formatUTCMillisecond = utcFormat(".%L");
+  var formatUTCSecond = utcFormat(":%S");
+  var formatUTCMinute = utcFormat("%I:%M");
+  var formatUTCHour = utcFormat("%I %p");
+  var formatUTCDay = utcFormat("%a %d");
+  var formatUTCWeek = utcFormat("%b %d");
+  var formatUTCMonth = utcFormat("%B");
+  var formatUTCYear = utcFormat("%Y");
+  function tickFormat(date) {
+    return (utcSecond(date) < date ? formatUTCMillisecond
+        : utcMinute(date) < date ? formatUTCSecond
+        : utcHour(date) < date ? formatUTCMinute
+        : _utcDay(date) < date ? formatUTCHour
+        : utcMonth(date) < date ? (utcSunday(date) < date ? formatUTCDay : formatUTCWeek)
+        : _utcYear(date) < date ? formatUTCMonth
+        : formatUTCYear)(date);
+  }
+
+  function timeInterval(interval, step) {
+    switch (interval) {
+      case "milliseconds": return millisecond(step);
+      case "seconds": return step > 1 ? utcSecond.filter(function(d) { return d.getUTCSeconds() % step === 0; }) : utcSecond;
+      case "minutes": return step > 1 ? utcMinute.filter(function(d) { return d.getUTCMinutes() % step === 0; }) : utcMinute;
+      case "hours": return step > 1 ? utcHour.filter(function(d) { return d.getUTCHours() % step === 0; }) : utcHour;
+      case "days": return step > 1 ? _utcDay.filter(function(d) { return (d.getUTCDate() - 1) % step === 0; }) : _utcDay;
+      case "weeks": return step > 1 ? utcSunday.filter(function(d) { return utcSunday.count(0, d) % step === 0; }) : utcSunday;
+      case "months": return step > 1 ? utcMonth.filter(function(d) { return d.getUTCMonth() % step === 0; }) : utcMonth;
+      case "years": return step > 1 ? _utcYear.filter(function(d) { return d.getUTCFullYear() % step === 0; }) : _utcYear;
+    }
+  }
+
+  function utcTime() {
+    return newTime(_linear(), timeInterval, tickFormat, utcFormat).domain([Date.UTC(2000, 0, 1), Date.UTC(2000, 0, 2)]);
   }
 
   function newThreshold(domain, range, n) {
 
     function scale(x) {
-      if (x <= x) return range[bisect(domain, x, 0, n)];
+      if (x <= x) return range[bisectRight(domain, x, 0, n)];
     }
 
     scale.domain = function(x) {
@@ -5525,9 +5692,7 @@ if (typeof Map === "undefined") {
     };
 
     return scale;
-  }
-
-  function threshold() {
+  }function threshold() {
     return newThreshold([.5], [0, 1], 1);
   }
 
@@ -5582,7 +5747,402 @@ if (typeof Map === "undefined") {
   }
 
   function sqrt() {
-    return newPow(linear(), .5, [0, 1]);
+    return newPow(_linear(), .5, [0, 1]);
+  }function pow() {
+    return newPow(_linear(), 1, [0, 1]);
+  }
+
+  function Color() {}var reHex3 = /^#([0-9a-f]{3})$/;
+  var reHex6 = /^#([0-9a-f]{6})$/;
+  var reRgbInteger = /^rgb\(\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*\)$/;
+  var reRgbPercent = /^rgb\(\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
+  var reHslPercent = /^hsl\(\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*,\s*([-+]?\d+(?:\.\d+)?)%\s*\)$/;
+  color.prototype = Color.prototype = {
+    displayable: function() {
+      return this.rgb().displayable();
+    },
+    toString: function() {
+      return this.rgb() + "";
+    }
+  };
+
+  function color(format) {
+    var m;
+    format = (format + "").trim().toLowerCase();
+    return (m = reHex3.exec(format)) ? (m = parseInt(m[1], 16), rgb((m >> 8 & 0xf) | (m >> 4 & 0x0f0), (m >> 4 & 0xf) | (m & 0xf0), ((m & 0xf) << 4) | (m & 0xf))) // #f00
+        : (m = reHex6.exec(format)) ? rgbn(parseInt(m[1], 16)) // #ff0000
+        : (m = reRgbInteger.exec(format)) ? rgb(m[1], m[2], m[3]) // rgb(255,0,0)
+        : (m = reRgbPercent.exec(format)) ? rgb(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100) // rgb(100%,0%,0%)
+        : (m = reHslPercent.exec(format)) ? hsl(m[1], m[2] / 100, m[3] / 100) // hsl(120,50%,50%)
+        : named.hasOwnProperty(format) ? rgbn(named[format])
+        : null;
+  }function rgbn(n) {
+    return rgb(n >> 16 & 0xff, n >> 8 & 0xff, n & 0xff);
+  }
+
+  var named = {
+    aliceblue: 0xf0f8ff,
+    antiquewhite: 0xfaebd7,
+    aqua: 0x00ffff,
+    aquamarine: 0x7fffd4,
+    azure: 0xf0ffff,
+    beige: 0xf5f5dc,
+    bisque: 0xffe4c4,
+    black: 0x000000,
+    blanchedalmond: 0xffebcd,
+    blue: 0x0000ff,
+    blueviolet: 0x8a2be2,
+    brown: 0xa52a2a,
+    burlywood: 0xdeb887,
+    cadetblue: 0x5f9ea0,
+    chartreuse: 0x7fff00,
+    chocolate: 0xd2691e,
+    coral: 0xff7f50,
+    cornflowerblue: 0x6495ed,
+    cornsilk: 0xfff8dc,
+    crimson: 0xdc143c,
+    cyan: 0x00ffff,
+    darkblue: 0x00008b,
+    darkcyan: 0x008b8b,
+    darkgoldenrod: 0xb8860b,
+    darkgray: 0xa9a9a9,
+    darkgreen: 0x006400,
+    darkgrey: 0xa9a9a9,
+    darkkhaki: 0xbdb76b,
+    darkmagenta: 0x8b008b,
+    darkolivegreen: 0x556b2f,
+    darkorange: 0xff8c00,
+    darkorchid: 0x9932cc,
+    darkred: 0x8b0000,
+    darksalmon: 0xe9967a,
+    darkseagreen: 0x8fbc8f,
+    darkslateblue: 0x483d8b,
+    darkslategray: 0x2f4f4f,
+    darkslategrey: 0x2f4f4f,
+    darkturquoise: 0x00ced1,
+    darkviolet: 0x9400d3,
+    deeppink: 0xff1493,
+    deepskyblue: 0x00bfff,
+    dimgray: 0x696969,
+    dimgrey: 0x696969,
+    dodgerblue: 0x1e90ff,
+    firebrick: 0xb22222,
+    floralwhite: 0xfffaf0,
+    forestgreen: 0x228b22,
+    fuchsia: 0xff00ff,
+    gainsboro: 0xdcdcdc,
+    ghostwhite: 0xf8f8ff,
+    gold: 0xffd700,
+    goldenrod: 0xdaa520,
+    gray: 0x808080,
+    green: 0x008000,
+    greenyellow: 0xadff2f,
+    grey: 0x808080,
+    honeydew: 0xf0fff0,
+    hotpink: 0xff69b4,
+    indianred: 0xcd5c5c,
+    indigo: 0x4b0082,
+    ivory: 0xfffff0,
+    khaki: 0xf0e68c,
+    lavender: 0xe6e6fa,
+    lavenderblush: 0xfff0f5,
+    lawngreen: 0x7cfc00,
+    lemonchiffon: 0xfffacd,
+    lightblue: 0xadd8e6,
+    lightcoral: 0xf08080,
+    lightcyan: 0xe0ffff,
+    lightgoldenrodyellow: 0xfafad2,
+    lightgray: 0xd3d3d3,
+    lightgreen: 0x90ee90,
+    lightgrey: 0xd3d3d3,
+    lightpink: 0xffb6c1,
+    lightsalmon: 0xffa07a,
+    lightseagreen: 0x20b2aa,
+    lightskyblue: 0x87cefa,
+    lightslategray: 0x778899,
+    lightslategrey: 0x778899,
+    lightsteelblue: 0xb0c4de,
+    lightyellow: 0xffffe0,
+    lime: 0x00ff00,
+    limegreen: 0x32cd32,
+    linen: 0xfaf0e6,
+    magenta: 0xff00ff,
+    maroon: 0x800000,
+    mediumaquamarine: 0x66cdaa,
+    mediumblue: 0x0000cd,
+    mediumorchid: 0xba55d3,
+    mediumpurple: 0x9370db,
+    mediumseagreen: 0x3cb371,
+    mediumslateblue: 0x7b68ee,
+    mediumspringgreen: 0x00fa9a,
+    mediumturquoise: 0x48d1cc,
+    mediumvioletred: 0xc71585,
+    midnightblue: 0x191970,
+    mintcream: 0xf5fffa,
+    mistyrose: 0xffe4e1,
+    moccasin: 0xffe4b5,
+    navajowhite: 0xffdead,
+    navy: 0x000080,
+    oldlace: 0xfdf5e6,
+    olive: 0x808000,
+    olivedrab: 0x6b8e23,
+    orange: 0xffa500,
+    orangered: 0xff4500,
+    orchid: 0xda70d6,
+    palegoldenrod: 0xeee8aa,
+    palegreen: 0x98fb98,
+    paleturquoise: 0xafeeee,
+    palevioletred: 0xdb7093,
+    papayawhip: 0xffefd5,
+    peachpuff: 0xffdab9,
+    peru: 0xcd853f,
+    pink: 0xffc0cb,
+    plum: 0xdda0dd,
+    powderblue: 0xb0e0e6,
+    purple: 0x800080,
+    rebeccapurple: 0x663399,
+    red: 0xff0000,
+    rosybrown: 0xbc8f8f,
+    royalblue: 0x4169e1,
+    saddlebrown: 0x8b4513,
+    salmon: 0xfa8072,
+    sandybrown: 0xf4a460,
+    seagreen: 0x2e8b57,
+    seashell: 0xfff5ee,
+    sienna: 0xa0522d,
+    silver: 0xc0c0c0,
+    skyblue: 0x87ceeb,
+    slateblue: 0x6a5acd,
+    slategray: 0x708090,
+    slategrey: 0x708090,
+    snow: 0xfffafa,
+    springgreen: 0x00ff7f,
+    steelblue: 0x4682b4,
+    tan: 0xd2b48c,
+    teal: 0x008080,
+    thistle: 0xd8bfd8,
+    tomato: 0xff6347,
+    turquoise: 0x40e0d0,
+    violet: 0xee82ee,
+    wheat: 0xf5deb3,
+    white: 0xffffff,
+    whitesmoke: 0xf5f5f5,
+    yellow: 0xffff00,
+    yellowgreen: 0x9acd32
+  };
+
+  var darker = .7;
+  var brighter = 1 / darker;
+
+  function rgb(r, g, b) {
+    if (arguments.length === 1) {
+      if (!(r instanceof Color)) r = color(r);
+      if (r) {
+        r = r.rgb();
+        b = r.b;
+        g = r.g;
+        r = r.r;
+      } else {
+        r = g = b = NaN;
+      }
+    }
+    return new Rgb(r, g, b);
+  }function Rgb(r, g, b) {
+    this.r = +r;
+    this.g = +g;
+    this.b = +b;
+  }var ____prototype = rgb.prototype = Rgb.prototype = new Color;
+
+  ____prototype.brighter = function(k) {
+    k = k == null ? brighter : Math.pow(brighter, k);
+    return new Rgb(this.r * k, this.g * k, this.b * k);
+  };
+
+  ____prototype.darker = function(k) {
+    k = k == null ? darker : Math.pow(darker, k);
+    return new Rgb(this.r * k, this.g * k, this.b * k);
+  };
+
+  ____prototype.rgb = function() {
+    return this;
+  };
+
+  ____prototype.displayable = function() {
+    return (0 <= this.r && this.r <= 255)
+        && (0 <= this.g && this.g <= 255)
+        && (0 <= this.b && this.b <= 255);
+  };
+
+  ____prototype.toString = function() {
+    return _format(this.r, this.g, this.b);
+  };
+
+  function _format(r, g, b) {
+    return "#"
+        + (isNaN(r) ? "00" : (r = Math.round(r)) < 16 ? "0" + Math.max(0, r).toString(16) : Math.min(255, r).toString(16))
+        + (isNaN(g) ? "00" : (g = Math.round(g)) < 16 ? "0" + Math.max(0, g).toString(16) : Math.min(255, g).toString(16))
+        + (isNaN(b) ? "00" : (b = Math.round(b)) < 16 ? "0" + Math.max(0, b).toString(16) : Math.min(255, b).toString(16));
+  }
+
+  function hsl(h, s, l) {
+    if (arguments.length === 1) {
+      if (h instanceof Hsl) {
+        l = h.l;
+        s = h.s;
+        h = h.h;
+      } else {
+        if (!(h instanceof Color)) h = color(h);
+        if (h) {
+          if (h instanceof Hsl) return h;
+          h = h.rgb();
+          var r = h.r / 255,
+              g = h.g / 255,
+              b = h.b / 255,
+              min = Math.min(r, g, b),
+              max = Math.max(r, g, b),
+              range = max - min;
+          l = (max + min) / 2;
+          if (range) {
+            s = l < .5 ? range / (max + min) : range / (2 - max - min);
+            if (r === max) h = (g - b) / range + (g < b) * 6;
+            else if (g === max) h = (b - r) / range + 2;
+            else h = (r - g) / range + 4;
+            h *= 60;
+          } else {
+            h = NaN;
+            s = l > 0 && l < 1 ? 0 : h;
+          }
+        } else {
+          h = s = l = NaN;
+        }
+      }
+    }
+    return new Hsl(h, s, l);
+  }function Hsl(h, s, l) {
+    this.h = +h;
+    this.s = +s;
+    this.l = +l;
+  }var ___prototype = hsl.prototype = Hsl.prototype = new Color;
+
+  ___prototype.brighter = function(k) {
+    k = k == null ? brighter : Math.pow(brighter, k);
+    return new Hsl(this.h, this.s, this.l * k);
+  };
+
+  ___prototype.darker = function(k) {
+    k = k == null ? darker : Math.pow(darker, k);
+    return new Hsl(this.h, this.s, this.l * k);
+  };
+
+  ___prototype.rgb = function() {
+    var h = this.h % 360 + (this.h < 0) * 360,
+        s = isNaN(h) || isNaN(this.s) ? 0 : this.s,
+        l = this.l,
+        m2 = l + (l < .5 ? l : 1 - l) * s,
+        m1 = 2 * l - m2;
+    return new Rgb(
+      hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2),
+      hsl2rgb(h, m1, m2),
+      hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2)
+    );
+  };
+
+  ___prototype.displayable = function() {
+    return (0 <= this.s && this.s <= 1 || isNaN(this.s))
+        && (0 <= this.l && this.l <= 1);
+  };
+
+  /* From FvD 13.37, CSS Color Module Level 3 */
+  function hsl2rgb(h, m1, m2) {
+    return (h < 60 ? m1 + (m2 - m1) * h / 60
+        : h < 180 ? m2
+        : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60
+        : m1) * 255;
+  }
+
+  var deg2rad = Math.PI / 180;
+  var rad2deg = 180 / Math.PI;
+
+  var A = -0.14861;
+  var B = +1.78277;
+  var C = -0.29227;
+  var D = -0.90649;
+  var E = +1.97294;
+  var ED = E * D;
+  var EB = E * B;
+  var BC_DA = B * C - D * A;
+  function cubehelix(h, s, l) {
+    if (arguments.length === 1) {
+      if (h instanceof Cubehelix) {
+        l = h.l;
+        s = h.s;
+        h = h.h;
+      } else {
+        if (!(h instanceof Rgb)) h = rgb(h);
+        var r = h.r / 255, g = h.g / 255, b = h.b / 255;
+        l = (BC_DA * b + ED * r - EB * g) / (BC_DA + ED - EB);
+        var bl = b - l, k = (E * (g - l) - C * bl) / D;
+        s = Math.sqrt(k * k + bl * bl) / (E * l * (1 - l)); // NaN if l=0 or l=1
+        h = s ? Math.atan2(k, bl) * rad2deg - 120 : NaN;
+        if (h < 0) h += 360;
+      }
+    }
+    return new Cubehelix(h, s, l);
+  }function Cubehelix(h, s, l) {
+    this.h = +h;
+    this.s = +s;
+    this.l = +l;
+  }var prototype = cubehelix.prototype = Cubehelix.prototype = new Color;
+
+  prototype.brighter = function(k) {
+    k = k == null ? brighter : Math.pow(brighter, k);
+    return new Cubehelix(this.h, this.s, this.l * k);
+  };
+
+  prototype.darker = function(k) {
+    k = k == null ? darker : Math.pow(darker, k);
+    return new Cubehelix(this.h, this.s, this.l * k);
+  };
+
+  prototype.rgb = function() {
+    var h = isNaN(this.h) ? 0 : (this.h + 120) * deg2rad,
+        l = +this.l,
+        a = isNaN(this.s) ? 0 : this.s * l * (1 - l),
+        cosh = Math.cos(h),
+        sinh = Math.sin(h);
+    return new Rgb(
+      255 * (l + a * (A * cosh + B * sinh)),
+      255 * (l + a * (C * cosh + D * sinh)),
+      255 * (l + a * (E * cosh))
+    );
+  };
+
+  function interpolateCubehelixGammaLong(gamma) {
+    return function(a, b) {
+      a = cubehelix(a);
+      b = cubehelix(b);
+      var ah = isNaN(a.h) ? b.h : a.h,
+          as = isNaN(a.s) ? b.s : a.s,
+          al = a.l,
+          bh = isNaN(b.h) ? 0 : b.h - ah,
+          bs = isNaN(b.s) ? 0 : b.s - as,
+          bl = b.l - al;
+      return function(t) {
+        a.h = ah + bh * t;
+        a.s = as + bs * t;
+        a.l = al + bl * Math.pow(t, gamma);
+        return a + "";
+      };
+    };
+  }
+
+  var interpolateCubehelixLong = interpolateCubehelixGammaLong(1);
+
+  function rainbow() {
+    return _linear()
+        .interpolate(interpolateCubehelixLong)
+        .domain([0, 0.5, 1.0])
+        .range([cubehelix(-100, 0.75, 0.35), cubehelix(80, 1.50, 0.8), cubehelix(260, 0.75, 0.35)]);
   }
 
   function newQuantize(x0, x1, range) {
@@ -5628,16 +6188,6 @@ if (typeof Map === "undefined") {
     return newQuantize(0, 1, [0, 1]);
   }
 
-
-  // R-7 per <http://en.wikipedia.org/wiki/Quantile>
-  function quantile(values, p) {
-    var H = (values.length - 1) * p + 1,
-        h = Math.floor(H),
-        v = +values[h - 1],
-        e = H - h;
-    return e ? v + e * (values[h] - v) : v;
-  }
-
   function newQuantile(domain, range) {
     var thresholds;
 
@@ -5650,7 +6200,7 @@ if (typeof Map === "undefined") {
     }
 
     function scale(x) {
-      if (!isNaN(x = +x)) return range[bisect(thresholds, x)];
+      if (!isNaN(x = +x)) return range[bisectRight(thresholds, x)];
     }
 
     scale.domain = function(x) {
@@ -5690,10 +6240,6 @@ if (typeof Map === "undefined") {
     return newQuantile([], []);
   }
 
-  function pow() {
-    return newPow(linear(), 1, [0, 1]);
-  }
-
   function steps(length, start, step) {
     var steps = new Array(length), i = -1;
     while (++i < length) steps[i] = start + step * i;
@@ -5717,7 +6263,7 @@ if (typeof Map === "undefined") {
     scale.domain = function(x) {
       if (!arguments.length) return domain.slice();
       domain = [];
-      index = new Map;
+      index = _map();
       var i = -1, n = x.length, xi, xk;
       while (++i < n) if (!index.has(xk = (xi = x[i]) + "")) index.set(xk, domain.push(xi));
       return scale[ranger.t].apply(scale, ranger.a);
@@ -5802,10 +6348,8 @@ if (typeof Map === "undefined") {
     return newOrdinal([], {t: "range", a: [[]]});
   }
 
-  var tickFormatOther = __format(",");
-
   var tickFormat10 = __format(".0e");
-
+  var tickFormatOther = __format(",");
   function newLog(linear, base, domain) {
 
     function log(x) {
@@ -5890,7 +6434,7 @@ if (typeof Map === "undefined") {
   }
 
   function log() {
-    return newLog(linear(), 10, [1, 10]);
+    return newLog(_linear(), 10, [1, 10]);
   }
 
   function newIdentity(domain) {
@@ -5922,8 +6466,14 @@ if (typeof Map === "undefined") {
     return scale;
   }
 
-  function identity() {
+  function __identity() {
     return newIdentity([0, 1]);
+  }
+
+  function __cubehelix() {
+    return _linear()
+        .interpolate(interpolateCubehelixLong)
+        .range([cubehelix(300, 0.5, 0.0), cubehelix(-240, 0.5, 1.0)]);
   }
 
   function category20c() {
@@ -5980,13 +6530,15 @@ if (typeof Map === "undefined") {
   exports.category20 = category20;
   exports.category20b = category20b;
   exports.category20c = category20c;
-  exports.identity = identity;
-  exports.linear = linear;
+  exports.cubehelix = __cubehelix;
+  exports.identity = __identity;
+  exports.linear = _linear;
   exports.log = log;
   exports.ordinal = ordinal;
   exports.pow = pow;
   exports.quantile = _quantile;
   exports.quantize = quantize;
+  exports.rainbow = rainbow;
   exports.sqrt = sqrt;
   exports.threshold = threshold;
   exports.time = time;
@@ -25391,6 +25943,7 @@ var privateProps = {
 	onPan: true,
 	onSwipe: true,
 	onPress: true,
+	onPressUp: true,
 	onPinch: true,
 	onRotate: true
 };
@@ -25445,6 +25998,7 @@ var HammerComponent = React.createClass({
 		if (this.props.onPan) this.hammer.on('pan', this.props.onPan);
 		if (this.props.onSwipe) this.hammer.on('swipe', this.props.onSwipe);
 		if (this.props.onPress) this.hammer.on('press', this.props.onPress);
+		if (this.props.onPressUp) this.hammer.on('pressup', this.props.onPressUp);
 		if (this.props.onPinch) this.hammer.on('pinch', this.props.onPinch);
 		if (this.props.onRotate) this.hammer.on('rotate', this.props.onRotate);
 	},
@@ -46852,7 +47406,7 @@ module.exports = React.createClass({
         { id: 'tweet' },
         React.createElement(
           'textarea',
-          { rows: '4', cols: '50', style: 'font-size:x-large;' },
+          { rows: '4', cols: '50' },
           '#euromeme #eurovision'
         )
       ),
