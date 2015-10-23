@@ -27,7 +27,11 @@ module.exports = React.createClass({
     var self = this;
     return this.props.devices.map(function (device, index) {
       var handler = self.createEventHandlerForItem(device);
-      return <li key={device.name} onClick={handler} className="device-list-item">{device.name}</li>;
+      if(index==0){
+         return <li key={device.name} onClick={handler} className="device-list-item">Living Room TV</li>;
+      }else{
+         return <li key={device.name} onClick={handler} className="device-list-item">{device.name}</li>;
+      }
     });
   },
   render: function() {
@@ -37,7 +41,7 @@ module.exports = React.createClass({
                     : <ul className="device-list-list">{this.deviceList()}</ul>;
     return (
       <div className="device-list">
-        <h2 className="device-list-hd">Connect to TV</h2>
+        <h2 className="device-list-hd">Connect EuroMeme to a TV</h2>
         <span>{numDevices} found</span>
         {content}
       </div>
