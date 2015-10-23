@@ -4,14 +4,15 @@
 .clip-preview {
     position: absolute;
     top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 100%;
+    left: 4%;
+    width: 88%;
+    height: 88%;
     padding: 16px;
     background-color: black;
-    opacity: 0.9;
+    opacity: 1.0;
     z-index:1002;
     overflow: auto;
+    text-align:center;
 }
 
 .clip-preview .hidden {
@@ -30,4 +31,12 @@
   width: 100%;
 }
 
+.clip-preview input {
+  padding-left: 10px;
+  padding-bottom: 0px;
+}
 
+.clip-preview textarea {
+  padding: 5px;
+  font-size:2em;
+}

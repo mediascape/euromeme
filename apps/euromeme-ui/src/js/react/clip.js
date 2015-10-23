@@ -48,8 +48,13 @@ module.exports = React.createClass({
       if(this.state.fullScreen){
         return <div className="clip-preview">
 <ActionsList onClose={this.handleClose} />
+<form><textarea rows="2" cols="22">I'm sharing a clip from #eurovision</textarea>
+<input type="image" src="images/twitter.png" />
+<input type="image" src="images/facebook.png" />
+<input type="image" src="images/tumblr.png" />
+</form>
+<br />
 <ImageLoader className={this.state.className} src={this.props.src} preloader={this.preloader} onLoad={this.handleLoad} onError={this.handleError}>Clip load failed!</ImageLoader>;
-<form><textarea rows="4" cols="50">#euromeme #eurovision</textarea></form><button>Tweet this</button>
 </div>;
       }else{
         return <ImageLoader className={this.state.className} src={this.props.src} preloader={this.preloader} onLoad={this.handleLoad} onError={this.handleError} onClick={this.onClick}>Clip load failed!</ImageLoader>;
