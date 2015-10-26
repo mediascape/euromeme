@@ -47505,10 +47505,12 @@ module.exports = React.createClass({
     };
   },
   handleClose: function handleClose() {
-    this.setState({ fullScreen: false });
-    if (this.props.onClose) {
-      this.props.onClose();
-    }
+    setTimeout((function () {
+      this.setState({ fullScreen: false });
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    }).bind(this), 200);
   },
   preloader: function preloader() {
     var loaderStyle = { fontSize: '3px' };
@@ -47526,7 +47528,9 @@ module.exports = React.createClass({
     console.log('error', evt, this);
   },
   onClick: function onClick() {
-    this.setState({ fullScreen: true });
+    setTimeout((function () {
+      this.setState({ fullScreen: true });
+    }).bind(this), 200);
   },
   render: function render() {
     if (!this.props.src) {
