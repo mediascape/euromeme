@@ -92,7 +92,7 @@ module.exports = React.createClass({
     img.src = url;
   },
   preloadImageRange: function (startDate, endDate, shouldIncludeSubFrames=false) {
-    var frames = this.framesForTime(startDate, endDate, '360', this.props.frameTemplate);
+    var frames = this.framesForTime(startDate, endDate, '180', this.props.frameTemplate);
     frames.forEach( (r) => {
       this.preloadImage(r);
     });
@@ -121,7 +121,7 @@ module.exports = React.createClass({
   },
   render: function() {
     var className = 'editor ' + (this.state.isDragging ? ' is-dragging ' : ''),
-        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '360', this.props.frameTemplate, 5 /* framesPerSec */),
+        frames = this.framesForTime(this.state.currentDate, dates.maths(this.state.currentDate, 6), '180', this.props.frameTemplate, 2 /* was 5 framesPerSec */),
         steps = dates.durationInSec(this.props.startDate, this.props.endDate),
         selectionSteps = 6 /* 6 seconds */;
 
@@ -143,7 +143,7 @@ module.exports = React.createClass({
       <ActionsList onClose={this.props.onClose}>
         <button
           className="editor-clip-button"
-          onClick={this.handleCreateClip}>Share</button>
+          onClick={this.handleCreateClip}>Make clip</button>
       </ActionsList>
     </div>);
   }
