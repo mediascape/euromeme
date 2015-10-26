@@ -100,10 +100,11 @@ function createGif(params) {
 
   imgSizes.forEach(function(size) {
     cmd.push(
-      'convert -delay 10 -loop 0 '+images[size]+' '+params.id+'.'+size+'.gif'
+      'gifsicle --colors 256 --delay 10 --loopcount '+images[size]+' > '+params.id+'.'+size+'.gif'
     );
   });
 
+  console.log(cmd.join(' && '));
   return exec(cmd.join(' && ')).then(function(output) { return params; });
 }
 
@@ -156,7 +157,8 @@ function imagesForTime(time) {
         wrapDigit(newDate.getUTCHours()),
         wrapDigit(newDate.getUTCMinutes()),
         wrapDigit(newDate.getUTCSeconds()),
-        '*.jpg'
+        '*.gif'
+//        '*.jpg'
       ));
 
       images[size] = tmpPath.join(' ');
