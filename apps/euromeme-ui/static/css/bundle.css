@@ -202,7 +202,7 @@ body {
   -webkit-align-items: flex-start;
       -ms-flex-align: start;
           align-items: flex-start;
-
+  background-color: black;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -272,9 +272,9 @@ body {
   -webkit-flex-wrap: wrap;
       -ms-flex-wrap: wrap;
           flex-wrap: wrap;
-
+  text-align:center;
   position: absolute;
-  top: 3rem;
+  top: 5rem;
   right: 3rem;
   left: 3rem;
   bottom: 3rem;
@@ -304,15 +304,15 @@ body {
 }
 
 .device-list-item {
-  margin: 1rem;
-  padding: 1rem;
+  margin: 5rem;
+  padding: 3rem;
   border: 1px solid #666;
   -webkit-box-flex: 1;
   -webkit-flex: 1;
       -ms-flex: 1;
           flex: 1;
-
   text-align: center;
+  font-size:x-large;
 }
 
 .device-list-item:hover {
@@ -322,19 +322,43 @@ body {
   Clip preview view
 */
 .clip-preview {
-  background:black;
+    position: absolute;
+    top: 0%;
+    left: 4%;
+    width: 88%;
+    height: 88%;
+    padding: 16px;
+    background-color: black;
+    opacity: 1.0;
+    z-index:1002;
+    overflow: auto;
+    text-align:center;
+}
+
+.clip-preview .hidden {
+  display:none;
 }
 
 .clip-preview .imageloader {
   display: block;
 }
 
-.clip-preview img{
+.clip-preview img {
   width: 75%;
 }
 
 .clip-preview video {
   width: 100%;
+}
+
+.clip-preview input {
+  padding-left: 10px;
+  padding-bottom: 0px;
+}
+
+.clip-preview textarea {
+  padding: 5px;
+  font-size:2em;
 }
 /*
   Defines CSS transitions triggers when the Container
@@ -383,7 +407,7 @@ body {
   left: 0;
   right: 0;
 
-  height: 50px;
+  height: 100px;
   /*border: 1px solid blue;*/
 }
 
