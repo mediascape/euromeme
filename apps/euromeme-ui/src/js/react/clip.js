@@ -16,10 +16,12 @@ module.exports = React.createClass({
     };
   },
   handleClose: function () {
-    this.setState({fullScreen: false});
-    if (this.props.onClose) {
-      this.props.onClose();
-    }
+    setTimeout(function () {
+      this.setState({fullScreen: false});
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    }.bind(this), 200);
   },
   preloader: function () {
     var loaderStyle = { fontSize: '3px' };
@@ -37,7 +39,9 @@ module.exports = React.createClass({
     console.log('error', evt, this);
   },
   onClick: function() {
-    this.setState({fullScreen: true});
+    setTimeout(function () {
+      this.setState({fullScreen: true});
+    }.bind(this), 200);
   },
   render: function() {
     if (!this.props.src) {
