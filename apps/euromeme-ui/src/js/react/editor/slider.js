@@ -57,7 +57,7 @@ module.exports = React.createClass({
     var selectionSec   = this.props.sliderStepSize,
         trackSec       = this.props.max,
         selectionWidth = selectionSec / trackSec;
-    return (selectionWidth * 1000) + '%';
+    return (selectionWidth*40) + '%';
   },
   render: function() {
     var min = this.props.min,
