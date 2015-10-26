@@ -227,7 +227,7 @@ module.exports = React.createClass({
 
     if (item.type === 'live') {
       endDate = dates.maths(this.state.broadcast.startDate, item.timeSecs);
-      startDate = dates.maths( endDate,  - (5 * 60));
+      startDate = dates.maths( endDate,  - (1 * 10));//10 seconds shown in total
       state = this.views.editor;
       data  = { startDate: startDate, endDate: endDate };
     } else {
