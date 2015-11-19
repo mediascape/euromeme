@@ -2,6 +2,11 @@
 # euromeme
 Prototype from BBC to clip and share favourite Eurovision moments. Using a second screen application synced with the TV to make selecting and sharing Vine-like clips and images easier.
 
+# running
+`foreman start -f Procfile.development` starts everything, replacing the IP address in the config file with the urrent one.
+a sample rc.local file might contain `cd /home/pi/euromeme && /usr/local/bin/foreman start -f Procfile.development 2>&1 > euromeme.log &`
+
+
 ## Structure
 
 This repo contains the Euromeme applications. Each sub-application is contained in its own subdirectory. Applications that require packages from npm will contain their own `package.json` file. You should run `npm install` in each subdirectory.
@@ -48,3 +53,4 @@ The mediasync.js library is used under the LGPL license. See lgpl-3.0.txt for de
 Copyright 2015 British Broadcasting Corporation
 
 The mediasync.js library is Copyright 2015 Motion Corporation
+
