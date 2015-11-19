@@ -19,6 +19,7 @@ server = app.listen(port);
 //The config needs to be static so the client side js can read it
 
 //Replace all IPs with our new one, if it's not blank and generally makes sense
+console.log("IP is "+ip);
 if(ip && ip!="" && ip.match(/([0-9]*\.){3}[0-9]*/)){
 
 //Read config file

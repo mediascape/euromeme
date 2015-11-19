@@ -34,6 +34,7 @@ module.exports = {
             status.videoUrl - current playing video URL
       */
       status: function () {
+
         var url = URI({
               protocol: 'ws',
               hostname: info.host,
@@ -41,7 +42,7 @@ module.exports = {
               path:     '/'
             }),
             ws = new WebSocket(url);
-
+console.log("WS "+url);
         var statPromise = new Promise(function(resolve, reject) {
           ws.addEventListener('error', function (err) {
             console.log('Device - connection error');
