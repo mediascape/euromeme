@@ -1,6 +1,7 @@
 {
-  "appId": "your.app.id",
-  "msvName": "your.msv.name",
-  "videoUrl": "http://path.to.media/video.mp4"
+ "relayURI": "ws://192.168.1.10:5100/relay",
+ "appId": "1234567890",
+ "msvName": "msvname",
+ "videoUrl": "http://192.168.1.10:17901/eurovision-2015.30.$size.mp4?k=12345",
+ "broadcastStartDate": "2015-05-23T20:00:00Z"
 }
-

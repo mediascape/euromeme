@@ -1,11 +1,8 @@
 {
-  "videoUrl": "http://path.to.media/video.mp4",
-  "frameStore": "http://example.com/180/2015/05/23/21/$minute/$second/$frame.jpg",
-  "appId": "your.app.id",
-  "msvName": "your.msv.name",
-  "discoveryIp": "IP address of TV",
-  "discoveryPort": "Port of TV",
-  "clipsApiEndpoint": "http://example.com/api",
-  "mediaStoreUrlTemplate": "http://cdn.example.com/$mediaPath?k=XXX"
+ "clipsApiEndpoint": "http://192.168.1.10:5001",
+ "mediaStoreUrlTemplate": "http://192.168.1.10:17901/$mediaPath?k=12345",
+ "frameStoreTemplate": "http://192.168.1.10:17901/$size/$year/$month/$date/$hour/$min/$sec/$frame.gif?k=12345",
+ "discoveryIp": "192.168.1.10",
+ "discoveryPort": "5000"
 }
 
