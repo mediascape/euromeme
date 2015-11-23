@@ -7,6 +7,8 @@ You'll need several hours and a fast internet connection, plus ~16GB free hard d
 It may be convenient to put the server on a Raspberry PI 2. If you do this you still need to use a different machine 
 for the "TV" window, as the Pi browsers can't handle it.
 
+If you change the name as instructed below, you can substitude `http://euromeme.local` instead of your IP address in the browser and app.
+
 You'll need a 16G SD card.
 
 ### pi preparation
@@ -30,6 +32,26 @@ You'll need a 16G SD card.
 
 ### install wpa supplicant if not already
 
+edit /etc/network/interfaces
+
+    auto lo
+    iface lo inet loopback
+    
+    auto eth0
+    allow-hotplug eth0
+    iface eth0 inet manual
+    
+    auto wlan0
+    allow-hotplug wlan0
+    iface wlan0 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+    
+    auto wlan1
+    allow-hotplug wlan1
+    iface wlan1 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+
 edit /etc/wpa_supplicant/wpa_supplicant.conf
 
     network={
@@ -37,8 +59,13 @@ edit /etc/wpa_supplicant/wpa_supplicant.conf
       psk="XXX"
     }
 
+### add to /etc/rc.local
+
+if you like: `cd /home/pi/euromeme && /usr/local/bin/foreman start -f Procfile.development 2>&1 > euromeme.log &`
 
 ## General installation
+
+These instructions are for Ubuntu (e.g. Raspian) or Mac OS X.
 
 ### install node and avahi
 
@@ -59,7 +86,7 @@ edit /etc/wpa_supplicant/wpa_supplicant.conf
 ### switch to release branch
 
     git fetch origin
-    git checkout -b experimental origin/experimental 
+    git checkout -b user_test_1 origin/user_test_1
 
 ### install and build all the node parts
 
