@@ -51,14 +51,28 @@ module.exports = React.createClass({
         .map(lodash.constant({}))
       );
     }
+
+console.log("PENDING");
+console.log(this.props.pendingClips);
+
     return clips.map((clip, index) => {
       var key = clip.id || index,
           clipUrl,
           type,
           component;
 
-      if (!clip.format && !clip[this.props.format]) {
+      var pending;
+
+      for (var z in this.props.pendingClips){
+         if (this.props.pendingClips[z].id == clip.id){
+            pending = clip.id;
+         }
+      }
+
+      if (pending) {
         component = (<li key={key} className="grid-item grid-item-clip is-pending centered-view is-active"><span className="centered-view-message">Making your clip</span><span className="centered-view-inner loader">&hellip;</span></li>);
+      }else if(!clip.format && !clip[this.props.format]){
+        component = (<li key={key} className="grid-item grid-item-clip centered-view is-active"><span className="centered-view-message">No clip yet</span></li>);
       } else {
         clipUrl = clip[this.props.format] ? clip[this.props.format].replace('$size', 180) : '';
         type = this.props.format === 'mp4' ? 'video' : 'image' 

@@ -123,10 +123,10 @@ function fetchPoster(params) {
       wrapDigit(params.start.getUTCHours()),
       wrapDigit(params.start.getUTCMinutes()),
       wrapDigit(params.start.getUTCSeconds()),
-      '1.jpg'
+      '1.gif'
     );
 
-    cmd.push('cp '+poster+' '+params.id+'.'+size+'.jpg');
+    cmd.push('cp '+poster+' '+params.id+'.'+size+'.poster.gif');
   });
 
   return exec(cmd.join(' && ')).then(function(output) { return params; });
@@ -158,7 +158,6 @@ function imagesForTime(time) {
         wrapDigit(newDate.getUTCMinutes()),
         wrapDigit(newDate.getUTCSeconds()),
         '*.gif'
-//        '*.jpg'
       ));
 
       images[size] = tmpPath.join(' ');
