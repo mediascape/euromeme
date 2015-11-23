@@ -1,5 +1,5 @@
-euromeme-ui: sh -c "cd ./apps/euromeme-ui/ && IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '192.168.2.*') /usr/local/bin/npm start"
+euromeme-ui: sh -c "cd ./apps/euromeme-ui/ && IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '192.168.2.*' | grep -v '169.254.*') /usr/local/bin/npm start"
 tv-bridge: sh -c 'cd ./apps/tv-bridge/ && /usr/local/bin/npm start'
-tv-ui: sh -c "cd ./apps/tv-ui/ && IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'| grep -v '192.168.2.*') /usr/local/bin/npm start"
+tv-ui: sh -c "cd ./apps/tv-ui/ && IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'| grep -v '192.168.2.*' | grep -v '169.254.*') /usr/local/bin/npm start"
 media-api: sh -c "cd apps/media-api/server && export MEDIASCAPE_API=12345 && ./serve"
 clips-api: sh -c 'home=$(pwd); cd apps/clips-api/ && export MEDIA_PATH="$home/apps/media-api/server/public/"; export PORT=5001 && /usr/local/bin/npm start'
