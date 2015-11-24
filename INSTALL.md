@@ -22,9 +22,13 @@ You'll need a 16G SD card.
     sudo apt-get update && sudo apt-get upgrade -y
 
 # add the tft screen
-# https://github.com/notro/fbtft/issues/215#issuecomment-69921933
+This is useful for finding out the ip address
 
-# https://www.danpurdy.co.uk/web-development/raspberry-pi-kiosk-screen-tutorial/
+ * https://github.com/notro/fbtft/issues/215#issuecomment-69921933
+
+Useful for non-blanking instructions
+
+ * https://www.danpurdy.co.uk/web-development/raspberry-pi-kiosk-screen-tutorial/
 
     edit /etc/xdg/lxsession/LXDE-pi/autostart
 
@@ -202,6 +206,10 @@ don't worry about it
 ### App on tablet can't find the "TV"
 
 - it won't find it unless the TV video is actually playing
+
+
+
+
 
 
 
