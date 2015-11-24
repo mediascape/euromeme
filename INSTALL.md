@@ -7,8 +7,6 @@ You'll need several hours and a fast internet connection, plus ~16GB free hard d
 It may be convenient to put the server on a Raspberry PI 2. If you do this you still need to use a different machine 
 for the "TV" window, as the Pi browsers can't handle it.
 
-If you change the name as instructed below, you can substitude `http://euromeme.local` instead of your IP address in the browser and app.
-
 You'll need a 16G SD card.
 
 ### pi preparation
@@ -21,9 +19,19 @@ You'll need a 16G SD card.
 
     sudo raspi-config
     sudo reboot
-    sudo apt-get remove --auto-remove --purge libx11-.*
-    sudo apt-get autoremove
     sudo apt-get update && sudo apt-get upgrade -y
+
+# add the tft screen
+# https://github.com/notro/fbtft/issues/215#issuecomment-69921933
+
+# https://www.danpurdy.co.uk/web-development/raspberry-pi-kiosk-screen-tutorial/
+
+    edit /etc/xdg/lxsession/LXDE-pi/autostart
+
+    @xscreensaver -no-splash
+    @xset s off
+    @xset -dpms
+    @xset s noblank
 
 ### change its name to "euromeme" by editing
 
@@ -85,6 +93,7 @@ These instructions are for Ubuntu (e.g. Raspian) or Mac OS X.
 
 ### switch to release branch
 
+    cd euromeme
     git fetch origin
     git checkout -b user_test_1 origin/user_test_1
 
@@ -99,6 +108,7 @@ These instructions are for Ubuntu (e.g. Raspian) or Mac OS X.
 
 ### copy configs, ensuring you replace sync id (the startup script will fix your ip address for you)
 
+    cd
     cp ./apps/euromeme-ui/static/config.json.example ./apps/euromeme-ui/static/config.json
     cp ./apps/tv-ui/static/config.json.example ./apps/tv-ui/static/config.json
 
@@ -120,7 +130,7 @@ It will look like this:
 
     foreman start -f Procfile.development 
 
-# make a note of the ip address of the machine you are running it on
+# make a note of the wlan ip address of the machine you are running it on
 
 # test
 
