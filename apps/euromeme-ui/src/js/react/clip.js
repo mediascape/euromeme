@@ -53,9 +53,9 @@ module.exports = React.createClass({
         return <div className="clip-preview">
 <ActionsList onClose={this.handleClose} />
 <form><textarea rows="2" cols="22">I'm sharing a clip from #eurovision</textarea>
-<input type="image" src="images/twitter.png" />
-<input type="image" src="images/facebook.png" />
-<input type="image" src="images/tumblr.png" />
+<button type="button"><img src="images/twitter.png" className="button"/></button>
+<button type="button"><img src="images/facebook.png" className="button"/></button>
+<button type="button"><img src="images/tumblr.png" className="button"/></button>
 </form>
 <br />
 <ImageLoader className={this.state.className} src={this.props.src} preloader={this.preloader} onLoad={this.handleLoad} onError={this.handleError}>Clip load failed!</ImageLoader>;

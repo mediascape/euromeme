@@ -23,6 +23,15 @@
   display: block;
 }
 
+.clip-preview .button{
+  width: 100% !important;
+}
+
+.clip-preview button{
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+
 .clip-preview img {
   width: 75%;
 }
@@ -32,8 +41,6 @@
 }
 
 .clip-preview input {
-  padding-left: 10px;
-  padding-bottom: 0px;
 }
 
 .clip-preview textarea {
