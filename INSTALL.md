@@ -1,85 +1,14 @@
 # Euromeme installation instructions
 
-You'll need several hours and a fast internet connection, plus ~16GB free hard drive space, and Chrome or firefox.
+You'll need 1-2 hours and a fast internet connection, plus ~16GB free hard drive space (mostly for the media), and Chrome or firefox.
 
-## Pi instructions
-
-It may be convenient to put the server on a Raspberry PI 2. If you do this you still need to use a different machine 
-for the "TV" window, as the Pi browsers can't handle it.
-
-You'll need a 16G SD card.
-
-### pi preparation
-
-    diskutil list
-    diskutil unmountDisk /dev/disk2
-    sudo dd bs=1m if=~/Downloads/2015-05-05-raspbian-wheezy.img of=/dev/rdisk2
-
-### sort the pi out
-
-    sudo raspi-config
-    sudo reboot
-    sudo apt-get update && sudo apt-get upgrade -y
-
-# add the tft screen
-This is useful for finding out the ip address
-
- * https://github.com/notro/fbtft/issues/215#issuecomment-69921933
-
-Useful for non-blanking instructions
-
- * https://www.danpurdy.co.uk/web-development/raspberry-pi-kiosk-screen-tutorial/
-
-    edit /etc/xdg/lxsession/LXDE-pi/autostart
-
-    @xscreensaver -no-splash
-    @xset s off
-    @xset -dpms
-    @xset s noblank
-
-### change its name to "euromeme" by editing
-
-    /etc/hosts
-    /etc/hostname
-
-### install wpa supplicant if not already
-
-edit /etc/network/interfaces
-
-    auto lo
-    iface lo inet loopback
-    
-    auto eth0
-    allow-hotplug eth0
-    iface eth0 inet manual
-    
-    auto wlan0
-    allow-hotplug wlan0
-    iface wlan0 inet manual
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-    
-    auto wlan1
-    allow-hotplug wlan1
-    iface wlan1 inet manual
-    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
-
-
-edit /etc/wpa_supplicant/wpa_supplicant.conf
-
-    network={
-      ssid="XXX"
-      psk="XXX"
-    }
-
-### add to /etc/rc.local
-
-if you like: `cd /home/pi/euromeme && /usr/local/bin/foreman start -f Procfile.development 2>&1 > euromeme.log &`
+Once installed, see [RUNNING.md] for multi-device set-up and troubleshooting.
 
 ## General installation
 
-These instructions are for Ubuntu (e.g. Raspian) or Mac OS X.
+These instructions are for Ubuntu (e.g. Raspian) or Mac OS X (for Mac OS X you'll need to use brew instead of apt-get, and you'll need dev tools).
 
-### install node and avahi
+### install node and avahi (just node for Mac OS X)
 
     git clone https://github.com/radiodan/provision
     cd provision
@@ -153,64 +82,79 @@ you should be able to
  - clip should appear top left after a few seconds
  - click on the clip to see the share options [share buttons do not work!]
 
+See [RUNNING.md] for multi-device set-up and troubleshooting.
 
-# adding devices
+## Pi instructions
 
-ensure the device is on the correct wifi network - it must be the same as the one you are on
+It may be convenient to put the server on a Raspberry PI 2. If you do this you still need to use a different machine 
+for the "TV" window, as the Pi browsers can't handle it.
 
-put the ip of your device into the settings screen of the "MediaScape" app on the tablets
+You'll need a 16G SD card.
 
-go back to the main page and reload using the settings menu top right
+### pi preparation
 
-double-tap to hide the toolbar
+    diskutil list
+    diskutil unmountDisk /dev/disk2
+    sudo dd bs=1m if=~/Downloads/2015-05-05-raspbian-wheezy.img of=/dev/rdisk2
 
-## Troubleshooting
+### sort the pi out
 
-### errors like: 15:19:07 euromeme-ui.1 | sh: line 1: 169.254.19.212: command not found
+    sudo raspi-config
+    sudo reboot
+    sudo apt-get update && sudo apt-get upgrade -y
 
-The config file has been accidentally written over after a crash
+# add the tft screen
+This is useful for finding out the ip address
 
-    ./apps/euromeme-ui/static/config.json
+ * https://github.com/notro/fbtft/issues/215#issuecomment-69921933
 
-    {
-      "clipsApiEndpoint": "http://192.168.1.10:5001",
-      "mediaStoreUrlTemplate": "http://192.168.1.10:17901/$mediaPath?k=12345",
-      "frameStoreTemplate": "http://192.168.1.10:17901/$size/$year/$month/$date/$hour/$min/$sec/$frame.gif?k=12345",
-      "discoveryIp": "192.168.1.10",
-      "discoveryPort": "5000"
+Useful for non-blanking instructions
+
+ * https://www.danpurdy.co.uk/web-development/raspberry-pi-kiosk-screen-tutorial/
+
+    edit /etc/xdg/lxsession/LXDE-pi/autostart
+
+    @xscreensaver -no-splash
+    @xset s off
+    @xset -dpms
+    @xset s noblank
+
+### change its name to "euromeme" by editing
+
+    /etc/hosts
+    /etc/hostname
+
+### install wpa supplicant if not already
+
+edit /etc/network/interfaces
+
+    auto lo
+    iface lo inet loopback
+    
+    auto eth0
+    allow-hotplug eth0
+    iface eth0 inet manual
+    
+    auto wlan0
+    allow-hotplug wlan0
+    iface wlan0 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+    
+    auto wlan1
+    allow-hotplug wlan1
+    iface wlan1 inet manual
+    wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+
+edit /etc/wpa_supplicant/wpa_supplicant.conf
+
+    network={
+      ssid="XXX"
+      psk="XXX"
     }
 
-    ./apps/tv-ui/static/config.json                                                    
+### add to /etc/rc.local
 
-    {
-     "relayURI": "ws://192.168.1.10:5100/relay",
-     "appId": "1234567890",
-     "msvName": "msvname",
-     "videoUrl": "http://192.168.1.10:17901/eurovision-2015.30.$size.mp4?k=12345",
-     "broadcastStartDate": "2015-05-23T20:00:00Z"
-    }
-
-
-### 15:47:24 euromeme-ui.1 | *** WARNING *** The program 'node' uses the Apple Bonjour compatibility layer of Avahi.
-
-don't worry about it
-
-
-### App on tablet won't connect
-
-- make double sure they're all on the same network
-- check that the tablet hasn't dropped the network (this happens occassionally)
-- check the network supports mdns and device to device communication
-- check the ip address is correct
-
-### App on tablet can't find the "TV"
-
-- it won't find it unless the TV video is actually playing
-
-
-
-
-
-
+if you like: `cd /home/pi/euromeme && /usr/local/bin/foreman start -f Procfile.development 2>&1 > euromeme.log &`
 
 

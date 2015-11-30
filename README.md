@@ -1,11 +1,13 @@
-
-# euromeme
+# EuroMeme
 Prototype from BBC to clip and share favourite Eurovision moments. Using a second screen application synced with the TV to make selecting and sharing Vine-like clips and images easier.
+
+See [INSTALL.md] and [RUNNING.md] for details.
+
+The details below are for those wanting to development work on it.
 
 # running
 `foreman start -f Procfile.development` starts everything, replacing the IP address in the config file with the urrent one.
 a sample rc.local file might contain `cd /home/pi/euromeme && /usr/local/bin/foreman start -f Procfile.development 2>&1 > euromeme.log &`
-
 
 ## Structure
 
